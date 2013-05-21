@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.1.276.DWD.OMEDES.1368635031785.2</identifier>
+  <sender>CAP@dwd.de</sender>
+  <sent>2013-05-15T16:23:00+00:00</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <source>OMEDES</source>
+  <scope>Public</scope>
+  <info>
+    <language>de-DE</language>
+    <category>Met</category>
+    <event>STARKEM GEWITTER</event>
+    <responseType>None</responseType>
+    <urgency>Immediate</urgency>
+    <severity>Severe</severity>
+    <certainty>Observed</certainty>
+    <eventCode>
+      <valueName>II</valueName>
+      <value>36</value>
+    </eventCode>
+    <effective>2013-05-15T16:23:00+00:00</effective>
+    <onset>2013-05-15T16:30:00+00:00</onset>
+    <expires>2013-05-15T18:00:00+00:00</expires>
+    <senderName>DWD / RZ Potsdam</senderName>
+    <headline>Amtliche WARNUNG vor STARKEM GEWITTER</headline>
+    <description>Von Süden her einzelne Gewitter, dabei Böen mit Geschwindigkeiten zwischen 55 und 75 km/h (15 und 21 m/s, Bft 7 und 8)
+sowie Starkregen mit Mengen zwischen 15 und 25 Liter pro Quadratmeter in kurzer Zeit möglich.</description>
+    <instruction>ACHTUNG! Hinweis auf mögliche Gefahren:
+Örtlich kann es Blitzschlag geben. Bei Blitzschlag besteht Lebensgefahr! Vereinzelt können beispielsweise Bäume entwurzelt und Dächer beschädigt werden. Achten Sie besonders auf herabstürzende Äste, Dachziegel oder Gegenstände. Während des Platzregens sind kurzzeitig Verkehrsbehinderungen möglich.</instruction>
+    <web>http://www.wettergefahren.de</web>
+    <contact>Deutscher Wetterdienst</contact>
+    <area>
+      <areaDesc>Kreis Ludwigslust-Parchim - West</areaDesc>
+      <geocode>
+        <valueName>CELLIDS</valueName>
+        <value>13061</value>
+      </geocode>
+      <geocode>
+        <valueName>LEVELTEXT</valueName>
+        <value></value>
+      </geocode>
+    </area>
+  </info>
+</alert>

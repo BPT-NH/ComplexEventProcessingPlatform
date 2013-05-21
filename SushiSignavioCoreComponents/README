@@ -1,0 +1,45 @@
+/*******************************************************************************
+ * Signavio Core Components
+ * Copyright (C) 2012  Signavio GmbH
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+ 
+Signavio Core Components
+******************************************************************************
+ 
+The Signavio Core Components offer a web-based editor for modeling business processes 
+in modeling languages like BPMN. The project contains an editor, a file-based backend
+and the Signavio Explorer UI for managing your process diagrams.
+
+
+Signavio
+********
+Signavio is a company providing professional tools for process modeling and analysis. 
+Signavio donates parts of their former commercial components, mostly in the direction 
+of an alternative model repository and explorer.
+
+The file-based backend maintained in this code repository allows an easy integration 
+with typical development environments.
+
+
+Activiti integration
+********************
+This project contains special build configurations for an integration with the process execution 
+engine Activiti. Activiti uses the BPMN 2.0 DI XML format that is automatically stored on your file
+system when modeling BPMN 2.0 diagrams.
+
+http://www.activiti.org/
+
+

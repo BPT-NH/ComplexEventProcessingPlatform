@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.1.276.DWD.OMEDES.1368666812210.2</identifier>
+  <sender>CAP@dwd.de</sender>
+  <sent>2013-05-16T01:13:00+00:00</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <source>OMEDES</source>
+  <scope>Public</scope>
+  <info>
+    <language>de-DE</language>
+    <category>Met</category>
+    <event>GEWITTER</event>
+    <responseType>None</responseType>
+    <urgency>Immediate</urgency>
+    <severity>Severe</severity>
+    <certainty>Observed</certainty>
+    <eventCode>
+      <valueName>II</valueName>
+      <value>31</value>
+    </eventCode>
+    <effective>2013-05-16T01:13:00+00:00</effective>
+    <onset>2013-05-16T01:13:00+00:00</onset>
+    <expires>2013-05-16T02:30:00+00:00</expires>
+    <senderName>DWD / RZ Potsdam</senderName>
+    <headline>Amtliche WARNUNG vor GEWITTER</headline>
+    <description>Es treten Gewitter aus Süden auf, dabei Windböen  bis 60 km/h (17 m/s, 33 kn, bft 7) aus Südost auf. Die Gewitter ziehen in Richtung Norden.</description>
+    <instruction>ACHTUNG! Hinweis auf mögliche Gefahren:
+Örtlich kann es Blitzschlag geben. Bei Blitzschlag besteht Lebensgefahr!</instruction>
+    <web>http://www.wettergefahren.de</web>
+    <contact>Deutscher Wetterdienst</contact>
+    <area>
+      <areaDesc>Kreis Ostprignitz-Ruppin,</areaDesc>
+      <geocode>
+        <valueName>CELLIDS</valueName>
+        <value>12068</value>
+      </geocode>
+      <geocode>
+        <valueName>LEVELTEXT</valueName>
+        <value></value>
+      </geocode>
+    </area>
+  </info>
+</alert>

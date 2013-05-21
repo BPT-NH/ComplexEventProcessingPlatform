@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.1.276.DWD.OMEDES.1368645947579.9</identifier>
+  <sender>CAP@dwd.de</sender>
+  <sent>2013-05-15T19:25:00+00:00</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <source>OMEDES</source>
+  <scope>Public</scope>
+  <info>
+    <language>de-DE</language>
+    <category>Met</category>
+    <event>STARKEM GEWITTER</event>
+    <responseType>None</responseType>
+    <urgency>Immediate</urgency>
+    <severity>Severe</severity>
+    <certainty>Observed</certainty>
+    <eventCode>
+      <valueName>II</valueName>
+      <value>38</value>
+    </eventCode>
+    <effective>2013-05-15T19:25:00+00:00</effective>
+    <onset>2013-05-15T19:25:00+00:00</onset>
+    <expires>2013-05-15T20:00:00+00:00</expires>
+    <senderName>DWD / RZ Hamburg</senderName>
+    <headline>Amtliche WARNUNG vor STARKEM GEWITTER</headline>
+    <description>AKTUALISIERUNG: Es treten weiterhin starke Gewitter aus Süd auf, dabei Sturmböen mit Geschwindigkeiten zwischen 65 und 85 km/h (Bft 8 bis 9) vorwiegend aus Süd sowie Starkregen mit Mengen zwischen 15 und 25 Liter pro Quadratmeter Stunde sowie kleinem Hagel. </description>
+    <instruction>ACHTUNG! Hinweis auf mögliche Gefahren:
+Örtlich kann es Blitzschlag geben. Bei Blitzschlag besteht Lebensgefahr! Vereinzelt können beispielsweise Bäume entwurzelt und Dächer beschädigt werden. Achten Sie besonders auf herabstürzende Äste, Dachziegel oder Gegenstände. Während des Platzregens sind kurzzeitig Verkehrsbehinderungen möglich.</instruction>
+    <web>http://www.wettergefahren.de</web>
+    <contact>Deutscher Wetterdienst</contact>
+    <area>
+      <areaDesc>Kreis Herzogtum Lauenburg</areaDesc>
+      <geocode>
+        <valueName>CELLIDS</valueName>
+        <value>01053</value>
+      </geocode>
+      <geocode>
+        <valueName>LEVELTEXT</valueName>
+        <value></value>
+      </geocode>
+    </area>
+  </info>
+</alert>

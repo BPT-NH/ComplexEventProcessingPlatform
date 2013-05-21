@@ -1,0 +1,31 @@
+/**************************************************************************************
+ * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
+ * http://esper.codehaus.org                                                          *
+ * http://www.espertech.com                                                           *
+ * ---------------------------------------------------------------------------------- *
+ * The software in this package is published under the terms of the GPL license       *
+ * a copy of which has been included with this distribution in the license.txt file.  *
+ **************************************************************************************/
+package com.espertech.esper.client.soda;
+
+import java.io.Serializable;
+import java.io.StringWriter;
+
+/**
+ * Marker interface used for fire-and-forget (on-demand) queries such as "update...set" and "delete from..."
+ * that can be executed via the API.
+ */
+public interface FireAndForgetClause extends Serializable
+{
+    /**
+     * Called to output information before the from-clause gets rendered.
+     * @param writer to write to
+     */
+    public void toEPLBeforeFrom(StringWriter writer);
+
+    /**
+     * Called to output information after the from-clause gets rendered.
+     * @param writer to write to
+     */
+    public void toEPLAfterFrom(StringWriter writer);
+}

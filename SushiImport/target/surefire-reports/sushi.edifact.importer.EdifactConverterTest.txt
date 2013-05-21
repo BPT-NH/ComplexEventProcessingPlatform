@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: sushi.edifact.importer.EdifactConverterTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.313 sec

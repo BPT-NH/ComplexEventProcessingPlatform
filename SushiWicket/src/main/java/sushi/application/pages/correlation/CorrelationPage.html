@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://git-wip-us.apache.org/repos/asf/wicket/repo?p=wicket.git;a=blob_plain;f=wicket-core/src/main/resources/META-INF/wicket-1.5.xsd;hb=master">
+	<head>
+		<title>Sushi: Event Correlation</title>
+	</head>
+	<body>
+		<wicket:extend>
+			<div wicket:id="warning"></div>
+			<div wicket:id="processEditorModal"></div>
+			<fieldset>	
+				<legend>Correlation</legend>		
+			</fieldset>
+				<table style="width:100%">
+					<tr>
+						<td>
+							<form wicket:id="layoutForm">
+								Process selection: <br/>
+								<select wicket:id="processSelect" />
+								<a wicket:id="showProcessEditModal" class="btn btn-primary">Edit process</a> <br/> 
+								Select relevant event types: <br/>
+								<p class="checkbox">
+									<span wicket:id="eventTypesCheckBoxMultipleChoice" />
+								</p>
+								<input wicket:id="applyButton" type="submit" value="Apply" class="btn btn-primary" /> 
+							</form>
+						</td>
+						<td>
+							<div wicket:id="collapsible" style="vertical-align:top;"></div>
+						</td>
+					</tr>
+				</table>
+		</wicket:extend>
+	</body>
+</html>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+	<persistence-unit name="sushi_development" transaction-type="RESOURCE_LOCAL">
+
+		<!-- comment out to use the default provider <provider>oracle.eclipselink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider> -->
+
+		<class>sushi.event.SushiEvent</class>
+		<class>sushi.event.SushiEventType</class>
+		<class>sushi.event.EventTypeRule</class>
+		<class>sushi.process.SushiProcess</class>
+		<class>sushi.process.SushiProcessInstance</class>
+		<class>sushi.correlation.TimeCondition</class>
+		<class>sushi.aggregation.SushiAggregationRule</class>
+		<class>sushi.aggregation.collection.SushiPatternTree</class>
+		<class>sushi.aggregation.element.EventTypeElement</class>
+		<class>sushi.aggregation.element.FilterExpressionConnectorElement</class>
+		<class>sushi.aggregation.element.FilterExpressionElement</class>
+		<class>sushi.aggregation.element.PatternOperatorElement</class>
+		<class>sushi.aggregation.element.RangeElement</class>
+		<class>sushi.query.SushiQuery</class>
+		<class>sushi.event.attribute.SushiAttribute</class>
+		<class>sushi.event.attribute.SushiAttributeTree</class>
+		<class>sushi.event.collection.SushiTree</class>
+		<class>sushi.event.collection.SushiTreeElement</class>
+		<class>sushi.event.collection.SushiMapTree</class>
+		<class>sushi.event.collection.SushiMapElement</class>
+		<class>sushi.bpmn.element.AbstractBPMNElement</class>
+		<class>sushi.bpmn.element.BPMNProcess</class>
+		<class>sushi.bpmn.element.BPMNAndGateway</class>
+		<class>sushi.bpmn.element.BPMNBoundaryEvent</class>
+		<class>sushi.bpmn.element.BPMNEndEvent</class>
+		<class>sushi.bpmn.element.BPMNIntermediateEvent</class>
+		<class>sushi.bpmn.element.BPMNSequenceFlow</class>
+		<class>sushi.bpmn.element.BPMNStartEvent</class>
+		<class>sushi.bpmn.element.BPMNSubProcess</class>
+		<class>sushi.bpmn.element.BPMNTask</class>
+		<class>sushi.bpmn.element.BPMNXORGateway</class>
+		<class>sushi.bpmn.monitoringpoint.MonitoringPoint</class>
+		<class>sushi.user.SushiUser</class>
+		<class>sushi.visualisation.SushiSimpleChartOptions</class>
+		<class>sushi.notification.SushiNotification</class>
+		<class>sushi.notification.SushiCondition</class>
+		<class>sushi.notification.SushiNotificationRule</class>
+		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpression</class>
+		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
+		
+		<properties>
+			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/sushi_development" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password" value="" />
+			<property name="eclipselink.ddl-generation" value="create-tables" />
+			<property name="eclipselink.ddl-generation.output-mode"
+				value="database" />
+		</properties>
+	</persistence-unit>
+	
+	<persistence-unit name="sushi_testing" transaction-type="RESOURCE_LOCAL">
+
+		<!-- comment out to use the default provider <provider>oracle.eclipselink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider> -->
+
+		<class>sushi.event.SushiEvent</class>
+		<class>sushi.event.SushiEventType</class>
+		<class>sushi.event.EventTypeRule</class>
+		<class>sushi.process.SushiProcess</class>
+		<class>sushi.process.SushiProcessInstance</class>
+		<class>sushi.correlation.TimeCondition</class>
+		<class>sushi.aggregation.SushiAggregationRule</class>
+		<class>sushi.aggregation.collection.SushiPatternTree</class>
+		<class>sushi.aggregation.element.EventTypeElement</class>
+		<class>sushi.aggregation.element.FilterExpressionConnectorElement</class>
+		<class>sushi.aggregation.element.FilterExpressionElement</class>
+		<class>sushi.aggregation.element.PatternOperatorElement</class>
+		<class>sushi.aggregation.element.RangeElement</class>
+		<class>sushi.query.SushiQuery</class>
+		<class>sushi.event.attribute.SushiAttribute</class>
+		<class>sushi.event.attribute.SushiAttributeTree</class>
+		<class>sushi.event.collection.SushiTree</class>
+		<class>sushi.event.collection.SushiTreeElement</class>
+		<class>sushi.event.collection.SushiMapTree</class>
+		<class>sushi.event.collection.SushiMapElement</class>
+		<class>sushi.bpmn.element.AbstractBPMNElement</class>
+		<class>sushi.bpmn.element.BPMNProcess</class>
+		<class>sushi.bpmn.element.BPMNAndGateway</class>
+		<class>sushi.bpmn.element.BPMNBoundaryEvent</class>
+		<class>sushi.bpmn.element.BPMNEndEvent</class>
+		<class>sushi.bpmn.element.BPMNIntermediateEvent</class>
+		<class>sushi.bpmn.element.BPMNSequenceFlow</class>
+		<class>sushi.bpmn.element.BPMNStartEvent</class>
+		<class>sushi.bpmn.element.BPMNSubProcess</class>
+		<class>sushi.bpmn.element.BPMNTask</class>
+		<class>sushi.bpmn.element.BPMNXORGateway</class>
+		<class>sushi.bpmn.monitoringpoint.MonitoringPoint</class>
+		<class>sushi.user.SushiUser</class>
+		<class>sushi.visualisation.SushiSimpleChartOptions</class>
+		<class>sushi.notification.SushiNotification</class>
+		<class>sushi.notification.SushiCondition</class>
+		<class>sushi.notification.SushiNotificationRule</class>
+		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpression</class>
+		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
+		
+		<properties>
+			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/sushi_testing" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password" value="" />
+			<property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
+			<property name="eclipselink.ddl-generation.output-mode"
+				value="database" />
+		</properties>
+	</persistence-unit>
+</persistence>

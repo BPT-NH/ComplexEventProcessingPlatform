@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: sushi.persistence.test.UserPersistenceTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.065 sec
