@@ -43,6 +43,7 @@ export MAVEN_OPTS=-Xmx512m
 mvn -f /home/platformaccount/sushi/SushiWebservice/pom.xml clean tomcat:undeploy
 mvn -f /home/platformaccount/sushi/SushiWebservice/pom.xml clean install tomcat:deploy
 ```
+  The Webservice should now be available on <tomcat uri>/SushiWebservice/services/XMLImportWebservice?wsdl.
 
 ### Usage
 You can upload on the WebUI different kinds of data. The platform supports XLS, CSV, XML(+XSD) and EDIFACT files. If you want to use your event logs you need to create an event type first. 
