@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Complexeventprocessingplatform : " />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Complexeventprocessingplatform</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/ThommyH/ComplexEventProcessingPlatform">View on GitHub</a>
+
+          <h1 id="project_title">Complexeventprocessingplatform</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/ThommyH/ComplexEventProcessingPlatform/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/ThommyH/ComplexEventProcessingPlatform/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>Welcome to Complex Event Processing Platform</h3>
+
+<p>This platform enables you to process complex events on the fly with the integrated event processing engine <a href="http://esper.codehaus.org/">Esper</a>. You can process and persist events from event logs from your company, enrich your BPMN models with monitoring points for easy analyzing of your company's workflow.</p>
+
+<h3>Requirements</h3>
+
+<p>You should have installed Maven 3.0.3 or newer, Java 1.7, mySQL server version 14 or newer and a tomcat server 7. Other setups had not be tested but may work. The project works for Windows 7, Debian and MacOSX 10.8. To run the platform Website you need the free port 8081.</p>
+
+<h3>Setup</h3>
+
+<ul>
+<li>install signavio core components as described <a href="https://code.google.com/p/signavio-core-components/">here</a>
+</li>
+<li>Create 2 databases on your mySQL server <em>sushi_development</em> and <em>sushi_testing</em>.</li>
+<li>Copy the file SushiCommon/src/main/resource/META_INF/persistence_template.xml to SushiCommon/src/main/resource/META_INF/persistence.xml and edit the connection information of your sql server. </li>
+</ul><pre><code>&lt;property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/[sushi_testing|sushi_development]" /&gt;
+&lt;property name="javax.persistence.jdbc.user" value="USERNAME" /&gt;
+&lt;property name="javax.persistence.jdbc.password" value="PASSWORD" /&gt;
+</code></pre>
+
+<ul>
+<li>Install the maven projects locally on your computer from the root folder with</li>
+</ul><pre><code>mvn -f jbpt/pom.xml clean install
+mvn -f jbpt/jbpt-core/pom.xml clean install
+mvn -f jbpt/jbpt-deco/pom.xml clean install
+mvn -f Esper/pom.xml clean install
+mvn -f SushiCommon/pom.xml clean install
+mvn -f SushiImport/pom.xml clean install
+mvn -f SushiEsper/pom.xml clean install
+mvn -f SushiSimulation/pom.xml clean install
+mvn -f SushiWicket/pom.xml clean install
+mvn -f SushiWebservice/pom.xml clean install
+</code></pre>
+
+<h3>Running</h3>
+
+<ul>
+<li>To run the platform <code>mvn -f SushiWicket/pom.xml jetty:run</code>. The WebUI should now be accessible under <a href="http://localhost:8081/SushiWicket">http://localhost:8081/SushiWicket</a>.</li>
+<li>To run the Webservice:</li>
+</ul><pre><code>export MAVEN_OPTS=-Xmx512m
+mvn -f /home/platformaccount/sushi/SushiWebservice/pom.xml clean tomcat:undeploy
+mvn -f /home/platformaccount/sushi/SushiWebservice/pom.xml clean install tomcat:deploy
+</code></pre>
+
+<h3>Usage</h3>
+
+<p>You can upload on the WebUI different kinds of data. The platform supports XLS, CSV, XML(+XSD) and edifact files. If you want to use your event logs you need to create an Eventtype first. 
+For XLS and CSV you can do this on the fly after uploading a XLS oder CSV or beforehand in the event repository tab. XML files need an Eventtype described by an XSD file. The XML Events have to refer to this XSD file in the header <em>xsi:noNamespaceSchemaLocation="URI_TO_XSD.xsd"</em>.
+For further explanation feel free do read the user manual.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Complexeventprocessingplatform maintained by <a href="https://github.com/ThommyH">ThommyH</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
