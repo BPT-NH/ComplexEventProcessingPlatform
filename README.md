@@ -52,7 +52,7 @@ For further explanation feel free do read the user manual.
 
 ### Extras
 If you are interested in Weather or Traffic Events in Germany, you can signup for the [TomTom API](http://developer.tomtom.com/) or [Deutscher Wetterdienst FTP](http://www.dwd.de/bvbw/appmanager/bvbw/dwdwwwDesktop?_nfpb=true&_pageLabel=dwdwww_spezielle_nutzer&_state=maximized&_windowLabel=T174800248261285831499722&T174800248261285831499722gsbDocumentPath=Navigation%252FOeffentlichkeit%252FHomepage%252FWetter__Ihre__Website%252Fftp-Zugriff__node.html%253F__nnn%253Dtrue) server.
-Then your can insert your credentials in the code (DWDImporter.java and TomTomTrafficImporter.java). For the moment both are coded to use the same areas for their queries. The SushiTrafficAdaper (user of TomTomAdapter) and SushiWeatherAdapter (user of DWDImporter) import trafficevents from the areas in Coordinates_DWD_Regions.xml. Edit it if you need other regions. 
+Then your can insert your credentials in the code (DWDImporter.java and TomTomTrafficImporter.java). For the moment both are coded to use the same areas for their queries. The SushiTrafficAdaper (user of TomTomAdapter) and SushiWeatherAdapter (user of DWDImporter) import trafficevents from the areas in Coordinates_DWD_Regions.xml. Edit this file and DWDImporter.java if you need other regions.
 
 ### Licence
 Licence GNU General Public License (GPL) (GPL v2) http://opensource.org/licenses/gpl-2.0.php
