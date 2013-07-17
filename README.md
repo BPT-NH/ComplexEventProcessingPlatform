@@ -6,7 +6,7 @@ This platform enables you to process complex events on the fly with the integrat
 
 ### Requirements
 You should have installed Maven 3.0.3 or newer, Java 1.7, MySQL server version 14 or newer and a Tomcat server 7. Other setups had not be tested but may work. The project works for Windows 7, Debian and MacOSX 10.8. To run the platform website you need the free port 8081 or you could change it in the source code.
-
+To run the project, you need also a modificated Version of Esper (http://esper.codehaus.org/) found [here](https://github.com/ThommyH/EventProcessingPlatformEsper).
 
 ### Setup
 * install signavio core components as described [here](https://code.google.com/p/signavio-core-components/)
@@ -55,4 +55,24 @@ If you are interested in Weather or Traffic Events in Germany, you can signup fo
 Then your can insert your credentials in the code (DWDImporter.java and TomTomTrafficImporter.java). For the moment both are coded to use the same areas for their queries. The SushiTrafficAdaper (user of TomTomAdapter) and SushiWeatherAdapter (user of DWDImporter) import trafficevents from the areas in Coordinates_DWD_Regions.xml. Edit this file and DWDImporter.java if you need other regions.
 
 ### Licence
-Licence GNU General Public License (GPL) (GPL v2) http://opensource.org/licenses/gpl-2.0.php
+MIT License (MIT)
+
+Copyright (c) 2013 Hasso Plattner Institute for Software Systems Engineering 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
