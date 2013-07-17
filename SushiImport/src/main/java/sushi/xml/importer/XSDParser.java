@@ -16,12 +16,19 @@ import sushi.event.attribute.SushiAttributeTree;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 
 /**
- * @author micha
- *
+ * This class parses XSD files, which describes the schema of XML files.
  */
 public class XSDParser extends AbstractXMLParser {
 	
 	private static SushiAttributeTree eventTree;
+	
+	/**
+	 * Creates a new {@link SushiEventType} with the given name from a XSD from the given file path.
+	 * @param filePath
+	 * @param eventTypeName
+	 * @return
+	 * @throws XMLParsingException
+	 */
 	public static SushiEventType generateEventTypeFromXSD(String filePath, String eventTypeName) throws XMLParsingException {
 		Document doc = readXMLDocument(filePath);
 		if (doc == null) {
@@ -30,7 +37,13 @@ public class XSDParser extends AbstractXMLParser {
 		return generateEventType(doc, eventTypeName);
 	}
 
-	private static SushiEventType generateEventType(Document doc, String schemaName) {
+	/**
+	 * Creates a new {@link SushiEventType} with the given name from a XSD from the given document.
+	 * @param doc
+	 * @param schemaName
+	 * @return
+	 */
+	public static SushiEventType generateEventType(Document doc, String schemaName) {
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		xpath.setNamespaceContext(new XSDNameSpaceContext());
 		// XPath Query for showing all nodes value
@@ -62,6 +75,13 @@ public class XSDParser extends AbstractXMLParser {
 		return new SushiEventType(schemaName, eventTree, null, schemaName);
 	}
 
+	/**
+	 * Creates a {@link SushiAttributeTree} for the given nodes.
+	 * @param actualRootElement
+	 * @param realRootElement
+	 * @param realRootAttribute
+	 * @return
+	 */
 	private static SushiAttributeTree addChildElementsFromElement(Node actualRootElement, Node realRootElement, SushiAttribute realRootAttribute) {
 		NodeList childNodeList = actualRootElement.getChildNodes();
 		for (int i = 0; i < childNodeList.getLength(); i++) {
@@ -88,7 +108,6 @@ public class XSDParser extends AbstractXMLParser {
 						}
 					}
 					SushiAttribute newAttribute;
-//					String attributeName = childNode.getAttributes().getNamedItem("name").getNodeValue().replace(":", "_");
 					String attributeName = childNode.getAttributes().getNamedItem("name").getNodeValue().trim().replaceAll(" +","_").replaceAll("[^a-zA-Z0-9_]+","");
 					if (realRootElement == null) {
 						newAttribute = new SushiAttribute(attributeName, attributeType);
@@ -102,20 +121,5 @@ public class XSDParser extends AbstractXMLParser {
 		}
 		return eventTree;
 	}
-	
-//	private static SushiImportEventType generateEventTypeFromElements(ArrayList<String> elementsOfRoot, String eventTypeName) {
-//		SushiImportEventType importedEventType = new SushiImportEventType(eventTypeName);
-//		for (String actualElement : elementsOfRoot) {
-//			if (TimeStampNames.contains(actualElement)) {
-//				importedEventType.setImportedTimestamp(true);
-//				importedEventType.setImportedTimestampName(actualElement);
-//				System.out.println("Event contains timestamp");
-//			} else {
-//				// default is String
-//				importedEventType.addValueType(new SushiAttribute(actualElement, SushiAttributeTypeEnum.STRING));
-//			}
-//		}
-//		return importedEventType;
-//	}
 	
 }

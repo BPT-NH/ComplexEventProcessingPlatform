@@ -3,7 +3,6 @@ package sushi.query.bpmn;
 import java.util.Set;
 
 import sushi.bpmn.decomposition.Component;
-import sushi.bpmn.decomposition.SushiRPSTTree;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.query.SushiPatternQuery;
 
@@ -14,8 +13,14 @@ import sushi.query.SushiPatternQuery;
  */
 public class PatternQueryFactory extends AbstractPatternQueryFactory {
 
-	public PatternQueryFactory(SushiRPSTTree sushiRPSTTree) {
-		super(sushiRPSTTree);
+	/**
+	 * Constructor to create queries with a query factory.
+	 * This query factory only delegates to a concrete query factory, 
+	 * which corresponds to the current elements pattern type.
+	 * @param patternQueryGenerator
+	 */
+	public PatternQueryFactory(PatternQueryGenerator patternQueryGenerator) {
+		super(patternQueryGenerator);
 	}
 	
 	@Override
@@ -30,20 +35,20 @@ public class PatternQueryFactory extends AbstractPatternQueryFactory {
 			if(component.hasMonitoringPointsWithEventType()){
 				switch(component.getType()){
 				case AND:
-					query = new AndQueryFactory(sushiRPSTTree).generateQuery(component, catchingMonitorableElement, parentQuery);
+					query = new AndQueryFactory(patternQueryGenerator).generateQuery(component, catchingMonitorableElement, parentQuery);
 					break;
 				case LOOP:
-					query = new LoopQueryFactory(sushiRPSTTree).generateQuery(component, catchingMonitorableElement, parentQuery);
+					query = new LoopQueryFactory(patternQueryGenerator).generateQuery(component, catchingMonitorableElement, parentQuery);
 					break;
 				case SEQUENCE:
-					query = new SequenceQueryFactory(sushiRPSTTree).generateQuery(component, catchingMonitorableElement, parentQuery);
+					query = new SequenceQueryFactory(patternQueryGenerator).generateQuery(component, catchingMonitorableElement, parentQuery);
 					break;
 				case XOR:
-					query = new OrQueryFactory(sushiRPSTTree).generateQuery(component, catchingMonitorableElement, parentQuery);
+					query = new OrQueryFactory(patternQueryGenerator).generateQuery(component, catchingMonitorableElement, parentQuery);
 					break;
 				case SUBPROCESS:
 					//TODO: Kann SubProcess noch ein externes Catching-Event haben?
-					query = new SubProcessQueryFactory(sushiRPSTTree).generateQuery(component, catchingMonitorableElement, parentQuery);
+					query = new SubProcessQueryFactory(patternQueryGenerator).generateQuery(component, catchingMonitorableElement, parentQuery);
 					break;
 				default:
 					throw new RuntimeException("No supported pattern!");

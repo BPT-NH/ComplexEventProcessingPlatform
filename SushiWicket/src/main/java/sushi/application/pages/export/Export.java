@@ -30,8 +30,14 @@ import sushi.csv.importer.CSVExporter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 
+/**
+ * This class is a page to export {@link SushiEvent}s as CSV files.
+ * It is possible to specify, which events should be exported with a filter.
+ * @author micha
+ */
 public class Export extends AbstractSushiPage {
 	
+	private static final long serialVersionUID = 1L;
 	private String selectedEventTypeName;
 	private SushiEventType selectedEventType;
 	private Form<Void> layoutForm;
@@ -41,6 +47,10 @@ public class Export extends AbstractSushiPage {
 	private DefaultDataTable<SushiEvent, String> dataTable;
 	private EventProvider eventProvider;
 
+	/**
+	 * Constructor for a page to export {@link SushiEvent}s as CSV files.
+	 * It is possible to specify, which events should be exported with a filter.
+	 */
 	public Export() {
 		super();
 		
@@ -86,7 +96,7 @@ public class Export extends AbstractSushiPage {
 			@Override
 			public void onSubmit() {
 				CSVExporter csvExporter = new CSVExporter();
-				List<SushiEvent> events = (eventProvider.getSelectedEvents().isEmpty()) ? eventProvider.getEvents() : eventProvider.getSelectedEvents(); 
+				List<SushiEvent> events = (eventProvider.getSelectedEntities().isEmpty()) ? eventProvider.getEntities() : eventProvider.getSelectedEntities(); 
 				File csv = csvExporter.generateExportFile(selectedEventType, events);
 				
 				IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(csv)); // Use whatever file you need here
@@ -99,6 +109,7 @@ public class Export extends AbstractSushiPage {
 	    layoutForm.add(filterButton);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void addEventTable() {
 		columns = new ArrayList<IColumn<SushiEvent, String>>();
 		columns.add(new PropertyColumn<SushiEvent, String>(Model.of("ID"), "ID"));
@@ -108,6 +119,8 @@ public class Export extends AbstractSushiPage {
 		columns.add(new PropertyColumn<SushiEvent, String>(Model.of("Process Instances"), "processInstances"));
 		
 		columns.add(new AbstractColumn<SushiEvent, String>(new Model("Select")) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				int entryId = ((SushiEvent) rowModel.getObject()).getID();

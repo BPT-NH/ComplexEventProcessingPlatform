@@ -1,63 +1,39 @@
 package sushi.application.pages.eventrepository.model;
 
-import java.io.Serializable;
-
+import sushi.application.pages.eventrepository.BPMNProcessPanel;
 import sushi.bpmn.element.BPMNProcess;
 
-public class BPMNProcessFilter implements Serializable {
+/**
+ * This class filters {@link BPMNProcess} in the {@link BPMNProcessPanel}.
+ * @author micha
+ */
+public class BPMNProcessFilter extends AbstractFilter {
 	
-	String filterValue;
-	String processFilterCriteria;
-	String processFilterCondition;
+	private static final long serialVersionUID = 1L;
 	
 	public BPMNProcessFilter(){
-
+		super();
 	}
 	
+	/**
+	 * Constructor for the class, which filters {@link BPMNProcess} in the {@link BPMNProcessPanel}.
+	 * @param processFilterCriteria
+	 * @param processFilterCondition
+	 * @param filterValue
+	 */
 	public BPMNProcessFilter(String processFilterCriteria, String processFilterCondition, String filterValue){
-		this.processFilterCondition = processFilterCondition;
-		this.processFilterCriteria = processFilterCriteria;
-		this.filterValue = filterValue;
+		super(processFilterCriteria, processFilterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getBPMNProcessFilterCriteria() {
-		return processFilterCriteria;
-	}
-
-
-	public void setBPMNProcessFilterCriteria(String processFilterCriteria) {
-		this.processFilterCriteria = processFilterCriteria;
-	}
-
-
-	public String getBPMNProcessFilterCondition() {
-		return processFilterCondition;
-	}
-
-
-	public void setBPMNProcessFilterCondition(String processFilterCondition) {
-		this.processFilterCondition = processFilterCondition;
-	}
-
 
 	public boolean match(BPMNProcess process) {
-		if(processFilterCriteria == null || processFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(processFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(processFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(process.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(process.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(process.getID() == Integer.parseInt(filterValue)) return true;
@@ -66,7 +42,7 @@ public class BPMNProcessFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(processFilterCriteria.equals("Name")){
+		} else if(filterCriteria.equals("Name")){
 			return (process.getName().equals(filterValue));
 		} 
 		return false;

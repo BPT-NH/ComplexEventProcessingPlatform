@@ -23,6 +23,10 @@ import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.event.collection.SushiMapTree;
 import sushi.persistence.Persistor;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiEvent}.
+ * @author micha
+ */
 @FixMethodOrder(MethodSorters.JVM)
 public class EventPersistenceTest implements PersistenceTest {
 	

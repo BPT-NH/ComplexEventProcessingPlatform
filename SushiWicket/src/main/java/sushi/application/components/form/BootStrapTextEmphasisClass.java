@@ -1,5 +1,9 @@
 package sushi.application.components.form;
 
+/**
+ * The enum provides text emphasis classes for Bootstrap.
+ * @author micha
+ */
 public enum BootStrapTextEmphasisClass {
 	
 	Muted("muted"), Warning("text-warning"), Error("text-error"),Info("text-info"),Success("text-success");

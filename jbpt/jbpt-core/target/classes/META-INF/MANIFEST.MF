@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1372160237790
+Build-Jdk: 1.7.0_10-ea
+Built-By: thomahi
+Bundle-ManifestVersion: 2
+Bundle-Name: Business Process Technologies 4 Java - Core Module
+Bundle-SymbolicName: org.jbpt.core
+Bundle-Version: 0.2.314
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.jbpt.algo;version="0.2.314",org.jbpt.algo.graph;uses
+ :="org.jbpt.hypergraph.abs,org.jbpt.graph.abs,org.jbpt.graph,org.jbpt.a
+ lgo,org.jbpt.alignment";version="0.2.314",org.jbpt.algo.tree;uses:="org
+ .jbpt.hypergraph.abs,org.jbpt.graph.abs";version="0.2.314",org.jbpt.ali
+ gnment;uses:="org.jbpt.hypergraph.abs";version="0.2.314",org.jbpt.graph
+ ;uses:="org.jbpt.hypergraph.abs,org.jbpt.graph.abs";version="0.2.314",o
+ rg.jbpt.graph.abs;uses:="org.jbpt.hypergraph.abs,org.jbpt.utils";versio
+ n="0.2.314",org.jbpt.hypergraph;uses:="org.jbpt.hypergraph.abs";version
+ ="0.2.314",org.jbpt.hypergraph.abs;version="0.2.314",org.jbpt.throwable
+ ;version="0.2.314",org.jbpt.utils;uses:="org.jbpt.graph.abs,org.jbpt.hy
+ pergraph.abs,javax.xml.transform,javax.xml.transform.stream,javax.xml.p
+ arsers,javax.xml.transform.dom,org.w3c.dom,org.xml.sax";version="0.2.31
+ 4"
+Import-Package: javax.xml.parsers,javax.xml.transform,javax.xml.transfor
+ m.dom,javax.xml.transform.stream,org.w3c.dom,org.xml.sax
+Tool: Bnd-1.50.0

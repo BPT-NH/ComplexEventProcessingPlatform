@@ -9,10 +9,13 @@ import org.junit.Test;
 
 import sushi.event.SushiEventType;
 import sushi.notification.SushiNotificationPriorityEnum;
-import sushi.notification.SushiNotificationRule;
+import sushi.notification.SushiNotificationRuleForEvent;
 import sushi.persistence.Persistor;
 import sushi.user.SushiUser;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiNotificationRule}.
+ */
 public class NotificationRulePersistenceTest implements PersistenceTest {
 
 	private SushiEventType type1;
@@ -30,22 +33,23 @@ public class NotificationRulePersistenceTest implements PersistenceTest {
 	@Override
 	public void testStoreAndRetrieve() {
 		storeExampleNotificationRules();
-		assertTrue("Value should be 2, but was " + SushiNotificationRule.findAll().size(), SushiNotificationRule.findAll().size()==2);
-		SushiNotificationRule.removeAll();
-		assertTrue("Value should be 0, but was " + SushiNotificationRule.findAll().size(), SushiNotificationRule.findAll().size()==0);
+		assertTrue("Value should be 2, but was " + SushiNotificationRuleForEvent.findAll().size(), SushiNotificationRuleForEvent.findAll().size()==2);
+		SushiNotificationRuleForEvent.removeAll();
+		assertTrue("Value should be 0, but was " + SushiNotificationRuleForEvent.findAll().size(), SushiNotificationRuleForEvent.findAll().size()==0);
 	}
 
 	@Test
 	@Override
 	public void testFind() {
 		storeExampleNotificationRules();
-		assertTrue(SushiNotificationRule.findAll().size() == 2);
+		assertTrue(SushiNotificationRuleForEvent.findAll().size() == 2);
 		
-		assertTrue(SushiNotificationRule.findByEventType(type1).size() == 1);
-		assertTrue(SushiNotificationRule.findByEventType(type1).get(0).getUser().getMail().equals(michaMail));
+		assertTrue(SushiNotificationRuleForEvent.findByEventType(type1).size() == 1);
+		assertTrue(SushiNotificationRuleForEvent.findByEventType(type1).get(0).getUser().getMail().equals(michaMail));
 		
-		assertTrue(SushiNotificationRule.findByUser(user1).size() == 1);
-		assertTrue(SushiNotificationRule.findByUser(user1).get(0).getEventType().getID() == type1.getID());
+		assertTrue(SushiNotificationRuleForEvent.findByUser(user1).size() == 1);
+		assertTrue(SushiNotificationRuleForEvent.findByUser(user1).get(0).getTriggeringEntity() instanceof SushiEventType);
+		assertTrue(SushiNotificationRuleForEvent.findByUser(user1).get(0).getTriggeringEntity().getID() == type1.getID());
 
 	}
 
@@ -53,14 +57,14 @@ public class NotificationRulePersistenceTest implements PersistenceTest {
 	@Override
 	public void testRemove() {
 		storeExampleNotificationRules();
-		List<SushiNotificationRule> notificitations;
-		notificitations = SushiNotificationRule.findAll();
+		List<SushiNotificationRuleForEvent> notificitations;
+		notificitations = SushiNotificationRuleForEvent.findAllEventNotificationRules();
 		assertTrue(notificitations.size() == 2);
 
-		SushiNotificationRule deletedNotification = notificitations.get(0);
+		SushiNotificationRuleForEvent deletedNotification = notificitations.get(0);
 		deletedNotification.remove();
 
-		notificitations = SushiNotificationRule.findAll();
+		notificitations = SushiNotificationRuleForEvent.findAllEventNotificationRules();
 		assertTrue(notificitations.size() == 1);
 		
 		assertTrue(notificitations.get(0).getID() != deletedNotification.getID());
@@ -69,10 +73,10 @@ public class NotificationRulePersistenceTest implements PersistenceTest {
 	@Test
 	public void testRemoveEventTypeWithNotificationRule() {
 		storeExampleNotificationRules();
-		List<SushiNotificationRule> notificitations = SushiNotificationRule.findAll();
+		List<SushiNotificationRuleForEvent> notificitations = SushiNotificationRuleForEvent.findAllEventNotificationRules();
 		assertTrue(notificitations.size() == 2);
 
-		SushiNotificationRule deletedNotification = notificitations.get(0);
+		SushiNotificationRuleForEvent deletedNotification = notificitations.get(0);
 		SushiUser user = deletedNotification.getUser();
 		user.remove();
 
@@ -81,7 +85,7 @@ public class NotificationRulePersistenceTest implements PersistenceTest {
 		assertTrue(users.get(0).getID() != user.getID());
 		
 		//notification was deleted as well
-		notificitations = SushiNotificationRule.findAll();
+		notificitations = SushiNotificationRuleForEvent.findAllEventNotificationRules();
 		assertTrue(notificitations.size() == 1);
 		assertTrue(notificitations.get(0).getID() != deletedNotification.getID());
 	}
@@ -92,14 +96,14 @@ public class NotificationRulePersistenceTest implements PersistenceTest {
 		user1.save();
 		type1 = new SushiEventType("ToNotify");
 		type1.save();
-		SushiNotificationRule notification1 = new SushiNotificationRule(type1, user1, SushiNotificationPriorityEnum.LOW);
+		SushiNotificationRuleForEvent notification1 = new SushiNotificationRuleForEvent(type1, user1, SushiNotificationPriorityEnum.LOW);
 		notification1.save();
 		
 		user2 = new SushiUser("Tsun", "Tsun1234", "tsun@mail.de");
 		user2.save();
 		type2 = new SushiEventType("ToNotify2");
 		type2.save();
-		SushiNotificationRule notification2 = new SushiNotificationRule(type2, user2, SushiNotificationPriorityEnum.LOW);
+		SushiNotificationRuleForEvent notification2 = new SushiNotificationRuleForEvent(type2, user2, SushiNotificationPriorityEnum.LOW);
 		notification2.save();
 
 		

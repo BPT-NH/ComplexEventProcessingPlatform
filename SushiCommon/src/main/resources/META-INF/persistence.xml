@@ -11,15 +11,11 @@
 		<class>sushi.event.EventTypeRule</class>
 		<class>sushi.process.SushiProcess</class>
 		<class>sushi.process.SushiProcessInstance</class>
+		<class>sushi.correlation.CorrelationRule</class>
 		<class>sushi.correlation.TimeCondition</class>
-		<class>sushi.aggregation.SushiAggregationRule</class>
-		<class>sushi.aggregation.collection.SushiPatternTree</class>
-		<class>sushi.aggregation.element.EventTypeElement</class>
-		<class>sushi.aggregation.element.FilterExpressionConnectorElement</class>
-		<class>sushi.aggregation.element.FilterExpressionElement</class>
-		<class>sushi.aggregation.element.PatternOperatorElement</class>
-		<class>sushi.aggregation.element.RangeElement</class>
 		<class>sushi.query.SushiQuery</class>
+		<class>sushi.notification.SushiNotificationForQuery</class>
+		<class>sushi.notification.SushiNotificationRuleForQuery</class>		
 		<class>sushi.event.attribute.SushiAttribute</class>
 		<class>sushi.event.attribute.SushiAttributeTree</class>
 		<class>sushi.event.collection.SushiTree</class>
@@ -27,10 +23,12 @@
 		<class>sushi.event.collection.SushiMapTree</class>
 		<class>sushi.event.collection.SushiMapElement</class>
 		<class>sushi.bpmn.element.AbstractBPMNElement</class>
-		<class>sushi.bpmn.element.BPMNProcess</class>
 		<class>sushi.bpmn.element.BPMNAndGateway</class>
 		<class>sushi.bpmn.element.BPMNBoundaryEvent</class>
 		<class>sushi.bpmn.element.BPMNEndEvent</class>
+		<class>sushi.bpmn.element.BPMNEventBasedGateway</class>
+		<class>sushi.bpmn.element.BPMNIntermediateEvent</class>
+		<class>sushi.bpmn.element.BPMNProcess</class>
 		<class>sushi.bpmn.element.BPMNSequenceFlow</class>
 		<class>sushi.bpmn.element.BPMNStartEvent</class>
 		<class>sushi.bpmn.element.BPMNSubProcess</class>
@@ -38,13 +36,24 @@
 		<class>sushi.bpmn.element.BPMNXORGateway</class>
 		<class>sushi.bpmn.monitoringpoint.MonitoringPoint</class>
 		<class>sushi.user.SushiUser</class>
-		<class>sushi.visualisation.SushiSimpleChartOptions</class>
+		<class>sushi.visualisation.SushiChartConfiguration</class>
+		<class>sushi.visualisation.SushiEventView</class>
 		<class>sushi.notification.SushiNotification</class>
+		<class>sushi.notification.SushiNotificationForEvent</class>
 		<class>sushi.notification.SushiCondition</class>
 		<class>sushi.notification.SushiNotificationRule</class>
-		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpression</class>
-		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
-		
+		<class>sushi.notification.SushiNotificationRuleForEvent</class>
+		<class>sushi.transformation.TransformationRule</class>
+		<class>sushi.transformation.collection.SushiPatternTree</class>
+		<class>sushi.transformation.element.EventTypeElement</class>
+		<class>sushi.transformation.element.FilterExpressionConnectorElement</class>
+		<class>sushi.transformation.element.FilterExpressionElement</class>
+		<class>sushi.transformation.element.PatternOperatorElement</class>
+		<class>sushi.transformation.element.RangeElement</class>
+		<class>sushi.transformation.element.externalknowledge.ExternalKnowledgeExpression</class>
+		<class>sushi.transformation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
+		<class>sushi.monitoring.QueryMonitoringPoint</class>
+				
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/sushi_development" />
@@ -65,15 +74,11 @@
 		<class>sushi.event.EventTypeRule</class>
 		<class>sushi.process.SushiProcess</class>
 		<class>sushi.process.SushiProcessInstance</class>
+		<class>sushi.correlation.CorrelationRule</class>
 		<class>sushi.correlation.TimeCondition</class>
-		<class>sushi.aggregation.SushiAggregationRule</class>
-		<class>sushi.aggregation.collection.SushiPatternTree</class>
-		<class>sushi.aggregation.element.EventTypeElement</class>
-		<class>sushi.aggregation.element.FilterExpressionConnectorElement</class>
-		<class>sushi.aggregation.element.FilterExpressionElement</class>
-		<class>sushi.aggregation.element.PatternOperatorElement</class>
-		<class>sushi.aggregation.element.RangeElement</class>
 		<class>sushi.query.SushiQuery</class>
+		<class>sushi.notification.SushiNotificationForQuery</class>
+		<class>sushi.notification.SushiNotificationRuleForQuery</class>		
 		<class>sushi.event.attribute.SushiAttribute</class>
 		<class>sushi.event.attribute.SushiAttributeTree</class>
 		<class>sushi.event.collection.SushiTree</class>
@@ -81,10 +86,12 @@
 		<class>sushi.event.collection.SushiMapTree</class>
 		<class>sushi.event.collection.SushiMapElement</class>
 		<class>sushi.bpmn.element.AbstractBPMNElement</class>
-		<class>sushi.bpmn.element.BPMNProcess</class>
 		<class>sushi.bpmn.element.BPMNAndGateway</class>
 		<class>sushi.bpmn.element.BPMNBoundaryEvent</class>
 		<class>sushi.bpmn.element.BPMNEndEvent</class>
+		<class>sushi.bpmn.element.BPMNEventBasedGateway</class>
+		<class>sushi.bpmn.element.BPMNIntermediateEvent</class>
+		<class>sushi.bpmn.element.BPMNProcess</class>
 		<class>sushi.bpmn.element.BPMNSequenceFlow</class>
 		<class>sushi.bpmn.element.BPMNStartEvent</class>
 		<class>sushi.bpmn.element.BPMNSubProcess</class>
@@ -92,12 +99,23 @@
 		<class>sushi.bpmn.element.BPMNXORGateway</class>
 		<class>sushi.bpmn.monitoringpoint.MonitoringPoint</class>
 		<class>sushi.user.SushiUser</class>
-		<class>sushi.visualisation.SushiSimpleChartOptions</class>
+		<class>sushi.visualisation.SushiChartConfiguration</class>
+		<class>sushi.visualisation.SushiEventView</class>
 		<class>sushi.notification.SushiNotification</class>
+		<class>sushi.notification.SushiNotificationForEvent</class>
 		<class>sushi.notification.SushiCondition</class>
 		<class>sushi.notification.SushiNotificationRule</class>
-		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpression</class>
-		<class>sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
+		<class>sushi.notification.SushiNotificationRuleForEvent</class>
+		<class>sushi.transformation.TransformationRule</class>
+		<class>sushi.transformation.collection.SushiPatternTree</class>
+		<class>sushi.transformation.element.EventTypeElement</class>
+		<class>sushi.transformation.element.FilterExpressionConnectorElement</class>
+		<class>sushi.transformation.element.FilterExpressionElement</class>
+		<class>sushi.transformation.element.PatternOperatorElement</class>
+		<class>sushi.transformation.element.RangeElement</class>
+		<class>sushi.transformation.element.externalknowledge.ExternalKnowledgeExpression</class>
+		<class>sushi.transformation.element.externalknowledge.ExternalKnowledgeExpressionSet</class>
+		<class>sushi.monitoring.QueryMonitoringPoint</class>
 		
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />

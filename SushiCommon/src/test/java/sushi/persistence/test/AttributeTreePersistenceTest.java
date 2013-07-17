@@ -2,19 +2,17 @@ package sushi.persistence.test;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import sushi.event.SushiEvent;
-import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTree;
 import sushi.event.attribute.SushiAttributeTypeEnum;
-import sushi.event.collection.SushiTree;
 import sushi.persistence.Persistor;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiAttributeTree}.
+ */
 public class AttributeTreePersistenceTest implements PersistenceTest {
 	
 	private SushiAttributeTree testTree;

@@ -23,6 +23,10 @@ import sushi.persistence.Persistor;
 import sushi.process.SushiProcess;
 import sushi.process.SushiProcessInstance;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiProcessInstance}.
+ * @author micha
+ */
 public class ProcessInstancePersistorTest implements PersistenceTest {
 	
 	private SushiEvent michaEvent;

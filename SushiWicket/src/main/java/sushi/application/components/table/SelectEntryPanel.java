@@ -9,10 +9,22 @@ import org.apache.wicket.model.Model;
 
 import sushi.application.components.table.model.AbstractDataProvider;
 
+/**
+ * This class renders a checkbox inside of a form.
+ * The checkbox informs the given {@link AbstractDataProvider} about ajax state changes.
+ * @author micha
+ */
 public class SelectEntryPanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructor for a checkbox inside of a form.
+	 * The checkbox informs the given {@link AbstractDataProvider} about ajax state changes.
+	 * @param id
+	 * @param entryId
+	 * @param dataProvider
+	 */
 	public SelectEntryPanel(String id, final int entryId, final AbstractDataProvider dataProvider) {
 		super(id);
 		Form<Void> form = new Form<Void>("form");

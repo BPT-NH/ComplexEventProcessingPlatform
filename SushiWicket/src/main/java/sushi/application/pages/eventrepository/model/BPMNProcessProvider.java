@@ -16,6 +16,11 @@ import org.apache.wicket.model.Model;
 import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.bpmn.element.BPMNProcess;
 
+/**
+ * This class is the provider for {@link BPMNProcess}es.
+ * A filter can be specified to return only some BPMN processes.
+ * @author micha
+ */
 @SuppressWarnings("serial")
 public class BPMNProcessProvider extends AbstractDataProvider implements ISortableDataProvider<BPMNProcess, String>, IFilterStateLocator {
 	
@@ -24,6 +29,9 @@ public class BPMNProcessProvider extends AbstractDataProvider implements ISortab
 	private BPMNProcessFilter processFilter = new BPMNProcessFilter();
 	private List<BPMNProcess> selectedProcesses;
 	
+	/**
+	 * Constructor for providing {@link BPMNProcess}es.
+	 */
 	public BPMNProcessProvider() {
 		processes = filterBPMNProcesses(BPMNProcess.findAll(), processFilter);
 		selectedProcesses = new ArrayList<BPMNProcess>();

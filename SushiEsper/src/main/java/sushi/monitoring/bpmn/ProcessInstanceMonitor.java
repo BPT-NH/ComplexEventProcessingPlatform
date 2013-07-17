@@ -2,11 +2,14 @@ package sushi.monitoring.bpmn;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import sushi.bpmn.element.AbstractBPMNElement;
+import sushi.event.collection.SushiTree;
 import sushi.process.SushiProcessInstance;
 import sushi.query.PatternQueryType;
 import sushi.query.SushiPatternQuery;
@@ -24,11 +27,13 @@ public class ProcessInstanceMonitor implements Serializable {
 	private ProcessInstanceStatus status;
 	private Date startTime;
 	private Date endTime;
+	private ViolationMonitor violationMonitor;
 	
 	public ProcessInstanceMonitor(SushiProcessInstance processInstance){
 		this.processInstance = processInstance;
 		this.ID = processInstance.getID();
 		this.queryMonitors = new ArrayList<QueryMonitor>();
+		this.violationMonitor = new ViolationMonitor(this);
 		refreshStatus();
 	}
 	
@@ -47,11 +52,6 @@ public class ProcessInstanceMonitor implements Serializable {
 		return processInstance;
 	}
 
-	public void setProcessInstance(SushiProcessInstance processInstance) {
-		this.processInstance = processInstance;
-		refreshStatus();
-	}
-
 	public void setQueryFinished(SushiPatternQuery query) {
 		if(findQueryMonitorByQuery(query) != null){
 			findQueryMonitorByQuery(query).setQueryStatus(QueryStatus.Finished);
@@ -67,12 +67,20 @@ public class ProcessInstanceMonitor implements Serializable {
 	}
 
 	public ProcessInstanceStatus getStatus() {
-		return refreshStatus();
+		return status;
+	}
+	
+	public void setStatus(ProcessInstanceStatus processInstanceStatus) {
+		this.status = processInstanceStatus;
 	}
 
 	private boolean allQueriesTerminated() {
+		int executionCount = 0;
+		if(!queryMonitors.isEmpty()){
+			executionCount = queryMonitors.get(0).getExecutionCount();
+		}
 		for(QueryMonitor queryMonitor : queryMonitors){
-			if(queryMonitor.getQueryStatus() == QueryStatus.Started){
+			if(queryMonitor.isRunning() && queryMonitor.getExecutionCount() == executionCount){
 				return false;
 			}
 		}
@@ -85,7 +93,7 @@ public class ProcessInstanceMonitor implements Serializable {
 		if(processInstance == null){
 			this.status = ProcessInstanceStatus.NotExisting;
 		} else {
-			searchForStoppableQueries();
+			adaptQueryStatus();
 			if(allQueriesTerminated()){
 				this.status = ProcessInstanceStatus.Finished;
 			} else {
@@ -96,15 +104,54 @@ public class ProcessInstanceMonitor implements Serializable {
 	}
 
 	/**
-	 * Searches for queries for the given process instance, that could be set skipped or finished.
+	 * Searches for queries for the given process instance, that could be set started, skipped or finished.
 	 */
-	private void searchForStoppableQueries() {
+	private void adaptQueryStatus() {
 		for(SushiPatternQuery query : getQueriesWithStatus(QueryStatus.Finished)){
 			//XORQuery finished, SubQueries mit Running auf Skipped setzten  
 			if(query.getPatternQueryType().equals(PatternQueryType.XOR)){
 				skipStartedSubQueries(query);
 			}
 		}
+		
+		violationMonitor.searchForViolations();
+	}
+	
+	private QueryMonitor getRootQueryMonitor(){
+		for(QueryMonitor queryMonitor : queryMonitors){
+			if(queryMonitor.getQuery().getParentQuery() == null){
+				return queryMonitor;
+			}
+		}
+		return null;
+	}
+
+	List<QueryMonitor> getSubQueryMonitors(QueryMonitor queryMonitor) {
+		Set<SushiPatternQuery> childQueries = queryMonitor.getQuery().getChildQueries();
+		List<QueryMonitor> subQueryMonitors = new ArrayList<QueryMonitor>();
+		for(SushiPatternQuery childQuery : childQueries){
+			subQueryMonitors.add(getQueryMonitorForQuery(childQuery));
+		}
+		return subQueryMonitors;
+	}
+
+	QueryMonitor getQueryMonitorForQuery(SushiPatternQuery query) {
+		for(QueryMonitor queryMonitor : queryMonitors){
+			if(queryMonitor.getQuery().equals(query)){
+				return queryMonitor;
+			}
+		}
+		return null;
+	}
+	
+	public List<QueryMonitor> getQueryMonitorsWithStatus(QueryStatus status) {
+		List<QueryMonitor> queryMonitorsWithStatus = new ArrayList<QueryMonitor>();
+		for(QueryMonitor queryMonitor : queryMonitors){
+			if(queryMonitor.getQueryStatus().equals(status)){
+				queryMonitorsWithStatus.add(queryMonitor);
+			}
+		}
+		return queryMonitorsWithStatus;
 	}
 
 	/**
@@ -154,11 +201,50 @@ public class ProcessInstanceMonitor implements Serializable {
 		return queries;
 	}
 	
+	/**
+	 * Returns all {@link QueryMonitor}, which have the specified {@link PatternQueryType}.
+	 * @param queryStatus
+	 * @return
+	 */
+	public Set<QueryMonitor> getQueryMonitorsWithQueryType(PatternQueryType patternQueryType) {
+		Set<QueryMonitor> queryMonitorsWithPatternQueryType = new HashSet<QueryMonitor>();
+		for(QueryMonitor queryMonitor : this.queryMonitors){
+			if(queryMonitor.getQuery().getPatternQueryType().equals(patternQueryType)){
+				queryMonitorsWithPatternQueryType.add(queryMonitor);
+			}
+		}
+		return queryMonitorsWithPatternQueryType;
+	}
+	
+	/**
+	 * Returns all {@link QueryMonitor}, which have the specified monitored {@link AbstractBPMNElement}.
+	 * @param queryStatus
+	 * @return
+	 */
+	public Set<QueryMonitor> getQueryMonitorsWithMonitoredElements(Collection<AbstractBPMNElement> monitoredElements) {
+		Set<QueryMonitor> queryMonitorsWithMonitoredElements = new HashSet<QueryMonitor>();
+		for(QueryMonitor queryMonitor : this.queryMonitors){
+			List<AbstractBPMNElement> queryMonitoredElements = queryMonitor.getQuery().getMonitoredElements();
+			if(queryMonitoredElements.containsAll(monitoredElements) && monitoredElements.containsAll(queryMonitoredElements)){
+				queryMonitorsWithMonitoredElements.add(queryMonitor);
+			}
+		}
+		return queryMonitorsWithMonitoredElements;
+	}
+	
 	public QueryStatus getStatusForQuery(SushiPatternQuery query){
 		if(findQueryMonitorByQuery(query) != null){
 			return findQueryMonitorByQuery(query).getQueryStatus();
 		} else {
 			return QueryStatus.NotExisting;
+		}
+	}
+	
+	public Set<ViolationStatus> getViolationStatusForQuery(SushiPatternQuery query){
+		if(findQueryMonitorByQuery(query) != null){
+			return findQueryMonitorByQuery(query).getViolationStatus();
+		} else {
+			return null;
 		}
 	}
 	
@@ -222,6 +308,26 @@ public class ProcessInstanceMonitor implements Serializable {
 	
 	public long getRuntimeForQuery(SushiPatternQuery query){
 		return getEndTimeForQuery(query).getTime() - getStartTimeForQuery(query).getTime();
+	}
+
+	public SushiTree<DetailedQueryStatus> getDetailedStatus() {
+		SushiTree<DetailedQueryStatus> detailedQueryStatusTree = new SushiTree<DetailedQueryStatus>();
+		QueryMonitor rootQueryMonitor = getRootQueryMonitor();
+		if(rootQueryMonitor != null){
+			detailedQueryStatusTree.addRootElement(rootQueryMonitor.getDetailedQueryStatus());
+			addSubQueryMonitorsToTree(rootQueryMonitor, detailedQueryStatusTree);
+		}
+		return detailedQueryStatusTree;
+	}
+
+	private void addSubQueryMonitorsToTree(QueryMonitor parentQueryMonitor, SushiTree<DetailedQueryStatus> detailedQueryStatusTree) {
+		List<QueryMonitor> subQueryMonitors = getSubQueryMonitors(parentQueryMonitor);
+		if(!subQueryMonitors.isEmpty()){
+			for(QueryMonitor queryMonitor : subQueryMonitors){
+				detailedQueryStatusTree.addChild(parentQueryMonitor.getDetailedQueryStatus(), queryMonitor.getDetailedQueryStatus());
+				addSubQueryMonitorsToTree(queryMonitor, detailedQueryStatusTree);
+			}
+		}
 	}
 
 }

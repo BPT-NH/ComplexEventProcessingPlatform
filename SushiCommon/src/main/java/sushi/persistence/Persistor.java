@@ -5,10 +5,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * @author micha
- *
+ * This class is the controller for the database access and to get a connection to the EntityManager.
  */
 public class Persistor {
+	
 	private static String PERSISTENCE_UNIT_NAME = DatabaseEnvironments.DEVELOPMENT.getDatabaseName();
 	private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 	private static EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -47,7 +47,5 @@ public class Persistor {
 		entityManagerFactory.close();
 		entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
 		entityManager = entityManagerFactory.createEntityManager();
-		
 	}
-
 }

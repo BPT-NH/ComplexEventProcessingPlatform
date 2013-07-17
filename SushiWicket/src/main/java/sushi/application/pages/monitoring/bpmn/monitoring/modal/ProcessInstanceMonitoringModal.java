@@ -21,11 +21,17 @@ import org.apache.wicket.request.resource.ResourceReference;
 import sushi.application.components.form.BootstrapModal;
 import sushi.application.components.tree.SushiLabelTreeTable;
 import sushi.application.pages.monitoring.bpmn.monitoring.QueryMonitoringStatusPanel;
+import sushi.application.pages.monitoring.bpmn.monitoring.QueryViolationMonitoringStatusPanel;
 import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringTreeTableElement;
 import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringTreeTableExpansionModel;
 import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringTreeTableProvider;
 import sushi.monitoring.bpmn.ProcessInstanceMonitor;
+import sushi.process.SushiProcess;
 
+/**
+ * This is a modal for displaying the monitoring status for a {@link SushiProcess}.
+ * @author micha
+ */
 public class ProcessInstanceMonitoringModal extends BootstrapModal {
 
 	private static final long serialVersionUID = 1L;
@@ -41,6 +47,10 @@ public class ProcessInstanceMonitoringModal extends BootstrapModal {
 		response.render(CssHeaderItem.forReference(MODAL_SIZE_CSS));
 	}
 	
+	/**
+     * Constructor for a modal, which displays the monitoring status for a {@link SushiProcess}.
+     * @param id
+     */
     public ProcessInstanceMonitoringModal(String id) {
     	super(id, "Process Instance Monitoring");
     	buildMainLayout();
@@ -85,6 +95,14 @@ public class ProcessInstanceMonitoringModal extends BootstrapModal {
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				int entryId = ((ProcessInstanceMonitoringTreeTableElement) rowModel.getObject()).getID();
 				cellItem.add(new QueryMonitoringStatusPanel(componentId, entryId, treeTableProvider));
+			}
+		});
+		
+		columns.add(new AbstractColumn(new Model("Violation Status")) {
+			@Override
+			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+				int entryId = ((ProcessInstanceMonitoringTreeTableElement) rowModel.getObject()).getID();
+				cellItem.add(new QueryViolationMonitoringStatusPanel(componentId, entryId, treeTableProvider));
 			}
 		});
 		

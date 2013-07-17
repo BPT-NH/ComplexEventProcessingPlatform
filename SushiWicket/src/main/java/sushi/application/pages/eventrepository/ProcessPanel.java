@@ -29,15 +29,22 @@ import sushi.application.pages.eventrepository.processeditor.ProcessEditor;
 import sushi.process.SushiProcess;
 
 /**
- * Panel representing the content panel for the process tab.
+ * {@link Panel}, which shows the {@link SushiProcess}es stored in the database.
  */
 public class ProcessPanel extends Panel {
 
+	private static final long serialVersionUID = 1L;
 	private List<IColumn<SushiProcess, String>> columns;
 	private ProcessFilter processFilter;
 	private ProcessProvider processProvider;
 	private DefaultDataTable<SushiProcess, String> dataTable;
 
+	/**
+	 * Constructor for the process panel. 
+	 * The page is initialized in this method and the data is loaded from the database.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public ProcessPanel(String id, final AbstractSushiPage abstractSushiPage) {
 		super(id);
 		

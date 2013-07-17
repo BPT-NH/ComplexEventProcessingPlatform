@@ -10,8 +10,9 @@ import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.AbstractBPMNGateway;
 
 /**
+ * This class is a container for {@link AbstractBPMNElement}s and results from a process decomposition with the RPST.
+ * A {@link Component} is created for each canonical fragment of the RPST.
  * @author micha
- *
  */
 public class Component extends AbstractBPMNElement {
 	

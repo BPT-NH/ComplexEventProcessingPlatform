@@ -6,6 +6,10 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 
+/**
+ * This form provides an ajax behavior to block the UI while processing 
+ * a request of a {@link BlockingAjaxButton}, which is placed in this form.
+ */
 public class BlockingForm extends Form<Void> {
 
 	private static final long serialVersionUID = 1L;
@@ -15,6 +19,7 @@ public class BlockingForm extends Form<Void> {
 		super(id);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BlockingForm(String id, IModel model) {
 		super(id, model);
 	}

@@ -15,11 +15,15 @@ import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.application.pages.simulator.DurationEntryPanel;
 import sushi.bpmn.decomposition.XORComponent;
 import sushi.bpmn.element.AbstractBPMNElement;
+import sushi.bpmn.element.AbstractBPMNGateway;
+import sushi.bpmn.element.BPMNTask;
+import sushi.bpmn.element.BPMNXORGateway;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.event.collection.SushiTree;
 import sushi.simulation.DerivationType;
+import sushi.util.Tuple;
 
 /**
  * wraps the given tree nodes
@@ -233,23 +237,37 @@ public class SimulationTreeTableProvider<T> extends AbstractDataProvider impleme
 		return getEntry(entryID).getDerivation();
 	}
 	
+	public void setProbabilityForEntry(String probability, int entryID) {
+		getEntry(entryID).setProbability(probability);
+	}
+	
+	public String getProbabilityForEntry(int entryID) {
+		return getEntry(entryID).getProbability();
+	}
+	
 	public boolean editableColumnsVisibleForEntry(int entryID){
 		//TODO: rename!
 		return getEntry(entryID).editableColumnsVisible();
 	}
-
-	public Map<SushiEventType, Map<SushiAttribute, List<Serializable>>> getAttributeValuesFromModel() {
-		Map<SushiEventType, Map<SushiAttribute, List<Serializable>>> eventTypeAttributes = new HashMap<SushiEventType, Map<SushiAttribute, List<Serializable>>>();
+	
+	public Map<SushiAttribute, List<Serializable>> getAttributeValuesFromModel() {
+		Map<SushiAttribute, List<Serializable>> attributes = new HashMap<SushiAttribute, List<Serializable>>();
+		Boolean alreadyInserted;
 		for (SimulationTreeTableElement<T> treeTableElement : treeTableElements) {
-			if(treeTableElement.getContent() instanceof SushiEventType){
-				Map<SushiAttribute, List<Serializable>> attributes = new HashMap<SushiAttribute, List<Serializable>>();
-				for(SimulationTreeTableElement<T> attributeElement :treeTableElement.getChildren()){
-					attributes.put((SushiAttribute) attributeElement.getContent(), getValuesFromInput(attributeElement));
+			if(treeTableElement.getContent() instanceof SushiAttribute){
+				alreadyInserted = false;
+				for(SushiAttribute insertedAttribute : attributes.keySet()){
+					if(insertedAttribute.equals((SushiAttribute) treeTableElement.getContent())){
+						alreadyInserted = true;
+						break;
+					}
 				}
-				eventTypeAttributes.put((SushiEventType) treeTableElement.getContent(), attributes);
+				if(!alreadyInserted){
+					attributes.put((SushiAttribute) treeTableElement.getContent(), getValuesFromInput(treeTableElement));
+				}
 			}
 		}
-		return eventTypeAttributes;
+		return attributes;
 	}
 
 	private List<Serializable> getValuesFromInput(SimulationTreeTableElement<T> attributeElement) {
@@ -290,9 +308,6 @@ public class SimulationTreeTableProvider<T> extends AbstractDataProvider impleme
 
 	public void updateAllEqualInputFields(String input, int entryID) {
 		SimulationTreeTableElement<T> sourceTreeTableElement = getEntry(entryID);
-		if(!correlationAttributes.contains(sourceTreeTableElement.getContent())){
-			return;
-		}
 		for (SimulationTreeTableElement<T> treeTableElement : treeTableElements) {
 			if(treeTableElement.getContent().equals(sourceTreeTableElement.getContent())) {
 				treeTableElement.setInput(input);
@@ -329,7 +344,27 @@ public class SimulationTreeTableProvider<T> extends AbstractDataProvider impleme
 		}
 		return false;
 	}
-
+	
+	public List<SushiEventType> getEventTypes() {
+		List<SushiEventType> eventTypes = new ArrayList<SushiEventType>();
+		for(SimulationTreeTableElement<T> element : treeTableElements){
+			if(element.getContent() instanceof SushiEventType){
+				eventTypes.add((SushiEventType) element.getContent());
+			}
+		}
+		return eventTypes;
+	}
+	
+	public List<SimulationTreeTableElement<T>> getEventTypeElements() {
+		List<SimulationTreeTableElement<T>> eventTypes = new ArrayList<SimulationTreeTableElement<T>>();
+		for(SimulationTreeTableElement<T> element : treeTableElements){
+			if(element.getContent() instanceof SushiEventType){
+				eventTypes.add(element);
+			}
+		}
+		return eventTypes;
+	}
+	
 	public Map<SushiEventType, String> getEventTypesWithDuration() {
 		Map<SushiEventType, String> eventTypesWithDuration = new HashMap<SushiEventType, String>();
 		for(SimulationTreeTableElement<T> element : treeTableElements){
@@ -414,5 +449,52 @@ public class SimulationTreeTableProvider<T> extends AbstractDataProvider impleme
 			}
 		}
 		return elementWithDerivation;
+	}
+
+	public Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, String>>> getXorSuccessorsWithProbability() {
+		Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, String>>> xorSuccessorsProbability = new HashMap<BPMNXORGateway, List<Tuple<AbstractBPMNElement, String>>>();
+		for(SimulationTreeTableElement<T> element : treeTableElements){
+			if(element.getContent() instanceof BPMNXORGateway && ((AbstractBPMNGateway) element.getContent()).isSplitGateway()){
+				List<Tuple<AbstractBPMNElement, String>> successorList= new ArrayList<Tuple<AbstractBPMNElement, String>>();
+				for(SimulationTreeTableElement<T> xorSuccessorElement : treeTableElements){
+					if(((BPMNXORGateway) element.getContent()).getSuccessors().contains(xorSuccessorElement.getContent())){
+						Tuple<AbstractBPMNElement, String> tuple = new Tuple<AbstractBPMNElement, String>((AbstractBPMNElement) xorSuccessorElement.getContent(), xorSuccessorElement.getProbability());
+						successorList.add(tuple);
+					}
+				}
+				xorSuccessorsProbability.put((BPMNXORGateway) element.getContent(), successorList);
+			}
+		}
+		return xorSuccessorsProbability;
+	}
+
+	public List<SushiAttribute> getAttributes() {
+		Boolean isInList;
+		List<SushiAttribute> attributeList = new ArrayList<SushiAttribute>();
+		for(SimulationTreeTableElement<T> element : treeTableElements){
+			if(element.getContent() instanceof SushiAttribute){
+				isInList = false;
+				for(SushiAttribute attributeInList : attributeList){
+					if(attributeInList.equals(element.getContent())){
+						isInList = true;
+						break;
+					}
+				}
+				if(!isInList){
+					attributeList.add((SushiAttribute) element.getContent());
+				}
+			}
+		}
+		return attributeList;
+	}
+
+	public List<BPMNTask> getTasks() {
+		List<BPMNTask> tasks = new ArrayList<BPMNTask>();
+		for(SimulationTreeTableElement<T> element : treeTableElements){
+			if(element.getContent() instanceof BPMNTask){
+				tasks.add((BPMNTask) element.getContent());
+			}
+		}
+		return tasks;
 	}
 }

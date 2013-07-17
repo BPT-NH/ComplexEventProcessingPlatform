@@ -8,12 +8,16 @@ import java.util.List;
 import org.junit.Test;
 
 import sushi.csv.importer.CSVExporter;
-import sushi.csv.importer.CSVNormalizer;
+import sushi.csv.importer.CSVImporter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.util.SushiTestHelper;
 
+/**
+ * This class tests import of CSV files.
+ * @author micha
+ */
 public class CSVImportTest {
 
 	
@@ -24,21 +28,21 @@ public class CSVImportTest {
 	
 	@Test
 	public void testExtractionOfColumnTitles() {
-		CSVNormalizer csvNormalizer = new CSVNormalizer();
+		CSVImporter csvNormalizer = new CSVImporter();
 		List<String> columnTitles = csvNormalizer.getColumnTitlesFromFile(filePath);
 		assertTrue("Timestamp column could not be read.", columnTitles.contains("Timestamp"));
 		assertTrue("Location column could not be read.", columnTitles.contains("Location"));
 		assertTrue("Rating column could not be read.", columnTitles.contains("Rating"));
 		
 		List<String> columnTitles2 = csvNormalizer.getColumnTitlesFromFile(filePath2);
-		assertTrue("Timestamp column could not be read.", columnTitles.contains("Timestamp"));
-		assertTrue("Location column could not be read.", columnTitles.contains("Location"));
-		assertTrue("Rating column could not be read.", columnTitles.contains("Rating"));
+		assertTrue("Timestamp column could not be read.", columnTitles2.contains("Timestamp"));
+		assertTrue("Location column could not be read.", columnTitles2.contains("Location"));
+		assertTrue("Rating column could not be read.", columnTitles2.contains("Rating"));
 	}
 	
 	@Test
 	public void testExtractionOfEvents() {
-		CSVNormalizer csvNormalizer = new CSVNormalizer();
+		CSVImporter csvNormalizer = new CSVImporter();
 		List<String> columnTitles = csvNormalizer.getColumnTitlesFromFile(filePath);
 		List<SushiAttribute> attributes = SushiTestHelper.createAttributes(columnTitles);
 		List<SushiEvent> events = csvNormalizer.importEventsFromFile(filePath, attributes);
@@ -51,7 +55,7 @@ public class CSVImportTest {
 	
 	@Test
 	public void testImportAndExport() {
-		CSVNormalizer csvNormalizer = new CSVNormalizer();
+		CSVImporter csvNormalizer = new CSVImporter();
 		List<String> columnTitles = csvNormalizer.getColumnTitlesFromFile(filePath);
 		List<SushiAttribute> attributes = SushiTestHelper.createAttributes(columnTitles);
 		List<SushiEvent> events = csvNormalizer.importEventsFromFile(filePath, attributes);
@@ -67,7 +71,7 @@ public class CSVImportTest {
 	
 	@Test
 	public void testExtractionOfMeanEvents() {
-		CSVNormalizer csvNormalizer = new CSVNormalizer();
+		CSVImporter csvNormalizer = new CSVImporter();
 		List<String> columnTitles = csvNormalizer.getColumnTitlesFromFile(filePathSmallKino);
 		assertTrue("Timestamp column could not be read.", columnTitles.contains("Timestamp"));
 		assertTrue("Location column could not be read.", columnTitles.contains("Location"));

@@ -12,11 +12,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Query;
 import javax.persistence.Table;
 
-import sushi.event.SushiEvent;
+import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.event.SushiEventType;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 
+/**
+ * A monitoring point is a binding between a monitorable {@link AbstractBPMNElement} 
+ * and a {@link SushiEventType} to monitor the execution of a BPMN process with Esper.
+ * @author micha
+ */
 @Entity
 @Table(name = "MonitoringPoint")
 public class MonitoringPoint extends Persistable {
@@ -79,10 +84,15 @@ public class MonitoringPoint extends Persistable {
 	
 	@Override
 	public String toString(){
-		//TODO: Implement
 		return "MonitoringPoint: " + getStateTransitionType();
 	}
 	
+	/**
+	 * Returns all monitoring points from the database, which belong to the given event type.
+	 * @param eventType
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<MonitoringPoint> findByEventType(SushiEventType eventType){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM MonitoringPoint WHERE EVENTTYPE_ID = '" + eventType.getID() + "'", MonitoringPoint.class);
 		return query.getResultList();

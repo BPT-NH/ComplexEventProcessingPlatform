@@ -7,7 +7,6 @@ import java.util.Set;
 
 import sushi.bpmn.decomposition.Component;
 import sushi.bpmn.decomposition.SubProcessComponent;
-import sushi.bpmn.decomposition.SushiRPSTTree;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.query.SushiPatternQuery;
 
@@ -17,8 +16,8 @@ import sushi.query.SushiPatternQuery;
  */
 public class SubProcessQueryFactory extends AbstractPatternQueryFactory {
 
-	public SubProcessQueryFactory(SushiRPSTTree sushiRPSTTree) {
-		super(sushiRPSTTree);
+	public SubProcessQueryFactory(PatternQueryGenerator patternQueryGenerator) {
+		super(patternQueryGenerator);
 	}
 
 	@Override
@@ -40,7 +39,7 @@ public class SubProcessQueryFactory extends AbstractPatternQueryFactory {
 				List<AbstractBPMNElement> subProcessChildren = processDecompositionTree.getChildren(subProcessComponent);
 				
 				if(subProcessChildren.size() == 1 && subProcessChildren.get(0) instanceof Component){
-					query = new PatternQueryFactory(sushiRPSTTree).generateQuery(subProcessChildren.get(0), subProcessCatchingMonitorableElement, parentQuery);
+					query = new PatternQueryFactory(patternQueryGenerator).generateQuery(subProcessChildren.get(0), subProcessCatchingMonitorableElement, parentQuery);
 				} else {
 					throw new RuntimeException("SubProcess is not well structured.");
 				}

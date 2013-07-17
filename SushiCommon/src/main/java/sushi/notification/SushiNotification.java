@@ -1,14 +1,18 @@
 package sushi.notification;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.EntityTransaction;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Query;
 import javax.persistence.Table;
@@ -20,29 +24,38 @@ import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 import sushi.user.SushiUser;
 
+/**
+ * This class is the super class for notifications.
+ * A notification is created from a @see SushiNotificationRule informing a user about a situation.
+ */
 @Entity
 @Table(name = "SushiNotification")
-public class SushiNotification extends Persistable {
-	
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "Disc")
+public abstract class SushiNotification extends Persistable{
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int ID;
+	protected int ID;
 
 	@Column(name="seen",columnDefinition="INT(1)")
-	private boolean seen = false;
+	protected boolean seen = false;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	protected Date timestamp = null;
 	
 	@ManyToOne
-	private SushiUser user;
+	protected SushiUser user;
 
 	@ManyToOne
-	private SushiNotificationRule notificationRule;
+	protected SushiNotificationRule notificationRule;
+
+	public boolean isSeen() {
+		return seen;
+	}
 	
-	@ManyToOne
-	private SushiEvent event;
-		
+	//Getter and Setter
+	
 	public int getID() {
 		return ID;
 	}
@@ -58,13 +71,10 @@ public class SushiNotification extends Persistable {
 	public void setNotificationRule(SushiNotificationRule notificationRule) {
 		this.notificationRule = notificationRule;
 	}
-
-	public boolean isSeen() {
-		return seen;
-	}
-
+	
 	public void setSeen(boolean seen) {
 		this.seen = seen;
+		this.merge();
 	}
 
 	public Date getTimestamp() {
@@ -83,77 +93,56 @@ public class SushiNotification extends Persistable {
 		this.user = user;
 	}
 
-	public SushiEvent getEvent() {
-		return event;
-	}
-
-	public void setEvent(SushiEvent event) {
-		this.event = event;
-	}
-
-	/*
-	 *Default Constructor for JPA 
-	 */
-	@SuppressWarnings("unused")
-	private SushiNotification() {
-	}
-	
-	public SushiNotification(SushiEvent event, SushiUser user, SushiNotificationRule rule) {
-		this.timestamp = new Date();
-		this.event = event;
-		this.user = user;
-		this.notificationRule = rule;
-	}
-	
-	public String toString() {
-		if (! notificationRule.hasCondition()) { 
-			return event.shortenedString() + " was received on " + timestamp;
-		} else {
-			return event.shortenedString() + " with " + notificationRule.getCondition().getConditionString() + " was received on " + timestamp;
-		}
-				
-	}
-	
 	public void setSeen() {
 		seen = true;
 		this.merge();
 	}
 
+	public abstract String getTriggeringText();
 	
 	//JPA-Methods
 	
 	/**
-	 * Finds all users in the database.
-	 * @return
+	 * Finds all notifications in the database.
+	 * @return all notifications
 	 */
 	public static List<SushiNotification> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("SELECT t FROM SushiNotification t");
 		return q.getResultList();
 	}
 	
+	/**
+	 * Finds all notifications for a user
+	 * @param user
+	 * @return all notifications for a user
+	 */
 	public static List<SushiNotification> findForUser(SushiUser user) {
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM SushiNotification WHERE USER_ID = '" + user.getID() + "'", SushiNotification.class);
 		return query.getResultList();
 	}
 
+	/**
+	 * Finds unseen notifications for a user
+	 * @param user
+	 * @return unseen notifications for a user
+	 */
 	public static List<SushiNotification> findUnseenForUser(SushiUser user) {
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM SushiNotification WHERE USER_ID = '" + user.getID() + "' AND seen = 0", SushiNotification.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * Finds all notifications belonging to a notification rule
+	 * @param notification rule
+	 * @return all notifications for a notification rule
+	 */
 	public static List<SushiNotification> findForNotificationRule(SushiNotificationRule rule) {
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM SushiNotification WHERE NOTIFICATIONRULE_ID = '" + rule.getID() + "'", SushiNotification.class);
 		return query.getResultList();
 	}
-	
-	public static List<SushiNotification> findForEvent(SushiEvent event) {
-		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM SushiNotification WHERE EVENT_ID = '" + event.getID() + "'", SushiNotification.class);
-		return query.getResultList();
-	}
 
-	
 	/**
-	 * Deletes all users from the database.
+	 * Deletes all notifications from the database.
 	 */
 	public static void removeAll() {
 		try {
@@ -167,6 +156,5 @@ public class SushiNotification extends Persistable {
 			System.out.println(ex.getMessage());
 		}
 	}
-
-
+	
 }

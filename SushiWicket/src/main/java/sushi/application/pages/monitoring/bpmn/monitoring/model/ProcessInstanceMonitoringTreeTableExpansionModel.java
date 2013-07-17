@@ -8,11 +8,12 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 
 
 /**
- * model that wraps the expansion state handler of a tree component
+ * Model that wraps the expansion state handler of a tree component.
  */
 public class ProcessInstanceMonitoringTreeTableExpansionModel extends AbstractReadOnlyModel<Set<ProcessInstanceMonitoringTreeTableElement>> {
 
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("serial")
 	private static MetaDataKey<ProcessInstanceMonitoringTreeTableExpansion> KEY = new MetaDataKey<ProcessInstanceMonitoringTreeTableExpansion>(){};
 	
 	@Override

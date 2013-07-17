@@ -16,6 +16,11 @@ import org.apache.wicket.model.Model;
 import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.process.SushiProcess;
 
+/**
+ * This class is the provider for {@link SushiProcess}es.
+ * A filter can be specified to return only some processes.
+ * @author micha
+ */
 @SuppressWarnings("serial")
 public class ProcessProvider extends AbstractDataProvider implements ISortableDataProvider<SushiProcess, String>, IFilterStateLocator {
 	
@@ -24,6 +29,9 @@ public class ProcessProvider extends AbstractDataProvider implements ISortableDa
 	private ProcessFilter processFilter = new ProcessFilter();
 	private List<SushiProcess> selectedProcesses;
 	
+	/**
+	 * Constructor for providing {@link SushiProcess}es.
+	 */
 	public ProcessProvider() {
 		processes = filterProcesses(SushiProcess.findAll(), processFilter);
 		selectedProcesses = new ArrayList<SushiProcess>();

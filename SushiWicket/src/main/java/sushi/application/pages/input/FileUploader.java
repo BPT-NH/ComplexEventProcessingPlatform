@@ -11,13 +11,13 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import sushi.application.pages.AbstractSushiPage;
-import sushi.csv.importer.CSVNormalizer;
-import sushi.edifact.importer.EdifactParser;
-import sushi.esper.SushiEsper;
+import sushi.csv.importer.CSVImporter;
+import sushi.edifact.importer.EdifactImporter;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.eventhandling.Broker;
-import sushi.excel.importer.ExcelNormalizer;
+import sushi.excel.importer.ExcelImporter;
 import sushi.excel.importer.FileNormalizer;
 import sushi.xml.importer.XMLParser;
 import sushi.xml.importer.XMLParsingException;
@@ -26,7 +26,7 @@ public class FileUploader extends AbstractSushiPage {
 
 	private static final long serialVersionUID = 1L;
 
-	private SushiEsper sushiEsper = SushiEsper.getInstance();
+	private SushiStreamProcessingAdapter sushiEsper = SushiStreamProcessingAdapter.getInstance();
 	private FileUploadField fileUpload;
 
 	public FileUploader() {
@@ -59,27 +59,27 @@ public class FileUploader extends AbstractSushiPage {
 					try {
 						newFile.createNewFile();
 						uploadedFile.writeTo(newFile);
-//						info("Saved file: " + fileName);
 					} catch (IOException e) {
 						error("Error: File could not be saved.");
 					}
 
 					int index = fileName.lastIndexOf('.');
-//					String fileNameWithoutExtension = fileName.substring(0,index);
 					String fileExtension = fileName.substring(index + 1, fileName.length());
+					//create Excel- or CSV-Events
 					if (fileExtension.toLowerCase().contains("xls") || fileExtension.toLowerCase().contains("csv")) { 
 						PageParameters pageParameters = new PageParameters();
 						pageParameters.add("filePath", newFile.getAbsolutePath());
 						if (noEventTypesFound(pageParameters)) {
-							System.out.println("no matching types");
 							setResponsePage(ExcelEventTypeCreator.class, pageParameters);
 						} else {
 							setResponsePage(ExcelEventTypeMatcher.class, pageParameters);
 						}
+					//create event type from xsd
 					} else if(fileExtension.toLowerCase().contains("xsd")){
 						PageParameters pageParameters = new PageParameters();
 						pageParameters.add("filePath", newFile.getAbsolutePath());
 						setResponsePage(XSDEventTypeCreator.class, pageParameters);
+					//create XML-Event
 					} else if(fileExtension.toLowerCase().contains("xml")){
 						SushiEvent uploadedEvent;
 						try {
@@ -89,10 +89,11 @@ public class FileUploader extends AbstractSushiPage {
 						} catch (XMLParsingException e) {
 							error(e.getMessage());
 						}
+					// create Edifact-Event
 					} else if(fileExtension.toLowerCase().contains("txt") || fileExtension.toLowerCase().contains("edi")){
 						SushiEvent uploadedEvent;
 						try {
-							uploadedEvent = EdifactParser.getInstance().generateEventFromEdifact(newFile.getAbsolutePath());
+							uploadedEvent = EdifactImporter.getInstance().generateEventFromEdifact(newFile.getAbsolutePath());
 							if (!sushiEsper.isEventType(uploadedEvent.getEventType())) {
 								Broker.send(uploadedEvent.getEventType());
 							}
@@ -112,8 +113,6 @@ public class FileUploader extends AbstractSushiPage {
 		};
 
 		uploadForm.setMultiPart(true);
-		// uploadForm.setMaxSize(Bytes.megabytes(2));
-
 		uploadForm.add(fileUpload = new FileUploadField("fileUpload"));
 		add(uploadForm);
 	}
@@ -124,7 +123,7 @@ public class FileUploader extends AbstractSushiPage {
 		int index = fileName.lastIndexOf('.');
 		String fileExtension = fileName.substring(index + 1, fileName.length());
 
-		fileNormalizer = (fileExtension.toLowerCase().contains("xls")) ? new ExcelNormalizer() : new CSVNormalizer();
+		fileNormalizer = (fileExtension.toLowerCase().contains("xls")) ? new ExcelImporter() : new CSVImporter();
 		
 		List<String> attributeNames = fileNormalizer.getColumnTitlesFromFile(pageParameters.get("filePath").toString());
 		List<String> trimmedAttributeNames = new ArrayList<String>();

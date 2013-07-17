@@ -17,13 +17,22 @@ import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.event.SushiEventType;
 import sushi.eventhandling.Broker;
 
+/**
+ * This class is the provider for {@link SushiEventType}s.
+ * A filter can be specified to return only some event types.
+ * @author micha
+ */
 public class EventTypeProvider extends AbstractDataProvider implements ISortableDataProvider<SushiEventType, String>, IFilterStateLocator {
 	
+	private static final long serialVersionUID = 1L;
 	private static List<SushiEventType> eventTypes;
 	private ISortState sortState = new SingleSortState();
 	private EventTypeFilter eventTypeFilter = new EventTypeFilter();
 	private List<SushiEventType> selectedEventTypes;
 	
+	/**
+	 * Constructor for providing {@link SushiEventType}s.
+	 */
 	public EventTypeProvider() {
 		eventTypes = filterEventTypes(SushiEventType.findAll(), eventTypeFilter);
 		selectedEventTypes = new ArrayList<SushiEventType>();

@@ -25,11 +25,11 @@ import sushi.application.components.form.BlockingAjaxButton;
 import sushi.application.components.form.WarnOnExitForm;
 import sushi.application.pages.AbstractSushiPage;
 import sushi.application.pages.main.MainPage;
-import sushi.csv.importer.CSVNormalizer;
+import sushi.csv.importer.CSVImporter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.eventhandling.Broker;
-import sushi.excel.importer.ExcelNormalizer;
+import sushi.excel.importer.ExcelImporter;
 import sushi.excel.importer.FileNormalizer;
 import sushi.excel.importer.SushiImportEvent;
 
@@ -57,9 +57,9 @@ public class ExcelEventTypeMatcher extends AbstractSushiPage {
 		int index = filePath.lastIndexOf('.');
 		String fileExtension = filePath.substring(index + 1, filePath.length());
 		if (fileExtension.contains("xls")) {
-			fileNormalizer = new ExcelNormalizer();
+			fileNormalizer = new ExcelImporter();
 		} else {
-			fileNormalizer = new CSVNormalizer();
+			fileNormalizer = new CSVImporter();
 		}
 		columnTitles = fileNormalizer.getColumnTitlesFromFile(filePath);
 		if (!FileUploader.noEventTypesFound(parameters)) {
@@ -109,7 +109,6 @@ public class ExcelEventTypeMatcher extends AbstractSushiPage {
 				}
 			}
 		});
-		existingTypesCheckBoxMultipleChoice.setSuffix("");
 		
 		layoutForm.add(existingTypesCheckBoxMultipleChoice);
 		

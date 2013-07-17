@@ -1,21 +1,20 @@
 package sushi.correlation;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import sushi.event.collection.SushiMapTree;
 
 /**
+ * Parses attribute-value pairs of events from a string.
+ * 
  * @author micha
  *
  */
 public class ConditionParser {
 	
 	/**
-	 * Attribute und Attributwerte aus dem Conditionstring extrahieren.
-	 * Attribute sollten im String die Form haben:
-	 * attribute1=attributevalue1[;attribute2=attributevalue2] 
+	 * Parses attribute-value pairs of events from a string.
+	 * Syntax of the string must be: attribute1=attributevalue1[;attribute2=attributevalue2] 
 	 */
 	public static SushiMapTree<String, Serializable> extractEventAttributes(String conditionString) {
 		SushiMapTree<String, Serializable> eventAttributes = new SushiMapTree<String, Serializable>();

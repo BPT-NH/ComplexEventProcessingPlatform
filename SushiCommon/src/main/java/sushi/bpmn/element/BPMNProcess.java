@@ -21,6 +21,10 @@ import sushi.persistence.Persistor;
 import sushi.process.SushiProcess;
 
 /**
+ * This class is a logical representation of a BPMN process.
+ * @author micha
+ */
+/**
  * @author micha
  *
  */
@@ -78,6 +82,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return elements;
 	}
 	
+	/**
+	 * Return all activities({@link BPMNTask}), which are contained in this process.
+	 * @return
+	 */
 	public List<BPMNTask> getAllTasks() {
 		List<BPMNTask> elements = new ArrayList<BPMNTask>();
 		for(AbstractBPMNElement element : this.getBPMNElementsWithOutSequenceFlows()){
@@ -88,6 +96,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return elements;
 	}
 	
+	/**
+	 * Returns all {@link Component}s, which are contained in this process.
+	 * @return
+	 */
 	public List<Component> getAllComponents() {
 		List<Component> elements = new ArrayList<Component>();
 		for(AbstractBPMNElement element : this.getBPMNElementsWithOutSequenceFlows()){
@@ -98,6 +110,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return elements;
 	}
 	
+	/**
+	 * Returns a list of all BPMN-IDs of the contained elements.
+	 * @return
+	 */
 	public ArrayList<String> getBPMNElementIDs() {
 		ArrayList<String> ids = new ArrayList<String>();
 		for (AbstractBPMNElement element : BPMNElements) {
@@ -194,7 +210,8 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return getAttachedElementsFor(element);
 	}
 
-	public AbstractBPMNElement getAttachedElementsFor(AbstractBPMNElement element) {
+	
+	private AbstractBPMNElement getAttachedElementsFor(AbstractBPMNElement element) {
 		for (AbstractBPMNElement el : BPMNElements) {
 			if (el.isBoundaryEvent()) {
 				BPMNBoundaryEvent event = (BPMNBoundaryEvent) el;
@@ -238,6 +255,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return output.toString();
 	}
 	
+	/**
+	 * Returns all {@link BPMNProcess}es from the database, which have the specified ID.
+	 * @return
+	 */
 	public static BPMNProcess findByID(int ID){
 		List<BPMNProcess> list = BPMNProcess.findByAttribute("ID", new Integer(ID).toString());
 		if(list.size() > 0){
@@ -247,6 +268,11 @@ public class BPMNProcess extends AbstractBPMNElement {
 		}
 	}
 	
+	/**
+	 * Returns all {@link BPMNProcess}es from the database, which have the specified name.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<BPMNProcess> findByName(String name){
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"SELECT * " +
@@ -263,16 +289,29 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link BPMNProcess}es from the database, which have the specified attribute and value.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<BPMNProcess> findByAttribute(String columnName, String value){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM BPMNProcess WHERE " + columnName + " = '" + value + "'", BPMNProcess.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link BPMNProcess}es from the database.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<BPMNProcess> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("select t from BPMNProcess t");
 		return q.getResultList();
 	}
 
+	/**
+	 * Removes all {@link BPMNProcess}es from the database.
+	 */
 	public static void removeAll() {
 		try {
 			EntityTransaction entr = Persistor.getEntityManager().getTransaction();
@@ -286,6 +325,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		}
 	}
 
+	/**
+	 * Returns all split gateways, contained in this {@link BPMNProcess}.
+	 * @return
+	 */
 	public List<AbstractBPMNGateway> getAllSplitGateways() {
 		List<AbstractBPMNGateway> elements = new ArrayList<AbstractBPMNGateway>();
 		for(AbstractBPMNElement element : this.getBPMNElementsWithOutSequenceFlows()){
@@ -296,6 +339,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return elements;
 	}
 
+	/**
+	 * Returns all joining gateways, contained in this {@link BPMNProcess}.
+	 * @return
+	 */
 	public List<AbstractBPMNGateway> getAllJoinGateways() {
 		List<AbstractBPMNGateway> elements = new ArrayList<AbstractBPMNGateway>();
 		for(AbstractBPMNElement element : this.getBPMNElementsWithOutSequenceFlows()){
@@ -325,6 +372,10 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return false;
 	}
 	
+	/**
+	 * Returns the contained {@link BPMNSubProcess}es, if any.
+	 * @return
+	 */
 	public List<BPMNSubProcess> getSubProcesses() {
 		List<BPMNSubProcess> subProcesses = new ArrayList<BPMNSubProcess>();
 		for (AbstractBPMNElement element : BPMNElements) {
@@ -349,6 +400,11 @@ public class BPMNProcess extends AbstractBPMNElement {
 		return !BPMNProcess.findByName(name).isEmpty();
 	}
 
+	/**
+	 * Searches in all saved {@link BPMNProcess}es for one, which contains the given {@link AbstractBPMNElement}.
+	 * @param bpmnElement
+	 * @return
+	 */
 	public static BPMNProcess findByContainedElement(AbstractBPMNElement bpmnElement) {
 		for(BPMNProcess process : BPMNProcess.findAll()){
 			for(AbstractBPMNElement element : process.getBPMNElementsWithOutSequenceFlows()){

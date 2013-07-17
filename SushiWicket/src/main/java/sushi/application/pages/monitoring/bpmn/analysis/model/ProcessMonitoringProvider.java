@@ -15,6 +15,11 @@ import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.monitoring.bpmn.BPMNQueryMonitor;
 import sushi.monitoring.bpmn.ProcessMonitor;
 
+/**
+ * This class is the provider for {@link ProcessMonitor}s.
+ * A filter can be specified to return only some ProcessMonitors.
+ * @author micha
+ */
 public class ProcessMonitoringProvider extends AbstractDataProvider implements ISortableDataProvider<ProcessMonitor, String>, IFilterStateLocator {
 	
 	private static final long serialVersionUID = 1L;
@@ -23,6 +28,9 @@ public class ProcessMonitoringProvider extends AbstractDataProvider implements I
 	private ISortState sortState = new SingleSortState();
 	private ProcessMonitoringFilter processMonitorFilter = new ProcessMonitoringFilter();
 	
+	/**
+	 * Constructor for providing {@link ProcessMonitor}s.
+	 */
 	public ProcessMonitoringProvider() {
 		processMonitors = BPMNQueryMonitor.getInstance().getProcessMonitors();
 		selectedProcessMonitors = new ArrayList<ProcessMonitor>();

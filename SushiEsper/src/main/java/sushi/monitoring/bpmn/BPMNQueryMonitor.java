@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import sushi.event.collection.SushiTree;
 import sushi.process.SushiProcess;
 import sushi.process.SushiProcessInstance;
 import sushi.query.SushiPatternQuery;
@@ -45,8 +46,11 @@ public class BPMNQueryMonitor {
 		return null;
 	}
 	
-	public void getDetailedStatus(SushiProcessInstance processInstance){
-		//TODO: Implementieren, sollte einen Tree mit den Queries zurückgeben und dem Status der einzelnen Queries/Components
+	public SushiTree<DetailedQueryStatus> getDetailedStatus(SushiProcessInstance processInstance){
+		if(getProcessInstanceMonitor(processInstance) != null){
+			return getProcessInstanceMonitor(processInstance).getDetailedStatus();
+		}
+		return null;
 	}
 
 	public void addQueryForProcess(SushiPatternQuery query, SushiProcess process) {
@@ -97,6 +101,14 @@ public class BPMNQueryMonitor {
 	
 	public static void reset(){
 		instance = null;
+	}
+	
+	private ProcessInstanceMonitor getProcessInstanceMonitor(SushiProcessInstance processInstance){
+		ProcessMonitor processMonitor = getProcessMonitorForProcess(processInstance.getProcess());
+		if(processMonitor.getProcessInstanceMonitor(processInstance) != null){
+			return processMonitor.getProcessInstanceMonitor(processInstance);
+		}
+		return null;
 	}
 
 }

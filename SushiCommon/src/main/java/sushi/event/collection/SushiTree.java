@@ -73,7 +73,7 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 	}
 	
 	/**
-	 * Returns all ancestors for the given element. 
+	 * Returns all parents in the tree for the given element. 
 	 * @param element
 	 * @return
 	 */
@@ -91,6 +91,26 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 		if(currentTreeElement.getParent() != null){
 			parentValues.add(currentTreeElement.getParent().getValue());
 			parentValues.addAll(getIndirectParents(currentTreeElement.getParent()));
+		}
+		return parentValues;
+	}
+	
+	/**
+	 * Returns all elements from the tree, which contain exactly these children. 
+	 * @param element
+	 * @return
+	 */
+	public Set<T> getIndirectParents(Collection<T> children){
+		Set<T> parentValues = new HashSet<T>();
+		Set<SushiTreeElement<T>> parents = new HashSet<SushiTreeElement<T>>();
+		for(SushiTreeElement<T> treeElement : treeElements){
+			if(treeElement.getChildValues().containsAll(children) && children.containsAll(treeElement.getChildValues())){
+				parents.add(treeElement);
+				parentValues.add(treeElement.getValue());
+			}
+		}
+		for(SushiTreeElement<T> parent : parents){
+			parentValues.addAll(getIndirectParents(parent));
 		}
 		return parentValues;
 	}
@@ -135,11 +155,16 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 		return childrenValues;
 	}
 	
-	public List<T> getParents(List<T> elements){
+	/**
+	 * Returns a list of BPMN elements, which are parents for the specified elements.
+	 * @param elements
+	 * @return
+	 */
+	public List<T> getParents(Collection<T> elements){
 		List<T> parentValues = new ArrayList<T>();
 		for(SushiTreeElement<T> treeElement : treeElements){
 			List<T> childrenOfElement = this.getChildren(treeElement.getValue());
-			if(childrenOfElement.equals(elements)){
+			if(childrenOfElement.containsAll(elements) && elements.containsAll(childrenOfElement)){
 				parentValues.add(treeElement.getValue());
 			}
 		}
@@ -179,8 +204,24 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 		return leaveValues;
 	}
 	
-	public List<SushiTreeElement<T>> getLeafs(){
-		List<SushiTreeElement<T>> leaves = new ArrayList<SushiTreeElement<T>>();
+	/**
+	 * Returns all elements of the tree, that have no children.
+	 * @return
+	 */
+	public Set<T> getLeafElements(){
+		Set<T> leaves = new HashSet<T>();
+		for(SushiTreeElement<T> element : getLeafs()){
+			leaves.add(element.getValue());
+		}
+		return leaves;
+	}
+	
+	/**
+	 * Returns all tree elements, that have no children.
+	 * @return
+	 */
+	private Set<SushiTreeElement<T>> getLeafs(){
+		Set<SushiTreeElement<T>> leaves = new HashSet<SushiTreeElement<T>>();
 		for(SushiTreeElement<T> element : treeElements){
 			if(!element.hasChildren()){
 				leaves.add(element);
@@ -190,7 +231,7 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 	}
 	
 	public boolean isInLeaves(T treeElement){
-		List<SushiTreeElement<T>> leaves = getLeafs();
+		Set<SushiTreeElement<T>> leaves = getLeafs();
 		for(SushiTreeElement<T> element : leaves){
 			if(element.getValue().equals(treeElement)){
 				return true;
@@ -593,6 +634,11 @@ public class SushiTree<T> extends Persistable implements Collection<T> {
 		} else {
 			return getRootElements().contains(child);
 		}
+	}
+
+	@Override
+	public int getID() {
+		return ID;
 	}
 
 }

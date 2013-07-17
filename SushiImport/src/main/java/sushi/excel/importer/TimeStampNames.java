@@ -1,8 +1,8 @@
 package sushi.excel.importer;
 
 /**
+ * This enum contains typical names for timestamps.
  * @author micha
- *
  */
 public enum TimeStampNames {
 	

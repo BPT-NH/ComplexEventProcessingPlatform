@@ -9,22 +9,7 @@
 			<table>
 				<tr>
 					<td>
-						<div class="well-small">
-							Choose an event type: <br/>
-							<select wicket:id="eventTypeSelect"></select>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div class="well-small" wicket:id="conditionInput">
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						Priority: 
-						<span wicket:id="priorityGroup"></span>
+						Priority: <select type="text" wicket:id="prioritySelect"></select>
 					</td>
 				</tr>
 				<tr>
@@ -32,6 +17,31 @@
 							User: <select type="text" wicket:id="userSelect"/>
 					</td>
 				</tr>
+				<tr>
+					<td>	
+							Type: <select type="text" wicket:id="typeSelect"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="well-small" wicket:id="EventDiv">
+							<div class="well-small">
+								Choose an event type: <br/>
+								<select wicket:id="eventTypeSelect"></select>
+							</div>
+							<div class="well-small" wicket:id="conditionInput">
+							</div>
+						</div>
+						<div class="well-small" wicket:id="QueryDiv">
+							<div class="well-small">
+								Choose a query: <br/>
+								<select wicket:id="querySelect"></select>
+							</div>
+						</div>
+					</td>
+				</tr>
+				
+
 				<tr>
 					<td>
 						<div class="well-small">

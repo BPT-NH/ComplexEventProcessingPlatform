@@ -10,10 +10,14 @@ import org.junit.Test;
 
 import sushi.event.SushiEvent;
 import sushi.event.attribute.SushiAttribute;
-import sushi.excel.importer.ExcelNormalizer;
+import sushi.excel.importer.ExcelImporter;
 import sushi.excel.importer.SushiImportEvent;
 import sushi.util.SushiTestHelper;
 
+/**
+ * This class tests the import of excel files.
+ * @author micha
+ */
 public class ExcelImportTest {
 	
 	private static String filePath = System.getProperty("user.dir")+"/src/test/resources/Kino.xls";
@@ -26,7 +30,7 @@ public class ExcelImportTest {
 	
 	@Test
 	public void testExtractionOfColumnTitles() {
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 		ArrayList<String> columnTitles = excelNormalizer.getColumnTitlesFromFile(filePath);
 		assertTrue("Timestamp column could not be read.", columnTitles.contains("Timestamp"));
 		assertTrue("Location column could not be read.", columnTitles.contains("Location"));
@@ -35,7 +39,7 @@ public class ExcelImportTest {
 	
 	@Test
 	public void testExtractionOfEvents() {
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 		List<String> columnTitles = excelNormalizer.getColumnTitlesFromFile(filePath);
 		List<SushiAttribute> attributes = SushiTestHelper.createAttributes(columnTitles);
 		List<SushiEvent> events = excelNormalizer.importEventsFromFile(filePath, attributes);
@@ -59,7 +63,7 @@ public class ExcelImportTest {
 
 	@Test
 	public void testColumnSelection() {
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 //		ArrayList<String> columnTitles = excelNormalizer.getColumnTitlesFromXLS(filePath);
 		ArrayList<String> columnTitles = new ArrayList<String>();
 		columnTitles.add("Timestamp");
@@ -81,7 +85,7 @@ public class ExcelImportTest {
 	
 	@Test
 	public void testBuggyExcelFile() {
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 		List<String> columnTitles = excelNormalizer.getColumnTitlesFromFile(cinemaSchedulePath);
 		List<SushiAttribute> attributes = SushiTestHelper.createAttributes(columnTitles);
 		List<SushiEvent> events = excelNormalizer.importEventsFromFile(cinemaSchedulePath, attributes);
@@ -125,7 +129,7 @@ public class ExcelImportTest {
 	@Test
 	public void testExtractionOfImportEvent(){
 		//Importieren mit SushiImportEvent von Events mit TimeStamp
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 		List<String> columnTitles = excelNormalizer.getColumnTitlesFromFile(cinemaSchedulePath);
 		List<SushiImportEvent> events = excelNormalizer.importEventsForPreviewFromFile(cinemaSchedulePath, columnTitles);
 		assertTrue("Not the right number of events imported. Should be 12, but were " + events.size(), events.size() == 12);
@@ -139,7 +143,7 @@ public class ExcelImportTest {
 	
 	@Test
 	public void testEmptySheet(){
-		ExcelNormalizer excelNormalizer = new ExcelNormalizer();
+		ExcelImporter excelNormalizer = new ExcelImporter();
 		List<String> columnTitles = excelNormalizer.getColumnTitlesFromFile(emptyFilePath);
 		List<SushiImportEvent> events = excelNormalizer.importEventsForPreviewFromFile(emptyFilePath, columnTitles);
 		assertTrue(events.isEmpty());

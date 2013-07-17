@@ -1,5 +1,8 @@
 package sushi.notification;
 
+/**
+ * This enumeration encapsulates the priorities for a notification rule.
+ */
 public enum SushiNotificationPriorityEnum {
 	LOW ("low"),
 	HIGH ("high");

@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.apache.wicket.model.LoadableDetachableModel;
 
+/**
+ * This model provides a tree of {@link ProcessInstanceMonitoringTreeTableElement}s.
+ * @author micha
+ */
 public class ProcessInstanceMonitoringTreeTableElementModel extends LoadableDetachableModel<ProcessInstanceMonitoringTreeTableElement> {
 	
 	private static final long serialVersionUID = 1L;

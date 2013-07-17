@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,22 +11,36 @@ import java.util.Map;
 
 import org.w3c.dom.Node;
 
-import com.espertech.esper.client.EventBean;
-
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 
+/**
+ * This class contains methods that have been registered to Esper.
+ * This registration takes place in the @see SushiStreamProcessingAdapter.
+ * These methods can be used in Esper queries.  
+ */
 public class SushiUtils {
 	
 	public static Date currentDate() {
 		return new Date();
 	}
 	
+	/**
+	 * Formats a date as defined in the format string.
+	 * @param date
+	 * @param format
+	 * @return formatted date
+	 */
 	public static String formatDate(Date date, String format) {
 		SimpleDateFormat dfmt = new SimpleDateFormat(format);
 		return dfmt.format(date);
 	}
 	
+	/**
+	 * Checks whether several Integer-Lists have common elements
+	 * @param collectionOfIDLists
+	 * @return true if intersection is not empty
+	 */
 	public static boolean isIntersectionNotEmpty(List<Integer>... collectionOfIDLists) {
 		if(collectionOfIDLists == null || collectionOfIDLists.length == 0){
 			return false;
@@ -48,6 +61,11 @@ public class SushiUtils {
 		return !retainedIDs.isEmpty();
 	}
 	
+	/**
+	 * Returns the common elements of several Integer-Lists.
+	 * @param collectionOfIDLists
+	 * @return common elements of lists
+	 */
 	public static List<Integer> getIntersection(List<Integer>... collectionOfIDLists) {
 		if(collectionOfIDLists == null || collectionOfIDLists.length == 0){
 			return new ArrayList<Integer>();
@@ -66,6 +84,13 @@ public class SushiUtils {
 		return retainedIDs;
 	}
 	
+	/**
+	 * Transforms an attribute-value of an event to an integer value.
+	 * @param eventTypeName
+	 * @param attributeExpression
+	 * @param array
+	 * @return integer value
+	 */
 	public static Integer integerValueFromEvent(String eventTypeName, String attributeExpression, Object[] array) {
 		Serializable value = findValueByEventTypeAndAttributeExpressionsAndValues(eventTypeName, attributeExpression, array);
 		if (value != null) {
@@ -78,6 +103,13 @@ public class SushiUtils {
 		return null;
 	}
 
+	/**
+	 * Transforms an attribute value of an event to a double value.
+	 * @param eventTypeName
+	 * @param attributeExpression
+	 * @param array
+	 * @return
+	 */
 	public static Double doubleValueFromEvent(String eventTypeName, String attributeExpression, Object[] array) {
 		Serializable value = findValueByEventTypeAndAttributeExpressionsAndValues(eventTypeName, attributeExpression, array);
 		if (value != null) {
@@ -90,6 +122,13 @@ public class SushiUtils {
 		return null;
 	}
 	
+	/**
+	 * Transforms an attribute value of an event to a string value.
+	 * @param eventTypeName
+	 * @param attributeExpression
+	 * @param array
+	 * @return
+	 */
 	public static String stringValueFromEvent(String eventTypeName, String attributeExpression, Object[] array) {
 		Serializable value = findValueByEventTypeAndAttributeExpressionsAndValues(eventTypeName, attributeExpression, array);
 		if (value != null) {
@@ -98,6 +137,13 @@ public class SushiUtils {
 		return null;
 	}
 	
+	/**
+	 * Transforms an attribute value of an event to a date value.
+	 * @param eventTypeName
+	 * @param attributeExpression
+	 * @param array
+	 * @return
+	 */
 	public static Date dateValueFromEvent(String eventTypeName, String attributeExpression, Object[] array) {
 		Serializable value = findValueByEventTypeAndAttributeExpressionsAndValues(eventTypeName, attributeExpression, array);
 		if (value != null) {
@@ -115,6 +161,13 @@ public class SushiUtils {
 		return null;
 	}
 	
+	/**
+	 * Returns attribute values of events with a certain event type and attribute expressions. 
+	 * @param eventTypeName
+	 * @param attributeExpression
+	 * @param array
+	 * @return
+	 */
 	private static Serializable findValueByEventTypeAndAttributeExpressionsAndValues(String eventTypeName, String attributeExpression, Object[] array) {
 		Map<String, Serializable> attributeExpressionsAndValues = new HashMap<String, Serializable>();
 		for (int i = 0; i < array.length; i = i+2) {
@@ -123,6 +176,12 @@ public class SushiUtils {
 		return SushiEvent.findValueByEventTypeAndAttributeExpressionsAndValues(SushiEventType.findByTypeName(eventTypeName), attributeExpression, attributeExpressionsAndValues);
 	}
 	
+	/**
+	 * Sums up the attribute values of certain attribute from each event of an event list.
+	 * @param events
+	 * @param attributeName
+	 * @return
+	 */
 	public static Integer sumFromEventList(Node[] events, String attributeName) {
 		String[] attributeNameByLevels = {attributeName};
 		if (attributeName.contains(".")) {

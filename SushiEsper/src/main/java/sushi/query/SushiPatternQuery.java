@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.espertech.esper.client.EPStatement;
+
 import sushi.bpmn.element.AbstractBPMNElement;
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 
 /**
  * @author micha
@@ -19,6 +21,7 @@ public class SushiPatternQuery extends SushiQuery {
 	private List<AbstractBPMNElement> monitoredElements;
 	private SushiPatternQuery parentQuery;
 	private Set<SushiPatternQuery> childQueries = new HashSet<SushiPatternQuery>();
+	private EPStatement epStatement;
 	
 	public SushiPatternQuery(String title, String queryString, SushiQueryTypeEnum queryType, PatternQueryType patternQueryType) {
 		super(title, queryString, queryType);
@@ -38,10 +41,14 @@ public class SushiPatternQuery extends SushiQuery {
 		this.patternQueryType = patternQueryType;
 	}
 	
-	public SushiPatternQueryListener addToEsper(SushiEsper sushiEsper){
+	public SushiPatternQueryListener addToEsper(SushiStreamProcessingAdapter sushiEsper){
 		return sushiEsper.addPatternQuery(this);
 	}
-
+	
+	public SushiPatternQueryListener updateForEsper(SushiStreamProcessingAdapter sushiEsper){
+		return sushiEsper.updatePatternQuery(this);
+	}
+	
 	public void setListener(SushiPatternQueryListener patternQueryListener) {
 		this.patternQueryListener = patternQueryListener;
 	}
@@ -83,6 +90,10 @@ public class SushiPatternQuery extends SushiQuery {
 		return !childQueries.isEmpty();
 	}
 	
+	public boolean hasParentQuery() {
+		return parentQuery != null;
+	}
+	
 	public void addChildQueries(SushiPatternQuery childQuery) {
 		childQueries.add(childQuery);
 	}
@@ -93,6 +104,14 @@ public class SushiPatternQuery extends SushiQuery {
 
 	public void setChildQueries(Set<SushiPatternQuery> childQueries) {
 		this.childQueries = childQueries;
+	}
+
+	public void setEPStatement(EPStatement epStatement) {
+		this.epStatement = epStatement;
+	}
+	
+	public EPStatement getEPStatement() {
+		return epStatement;
 	}
 
 }

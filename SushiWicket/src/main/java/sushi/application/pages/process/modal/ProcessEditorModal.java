@@ -15,6 +15,10 @@ import sushi.application.components.form.BootstrapModal;
 import sushi.application.components.form.WarnOnExitForm;
 import sushi.process.SushiProcess;
 
+/**
+ * This panel is a {@link BootstrapModal} and allows the creation and deletion of {@link SushiProcess}es.
+ * @author micha
+ */
 public class ProcessEditorModal extends BootstrapModal {
 
 	private static final long serialVersionUID = 1L;
@@ -24,7 +28,7 @@ public class ProcessEditorModal extends BootstrapModal {
 	private static String selectedProcessName = new String();
 	
 	/**
-     * 
+     * Constructor for a panel, which is a {@link BootstrapModal} and allows the creation and deletion of {@link SushiProcess}es.
      * @param processSelect
      * @param window
      */

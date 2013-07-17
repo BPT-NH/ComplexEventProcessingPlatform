@@ -5,6 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import sushi.bpmn.element.BPMNXORGateway;
+
+/**
+ * This class combines various methods for modification of lists.
+ * @author micha
+ */
 public class SetUtil {
 	
 	/**
@@ -56,10 +62,25 @@ public class SetUtil {
 		return null;
 	}
 	
+	/**
+	 * Returns the elements of the given set as list.
+	 * @param elements
+	 * @return
+	 */
 	public static <T> List<T> asList(Set<T> elements){
 		List<T> elementList = new ArrayList<T>();
 		elementList.addAll(elements);
 		return elementList;
 	}
-
+	
+	public static <T> Boolean containsXorSplit(Set<T> set){
+		for(T element : set){
+			if(element instanceof BPMNXORGateway){
+				if(((BPMNXORGateway) element).isSplitGateway()){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

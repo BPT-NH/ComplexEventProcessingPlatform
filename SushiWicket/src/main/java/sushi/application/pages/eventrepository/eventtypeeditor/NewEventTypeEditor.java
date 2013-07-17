@@ -24,6 +24,10 @@ import sushi.event.attribute.SushiAttributeTree;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.eventhandling.Broker;
 
+/**
+ * This page allows the creation of new {@link SushiEventType}s.
+ * @author micha
+ */
 public class NewEventTypeEditor extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -41,6 +45,11 @@ public class NewEventTypeEditor extends Panel {
 	private SushiAttributeTree eventTypeAttributesTree = new SushiAttributeTree();
 	private AbstractSushiPage abstractSushiPage;
 	
+	/**
+	 * Constructor for a page to create new {@link SushiEventType}s.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public NewEventTypeEditor (String id, AbstractSushiPage abstractSushiPage) {
  		super(id);
 		this.abstractSushiPage = abstractSushiPage;

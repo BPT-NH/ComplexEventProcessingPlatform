@@ -10,8 +10,8 @@ import javax.persistence.Table;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 
 /**
+ * This class represents an exclusive gateway in a BPMN process.
  * @author micha
- *
  */
 @Entity
 @Table(name="BPMNXORGateway")

@@ -1,68 +1,36 @@
 package sushi.application.pages.monitoring.bpmn.monitoring.model;
 
-import java.io.Serializable;
-
+import sushi.application.pages.eventrepository.model.AbstractFilter;
 import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 
 /**
+ * This class filters {@link ProcessInstanceMonitor}s.
  * @author micha
  */
-public class ProcessInstanceMonitoringFilter implements Serializable {
+public class ProcessInstanceMonitoringFilter extends AbstractFilter {
 	
 	private static final long serialVersionUID = 1L;
 	
-	String filterValue;
-	String processInstanceMonitorFilterCriteria;
-	String processInstanceMonitorFilterCondition;
-	
+	/**
+	 * Constructor for the class, which filters {@link ProcessInstanceMonitor}s.
+	 */
 	public ProcessInstanceMonitoringFilter(){
-
+		super();
 	}
 	
 	public ProcessInstanceMonitoringFilter(String processInstanceMonitorFilterCriteria, String processInstanceMonitorFilterCondition, String filterValue){
-		this.processInstanceMonitorFilterCondition = processInstanceMonitorFilterCondition;
-		this.processInstanceMonitorFilterCriteria = processInstanceMonitorFilterCriteria;
-		this.filterValue = filterValue;
+		super(processInstanceMonitorFilterCriteria, processInstanceMonitorFilterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getProcessInstanceMonitorFilterCriteria() {
-		return processInstanceMonitorFilterCriteria;
-	}
-
-
-	public void setProcessInstanceMonitorFilterCriteria(String processInstanceMonitorFilterCriteria) {
-		this.processInstanceMonitorFilterCriteria = processInstanceMonitorFilterCriteria;
-	}
-
-
-	public String getProcessInstanceMonitorFilterCondition() {
-		return processInstanceMonitorFilterCondition;
-	}
-
-
-	public void setProcessInstanceMonitorFilterCondition(String processInstanceMonitorFilterCondition) {
-		this.processInstanceMonitorFilterCondition = processInstanceMonitorFilterCondition;
-	}
-
 
 	public boolean match(ProcessInstanceMonitor processInstanceMonitor) {
-		if(processInstanceMonitorFilterCriteria == null || processInstanceMonitorFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(processInstanceMonitorFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(processInstanceMonitorFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(processInstanceMonitor.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processInstanceMonitorFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(processInstanceMonitor.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(processInstanceMonitor.getID() == Integer.parseInt(filterValue)) return true;

@@ -134,7 +134,7 @@ public class EventTypeRuleTest implements PersistenceTest {
 		assertTrue("eventtyperule was deleted, but should not have been ", EventTypeRule.findEventTypeRuleForCreatedEventType(createdEventType) != null);
 
 		eventTypes = SushiEventType.findAll();
-		assertTrue(eventTypes.size() == 1);
+		assertTrue("there were " + eventTypes.size() + "eventtypes instead of 1", eventTypes.size() == 1);
 
 		assertTrue(eventTypes.get(0).getID() != deleteEventType.getID());		
 	}

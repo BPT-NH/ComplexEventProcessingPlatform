@@ -10,8 +10,8 @@ import javax.persistence.Table;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 
 /**
+ * This class represents the events in a BPMN process, which are attached to another BPMN element.
  * @author micha
- *
  */
 @Entity
 @Table(name="BPMNBoundaryEvent")
@@ -22,7 +22,6 @@ public class BPMNBoundaryEvent extends BPMNIntermediateEvent {
 	private boolean isCancelActivity = false;
 	
 	private AbstractBPMNElement attachedToElement = null;
-	private float timeDuration;
 	
 	public BPMNBoundaryEvent() {
 		super();
@@ -55,14 +54,6 @@ public class BPMNBoundaryEvent extends BPMNIntermediateEvent {
 	public String print() {
 		if (isCancelActivity()) return "cancelling Boundary event";
 		return "Boundary Event";
-	}
-	
-	public float getTimeDuration() {
-		return this.timeDuration;
-	}
-
-	public void setTimeDuration(float duration) {
-		this.timeDuration = duration;
 	}
 	
 }

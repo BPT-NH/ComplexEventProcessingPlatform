@@ -3,7 +3,6 @@ package sushi;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,8 +17,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * centralize file manipulation
+ */
 public class FileUtils {
 	
+	/**
+	 * returns file name "/tmp/abc.txt" returns "abc"
+	 */
 	public static String getFileNameWithoutExtension(String filePath){
 		File file = new File(filePath);
 		String fileName = file.getName();
@@ -28,6 +33,9 @@ public class FileUtils {
 		return fileName.substring(0,index);	
 	}
 	
+	/**
+	 * reads file and concatenate content to a string 
+	 */
 	public static String getFileContentAsString(String filePath) throws IOException {
 		StringBuffer fileData = new StringBuffer(1000);
 		BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -42,6 +50,9 @@ public class FileUtils {
 		return fileData.toString();
 	}
 	
+	/**
+	 * save StreamResult to file given in path 
+	 */
 	public static void writeResultToFile(StreamResult result, String path) {
 		String fileString = result.getWriter().toString();
 		
@@ -55,6 +66,9 @@ public class FileUtils {
 		}		
 	}
 	
+	/**
+	 * returns Document from StreamResult 
+	 */
 	public static Document createDocumentFromResult(StreamResult result) {
 		Document document = null;
 		String fileString = result.getWriter().toString();

@@ -15,6 +15,9 @@ import sushi.query.SushiQueryTypeEnum;
 
 import com.espertech.esper.client.EPException;
 
+/**
+ * This page enables the creation and modification of Live @see SushiQuery 
+ */
 public class LiveQueryEditor extends QueryEditor {
 
 	private static final long serialVersionUID = 1L;
@@ -39,7 +42,6 @@ public class LiveQueryEditor extends QueryEditor {
 	public LiveQueryEditor() {
 		
 		super();
-		
 		helpText = LIVE_QUERY_HELP_TEXT;
 		
 		updateQueryListChoice();
@@ -73,14 +75,12 @@ public class LiveQueryEditor extends QueryEditor {
 					SushiQuery liveQuery = SushiQuery.findQueryByTitle(queryTitle);
 					if (liveQuery == null){
 						liveQuery = new SushiQuery(queryTitle, query, SushiQueryTypeEnum.LIVE);
-						queryTitles.add(queryTitle);
 						sushiEsper.addLiveQuery(liveQuery);
+						queryTitles.add(queryTitle);
 					}
-//					SushiQuery liveQuery = new SushiQuery(queryTitle, query, QueryTypeEnum.LIVE);
-//					sushiEsper.addLiveQuery(liveQuery);
 					liveQuery.setQueryString(query);
 					liveQuery.save();
-//					queryTitles.add(queryTitle);
+					//set input fields to null
 					textFieldDefaultValues.setQueryNameTextField("");
 					query = "";
 					target.add(queryListChoice);
@@ -141,9 +141,11 @@ public class LiveQueryEditor extends QueryEditor {
 			}
 		};
 		layoutForm.add(showQueryLogButton);
-		
 	}
 	
+	/**
+	 * creates a preview of the registered events and their attributes for easier query formulation
+	 */
 	@Override
 	protected ArrayList<SushiAttribute> generateNodesOfEventTypeTree() {
 		ArrayList<SushiAttribute> treeElements = new ArrayList<SushiAttribute>();
@@ -158,6 +160,5 @@ public class LiveQueryEditor extends QueryEditor {
 			}
 		}
 		return treeElements;
-		
 	}
 }

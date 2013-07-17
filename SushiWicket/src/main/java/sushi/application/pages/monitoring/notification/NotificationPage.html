@@ -6,28 +6,17 @@
 </head>
 <body>
 	<wicket:extend>
-		<div wicket:id="addNotificationModal"></div>
-	
-		<span>If logged in you can here see your notifications: </span>
-		<div class="well-small" wicket:id="notifications">
-			<form wicket:id="form">
-				<span wicket:id="notificationEvent" />
-				<input wicket:id="markSeenButton" type="submit" value="OK" class="btn btn-danger" style="float:right"/>
-			</form>	
-		</div>
+		<div wicket:id="addNotificationModal" class="well-small"></div>
+
+		<div wicket:id="notificationList" class="well-small"></div>
 		<br>
 		<br>
 		<br>
 	
-		<form wicket:id="form">
+		<form wicket:id="form" class="well-small">
 			<input wicket:id="addNotificationButton" type="submit" value="Add Notification Rule" class="btn btn-primary" />
 		</form>	
-		<div class="well-small" wicket:id="listview">
-			<form wicket:id="form">
-				<span wicket:id="notification" />
-				<input wicket:id="removeNotificationButton" type="submit" value="Remove Notification" class="btn btn-danger" style="float:right"/>
-			</form>	
-		</div>
+		<div wicket:id="notificationRuleList"></div>
 	</wicket:extend>
 </body>
 </html>

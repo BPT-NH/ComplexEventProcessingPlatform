@@ -1,36 +1,33 @@
 package sushi.user;
 
-import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Query;
 import javax.persistence.Table;
 
-import sushi.bpmn.element.BPMNProcess;
-import sushi.notification.SushiNotification;
+
+import sushi.notification.SushiNotificationForEvent;
 import sushi.notification.SushiNotificationRule;
+import sushi.notification.SushiNotificationRuleForEvent;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
-import sushi.process.SushiProcess;
 import sushi.util.HashUtil;
 
 /**
+ * This class represents users of the system. The users can be saved in and restored from the database.
  * @author micha
- *
  */
 @Entity
 @Table(name = "SushiUser")
 public class SushiUser extends Persistable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,13 +42,19 @@ public class SushiUser extends Persistable {
 	@Column(name = "MAIL")
 	private String mail;
 		
-	/*
+	/**
 	 * Default Constructor for JPA
 	 */
 	public SushiUser(){
 		
 	}
 	
+	/**
+	 * Constructor to create a new user with a name, a password and a mail address.
+	 * @param name
+	 * @param password
+	 * @param mail
+	 */
 	public SushiUser(String name, String password, String mail){
 		this.name = name;
 		this.passwordHash = HashUtil.generateHash(password);
@@ -78,38 +81,57 @@ public class SushiUser extends Persistable {
 		this.name = name;
 	}
 
+	/**
+	 * Returns the hashed password for the current user.
+	 * @return
+	 */
 	public String getPasswordHash() {
 		return passwordHash;
 	}
 
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-
+	/**
+	 * Returns the mail adress for the current user.
+	 * @return
+	 */
 	public String getMail() {
 		return mail;
 	}
 
+	/**
+	 * Sets a new mail adress for the current user.
+	 * @param mail
+	 */
 	public void setMail(String mail) {
 		this.mail = mail;
 	}
-	
-	//JPA-Methods
 	
 	/**
 	 * Finds all users in the database.
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiUser> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("SELECT t FROM SushiUser t");
 		return q.getResultList();
 	}
 	
+	/**
+	 * Returns all users with the given attribute and the corresponding value from the database.
+	 * @param columnName
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	private static List<SushiUser> findByAttribute(String columnName, String value){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM SushiUser WHERE " + columnName + " = '" + value + "'", SushiUser.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns the user with the given ID from the database, if any.
+	 * @param ID
+	 * @return
+	 */
 	public static SushiUser findByID(int ID){
 		List<SushiUser> list = SushiUser.findByAttribute("ID", new Integer(ID).toString());
 		if(list.size() > 0){
@@ -119,10 +141,20 @@ public class SushiUser extends Persistable {
 		}
 	}
 	
+	/**
+	 * Returns all users from the database with the given name.
+	 * @param name
+	 * @return
+	 */
 	public static List<SushiUser> findByName(String name){
 		return SushiUser.findByAttribute("NAME", name);
 	}
 	
+	/**
+	 * Returns all users from the database with the given mail.
+	 * @param mail
+	 * @return
+	 */
 	public static List<SushiUser> findByMail(String mail){
 		return SushiUser.findByAttribute("MAIL", mail);
 	}
@@ -153,5 +185,4 @@ public class SushiUser extends Persistable {
 			System.out.println(ex.getMessage());
 		}
 	}
-
 }

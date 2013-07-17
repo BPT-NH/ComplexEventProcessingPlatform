@@ -134,5 +134,14 @@ public class ProcessMonitor implements Serializable{
 		}
 		return count / processInstanceMonitors.size();
 	}
+
+	public ProcessInstanceMonitor getProcessInstanceMonitor(SushiProcessInstance processInstance) {
+		for(ProcessInstanceMonitor processInstanceMonitor : processInstanceMonitors){
+			if(processInstanceMonitor.getProcessInstance().equals(processInstance)){
+				return processInstanceMonitor;
+			}
+		}
+		return null;
+	}
 	
 }

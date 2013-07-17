@@ -1,15 +1,19 @@
 package sushi.simulation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import sushi.bpmn.decomposition.XORComponent;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.AbstractBPMNGateway;
 import sushi.bpmn.element.BPMNProcess;
+import sushi.bpmn.element.BPMNTask;
 import sushi.bpmn.element.BPMNXORGateway;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 import sushi.event.SushiEventType;
+import sushi.util.Tuple;
 
 public class SimulationUtils {
 
@@ -71,17 +75,43 @@ public class SimulationUtils {
 		return duration;
 	}
 
-	public static Map<BPMNXORGateway, Map<AbstractBPMNElement, String>> getXORSplitsWithPathProbability(Map<Object, String> probabilityStrings, BPMNProcess model) {
-		Map<BPMNXORGateway, Map<AbstractBPMNElement, String>> xorSplitsWithPathProbability = new HashMap<BPMNXORGateway, Map<AbstractBPMNElement, String>>();
+	public static Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, SushiEventType>>> getXORSplitsWithFollowingEventTypes(BPMNProcess model) {
+		Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, SushiEventType>>> xorSplitsWithFolowingElementAndEventType = new HashMap<BPMNXORGateway, List<Tuple<AbstractBPMNElement, SushiEventType>>>();
 		for(AbstractBPMNGateway gateway : model.getAllSplitGateways()){
 			if(gateway instanceof BPMNXORGateway){
-				Map<AbstractBPMNElement, String> pathProbability = new HashMap<AbstractBPMNElement, String>();
+				List<Tuple<AbstractBPMNElement, SushiEventType>> successorAndFollowingEventTypes = new ArrayList<Tuple<AbstractBPMNElement, SushiEventType>>();
 				for(AbstractBPMNElement successor : gateway.getSuccessors()){
-					//TODO: mapping von baumstruktur auf bpmn modell
+					AbstractBPMNElement element = successor;
+					//falls es einen Leeren Pfad zum join gibt
+					if(model.getAllJoinGateways().contains(successor)){
+						successorAndFollowingEventTypes.add(new Tuple<AbstractBPMNElement, SushiEventType>(null, null));
+					}
+					else{
+						while(!(element instanceof BPMNTask)){
+							element = element.getSuccessors().iterator().next();
+						}
+						Tuple<AbstractBPMNElement, SushiEventType> tuple = new Tuple(successor, element.getMonitoringPoints().get(0).getEventType());
+						successorAndFollowingEventTypes.add(tuple);
+						 xorSplitsWithFolowingElementAndEventType.put((BPMNXORGateway) gateway, successorAndFollowingEventTypes);
+					}
 				}
-				xorSplitsWithPathProbability.put((BPMNXORGateway) gateway, pathProbability);
 			}
 		}
-		return xorSplitsWithPathProbability;
+		return xorSplitsWithFolowingElementAndEventType;
+	}
+
+	public static Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, Integer>>> convertProbabilityStrings(Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, String>>> xorSplitsWithSuccessorProbabilityStrings) {
+		Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, Integer>>> xorSplitsWithSuccessorProbabilities = new HashMap<BPMNXORGateway, List<Tuple<AbstractBPMNElement, Integer>>>();
+		Integer percent;
+		for(BPMNXORGateway xorGateway : xorSplitsWithSuccessorProbabilityStrings.keySet()){
+			percent = 0;
+			List<Tuple<AbstractBPMNElement,Integer>> successorProbabilityList = new ArrayList<Tuple<AbstractBPMNElement,Integer>>();
+			for(Tuple<AbstractBPMNElement, String> successorProbabilityString : xorSplitsWithSuccessorProbabilityStrings.get(xorGateway)){
+				percent = percent + Integer.parseInt(successorProbabilityString.y);
+				successorProbabilityList.add(new Tuple<AbstractBPMNElement, Integer>(successorProbabilityString.x, percent));
+			}
+			xorSplitsWithSuccessorProbabilities.put(xorGateway, successorProbabilityList);
+		}
+		return xorSplitsWithSuccessorProbabilities;
 	}
 }

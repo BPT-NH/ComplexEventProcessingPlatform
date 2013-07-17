@@ -18,16 +18,15 @@ import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 
-import sushi.aggregation.SushiAggregation;
-import sushi.aggregation.SushiAggregationRule;
 import sushi.application.images.ImageReference;
 import sushi.application.pages.main.MainPage;
 import sushi.application.pages.user.LoginPage;
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.eventhandling.Broker;
+import sushi.transformation.TransformationManager;
 import de.agilecoders.wicket.Bootstrap;
 import de.agilecoders.wicket.markup.html.bootstrap.extensions.html5player.Html5PlayerCssReference;
 import de.agilecoders.wicket.markup.html.bootstrap.extensions.html5player.Html5PlayerJavaScriptReference;
@@ -41,9 +40,13 @@ import de.agilecoders.wicket.settings.BootstrapSettings;
 import de.agilecoders.wicket.settings.BootswatchThemeProvider;
 import de.agilecoders.wicket.settings.ThemeProvider;
 
+/**
+ * The controller for the web application. Most of the initialization is done here.
+ * @author micha
+ */
 public class SushiApplication extends WebApplication {
 
-	private SushiEsper sushiEsper;
+	private SushiStreamProcessingAdapter sushiEsper;
 	private BootstrapSettings bootStrapSettings;
 
 	@Override
@@ -75,14 +78,18 @@ public class SushiApplication extends WebApplication {
 		
 		mountImages();
 
-		sushiEsper = SushiEsper.getInstance();
+		sushiEsper = SushiStreamProcessingAdapter.getInstance();
 //		initializeEventTypesForShowCase();
-		SushiAggregation.getInstance();
+		TransformationManager.getInstance();
 		
 		setAuthorizationStrategy();
 		
 	}
 
+	/**
+	 * Initializes the authorization strategy for the web application. 
+	 * Pages, which implement the {@link SushiAuthenticatedWebPage} interface, are only accessible for authenticated users.
+	 */
 	private void setAuthorizationStrategy() {
 		getSecuritySettings().setAuthorizationStrategy(new IAuthorizationStrategy(){
 			
@@ -114,119 +121,204 @@ public class SushiApplication extends WebApplication {
         });
 	}
 
+	/**
+	 * Loads the images for the web application at start-up.
+	 */
 	private void mountImages() {
 		ResourceReference alignmentImage = new PackageResourceReference(ImageReference.class, "alignment.jpg");
 		mountResource("/images/alignment", alignmentImage);
 		
 		ResourceReference eventStreamImage = new PackageResourceReference(ImageReference.class, "eventStream.jpg");
-		mountResource("/images/eventStream", alignmentImage);
+		mountResource("/images/eventStream", eventStreamImage);
 		
 		ResourceReference groupImage = new PackageResourceReference(ImageReference.class, "group.jpg");
-		mountResource("/images/group", alignmentImage);
+		mountResource("/images/group", groupImage);
 		
 		ResourceReference processImage = new PackageResourceReference(ImageReference.class, "process.jpg");
-		mountResource("/images/process", alignmentImage);
+		mountResource("/images/process", processImage);
 	}
 
 	private void initializeEventTypesForShowCase() {
 		List<SushiAttribute> attributes;
 		SushiEventType eventType;
-		SushiAttribute rootAttribute1 = new SushiAttribute("Containernummer", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute2 = new SushiAttribute("TimeDifference", SushiAttributeTypeEnum.INTEGER);
-		SushiAttribute rootAttribute3 = new SushiAttribute("ATA", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute4 = new SushiAttribute("ETA", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute6 = new SushiAttribute("Timestamp End", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute7 = new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute8 = new SushiAttribute("Location", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute9 = new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute10 = new SushiAttribute("Last Stop", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute11 = new SushiAttribute("Action", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute12 = new SushiAttribute("Timestamp Second Location", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute13 = new SushiAttribute("Origin", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute14 = new SushiAttribute("Destination", SushiAttributeTypeEnum.STRING);
-		SushiAttribute rootAttribute15 = new SushiAttribute("Truck Usage Start", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute16 = new SushiAttribute("Truck Usage End", SushiAttributeTypeEnum.DATE);
-		SushiAttribute rootAttribute17 = new SushiAttribute("Distance in km", SushiAttributeTypeEnum.INTEGER);
-		SushiAttribute rootAttribute18 = new SushiAttribute("Time approx", SushiAttributeTypeEnum.INTEGER);
-		SushiAttribute rootAttribute19 = new SushiAttribute("Total distance in km", SushiAttributeTypeEnum.INTEGER);
-		
+
 		if (SushiEventType.findByTypeName("ScheduledArrivalEvent") == null) {
-			attributes = Arrays.asList(rootAttribute1);
+			attributes = Arrays.asList(
+						new SushiAttribute("Containernummer", SushiAttributeTypeEnum.STRING)
+					);
 			eventType = new SushiEventType("ScheduledArrivalEvent", attributes, "ETA seavessel");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("ActualArrivalEvent") == null) {
-			attributes = Arrays.asList(rootAttribute1);
+			attributes = Arrays.asList(
+					new SushiAttribute("Containernummer", SushiAttributeTypeEnum.STRING)
+				);
 			eventType = new SushiEventType("ActualArrivalEvent", attributes, "ATA seavessel");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("TimeDiffMoreThan24H") == null) {
-			attributes = Arrays.asList(rootAttribute1, rootAttribute2, rootAttribute3, rootAttribute4);
+			attributes = Arrays.asList(
+					new SushiAttribute("Containernummer", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("TimeDifference", SushiAttributeTypeEnum.INTEGER), 
+					new SushiAttribute("ATA", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("ETA", SushiAttributeTypeEnum.DATE)
+				);
 			eventType = new SushiEventType("TimeDiffMoreThan24H", attributes, "ATA seavessel");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("truckUsage") == null) {
-			attributes = Arrays.asList(rootAttribute7, rootAttribute9, rootAttribute11);
+			attributes = Arrays.asList(
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Action", SushiAttributeTypeEnum.STRING)
+				);
 			eventType = new SushiEventType("truckUsage", attributes, "Timestamp");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("obuEvent") == null) {
-			attributes = Arrays.asList(rootAttribute7, rootAttribute8);
+			attributes = Arrays.asList(
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Location", SushiAttributeTypeEnum.STRING)
+				);
 			eventType = new SushiEventType("obuEvent", attributes, "Timestamp");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("truckUsageInterval") == null) {
-			attributes = Arrays.asList(rootAttribute6, rootAttribute7, rootAttribute9);
+			attributes = Arrays.asList(
+					new SushiAttribute("Timestamp End", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING)
+				);
 			eventType = new SushiEventType("truckUsageInterval", attributes, "Timestamp Begin");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("enrichedObuEvent") == null) {
-			attributes = Arrays.asList(rootAttribute15, rootAttribute9, rootAttribute7, rootAttribute8);
+			attributes = Arrays.asList(
+					new SushiAttribute("Truck Usage Start", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Location", SushiAttributeTypeEnum.STRING)
+				);
 			eventType = new SushiEventType("enrichedObuEvent", attributes, "Timestamp");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("DrivenRoute") == null) {
-			attributes = Arrays.asList(rootAttribute12, rootAttribute13, rootAttribute14, rootAttribute15, rootAttribute7, rootAttribute9, rootAttribute17);
+			attributes = Arrays.asList(
+					new SushiAttribute("Timestamp Second Location", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Origin", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Destination", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Truck Usage Start", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Distance in km", SushiAttributeTypeEnum.INTEGER)
+				);
 			eventType = new SushiEventType("DrivenRoute", attributes, "Timestamp First Location");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("TruckRoute") == null) {
-			attributes = Arrays.asList(rootAttribute13, rootAttribute14, rootAttribute17, rootAttribute18);
+			attributes = Arrays.asList(
+					new SushiAttribute("Origin", SushiAttributeTypeEnum.STRING),
+					new SushiAttribute("Destination", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Distance in km", SushiAttributeTypeEnum.INTEGER), 
+					new SushiAttribute("Time approx", SushiAttributeTypeEnum.INTEGER)
+				);
 			eventType = new SushiEventType("TruckRoute", attributes, "Import time");
 			Broker.send(eventType);
 		}
 		
 		if (SushiEventType.findByTypeName("TraveledDistance") == null) {
-			attributes = Arrays.asList(rootAttribute15, rootAttribute16, rootAttribute9, rootAttribute7, rootAttribute19);
+			attributes = Arrays.asList(
+					new SushiAttribute("Truck Usage Start", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Truck Usage End", SushiAttributeTypeEnum.DATE), 
+					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Total distance in km", SushiAttributeTypeEnum.INTEGER)
+				);
 			eventType = new SushiEventType("TraveledDistance", attributes, "Time of Detection");
 			Broker.send(eventType);
 		}
 		
 //		if (SushiEventType.findByTypeName("tenTruckStops") == null) {
-//			attributes = Arrays.asList(rootAttribute7, rootAttribute9, rootAttribute10);
+//			attributes = Arrays.asList(
+//					new SushiAttribute("Driver", SushiAttributeTypeEnum.STRING), 
+//					new SushiAttribute("Truck", SushiAttributeTypeEnum.STRING), 
+//					new SushiAttribute("Last Stop", SushiAttributeTypeEnum.DATE)
+//				);
 //			eventType = new SushiEventType("tenTruckStops", attributes, "First Stop");
 //			Broker.send(eventType);
 //		}
+		
+//		if (SushiEventType.findByTypeName("Event1") == null) {
+//			attributes = Arrays.asList(
+//					new SushiAttribute("Attribute_A", SushiAttributeTypeEnum.INTEGER), 
+//					new SushiAttribute("Attribute_B", SushiAttributeTypeEnum.STRING)
+//				);
+//			eventType = new SushiEventType("Event1", attributes, "Timestamp");
+//			Broker.send(eventType);
+//		}
+//		
+//		if (SushiEventType.findByTypeName("Event2") == null) {
+//			attributes = Arrays.asList(
+//					new SushiAttribute("Attribute_C", SushiAttributeTypeEnum.STRING), 
+//					new SushiAttribute("Attribute_D", SushiAttributeTypeEnum.DATE), 
+//					new SushiAttribute("Attribute_E", SushiAttributeTypeEnum.INTEGER)
+//				);
+//			eventType = new SushiEventType("Event2", attributes, "Timestamp");
+//			Broker.send(eventType);
+//		}
+//		
+//		if (SushiEventType.findByTypeName("Event3") == null) {
+//			attributes = Arrays.asList(
+//					new SushiAttribute("Attribute_F", SushiAttributeTypeEnum.INTEGER), 
+//					new SushiAttribute("Attribute_G", SushiAttributeTypeEnum.STRING)
+//				);
+//			eventType = new SushiEventType("Event3", attributes, "Timestamp");
+//			Broker.send(eventType);
+//		}
+		
+		if (SushiEventType.findByTypeName("KinoRating") == null) {
+			attributes = Arrays.asList(
+					new SushiAttribute("Location", SushiAttributeTypeEnum.INTEGER), 
+					new SushiAttribute("Rating", SushiAttributeTypeEnum.STRING)
+				);
+			eventType = new SushiEventType("KinoRating", attributes, "Timestamp");
+			Broker.send(eventType);
+		}
+		
+		if (SushiEventType.findByTypeName("KinoFilme") == null) {
+			attributes = Arrays.asList(
+					new SushiAttribute("Location", SushiAttributeTypeEnum.INTEGER), 
+					new SushiAttribute("Movie", SushiAttributeTypeEnum.STRING), 
+					new SushiAttribute("Action", SushiAttributeTypeEnum.STRING)
+				);
+			eventType = new SushiEventType("KinoFilme", attributes, "Timestamp");
+			Broker.send(eventType);
+		}
 	}
 
-	public SushiEsper getSushiEsper() {
+	/**
+	 * Gets the adapter for the Esper event processing engine.
+	 * @return
+	 */
+	public SushiStreamProcessingAdapter getSushiEsper() {
 		return sushiEsper;
 	}
 
-	public void setSushiEsper(SushiEsper sushiEsper) {
+	public void setSushiEsper(SushiStreamProcessingAdapter sushiEsper) {
 		this.sushiEsper = sushiEsper;
 	}
 	
 	 /**
-     * configure all resource bundles (css and js)
+     * Configure all resource bundles (css and js).
+     * The resource bundles also include the bootstrap css und js.
      */
     private void configureResourceBundles() {
         getResourceBundles().addJavaScriptBundle(SushiApplication.class, "core.js",

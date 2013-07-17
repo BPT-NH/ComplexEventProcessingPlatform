@@ -36,14 +36,14 @@ import sushi.application.components.table.AttributeTypeDropDownChoicePanel;
 import sushi.application.pages.AbstractSushiPage;
 import sushi.application.pages.input.model.EventAttributeProvider;
 import sushi.application.pages.main.MainPage;
-import sushi.csv.importer.CSVNormalizer;
+import sushi.csv.importer.CSVImporter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTree;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.eventhandling.Broker;
-import sushi.excel.importer.ExcelNormalizer;
+import sushi.excel.importer.ExcelImporter;
 import sushi.excel.importer.FileNormalizer;
 import sushi.excel.importer.SushiImportEvent;
 import sushi.excel.importer.TimeStampNames;
@@ -86,9 +86,9 @@ public class ExcelEventTypeCreator extends AbstractSushiPage {
 		int index = filePath.lastIndexOf('.');
 		String fileExtension = filePath.substring(index + 1, filePath.length());
 		if(fileExtension.contains("xls")){
-			fileNormalizer = new ExcelNormalizer();
+			fileNormalizer = new ExcelImporter();
 		} else {
-			fileNormalizer = new CSVNormalizer();
+			fileNormalizer = new CSVImporter();
 		}
 		columnTitles = (ArrayList<String>) fileNormalizer.getColumnTitlesFromFile(filePath);
 
@@ -245,7 +245,7 @@ public class ExcelEventTypeCreator extends AbstractSushiPage {
 				}
 				
 				// remove attributes that are not selected
-				eventTypeAttributesTree.retainAllAttributes(eventAttributeProvider.getSelectedAttributes());
+				eventTypeAttributesTree.retainAllAttributes(eventAttributeProvider.getSelectedEntities());
 				SushiEventType eventType;
 				try {
 				eventType = new SushiEventType(eventTypeName, eventTypeAttributesTree, timestampName);

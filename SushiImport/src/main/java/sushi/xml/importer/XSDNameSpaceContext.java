@@ -7,8 +7,8 @@ import javax.xml.namespace.NamespaceContext;
 
 
 /**
+ * This class specifies an name space for the parsing of ordinary XML files.
  * @author micha
- *
  */
 public class XSDNameSpaceContext implements NamespaceContext {
 	
@@ -26,7 +26,7 @@ public class XSDNameSpaceContext implements NamespaceContext {
 			return null;
 	}
 
-	public Iterator getPrefixes(String namespace) {
+	public Iterator<?> getPrefixes(String namespace) {
 		return null;
 	}
 	

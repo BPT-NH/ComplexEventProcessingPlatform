@@ -11,7 +11,8 @@ import sushi.bpmn.monitoringpoint.MonitoringPoint;
 import sushi.bpmn.monitoringpoint.MonitoringPointStateTransition;
 
 /**
- * representation of a tree node
+ * Representation of a tree node of the BPMN treetable.
+ * Each element contains a {@link AbstractBPMNElement} and associated informations for these element.
  *
  * @param <T> type of content to be stored
  */

@@ -39,8 +39,13 @@ import sushi.event.collection.SushiMapTree;
 import sushi.eventhandling.Broker;
 import sushi.notification.SushiCondition;
 
+/**
+ * This page allows the creation of new {@link SushiEventType}s from existing ones.
+ * @author micha
+ */
 public class ExistingEventTypeEditor extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private ConditionInputPanel conditionInput;
 	private TextField<String> eventTypeInput;
 	private Palette<SushiAttribute> relevantEventTypeColumnsPalette;
@@ -51,6 +56,11 @@ public class ExistingEventTypeEditor extends Panel {
 	private List<SushiAttribute> commonCorrelationAttributes = new ArrayList<SushiAttribute>();
 	private List<SushiEventType> eventTypes = SushiEventType.findAll();
 
+	/**
+	 * Constructor for a page to create new {@link SushiEventType}s from existing ones.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public ExistingEventTypeEditor(String id, AbstractSushiPage abstractSushiPage){
 		super(id);
 		
@@ -77,13 +87,13 @@ public class ExistingEventTypeEditor extends Panel {
 	}
 	
 	private Component addConditionInput() {
-		conditionInput = new ConditionInputPanel("conditionInput");
+		conditionInput = new ConditionInputPanel("conditionInput", true);
 		conditionInput.setOutputMarkupId(true);
 		return conditionInput;
 	}
 	
 	private Component addExistingEventTypeSelect() {
-		
+
 		eventTypesCheckBoxMultipleChoice = new CheckBoxMultipleChoice<SushiEventType>("eventTypesCheckBoxMultipleChoice", new PropertyModel<ArrayList<SushiEventType>>(this, "selectedEventTypes"), eventTypes) {
 			@Override
 		 	protected boolean isDisabled(SushiEventType eventType, int index, String selected) {
@@ -113,6 +123,7 @@ public class ExistingEventTypeEditor extends Panel {
 					}
 				}
 				conditionInput.setSelectedEventTypes(selectedEventTypes);
+				conditionInput.updateAttributesValues();
 				target.add(conditionInput.getConditionAttributeSelect());
 				target.add(conditionInput.getConditionValueSelect());
 				target.add(relevantEventTypeColumnsPalette);
@@ -120,31 +131,7 @@ public class ExistingEventTypeEditor extends Panel {
 			}
 		});
 		eventTypesCheckBoxMultipleChoice.setOutputMarkupId(true);
-		eventTypesCheckBoxMultipleChoice.setSuffix("");
 		return eventTypesCheckBoxMultipleChoice;
-		
-//		existingEventTypesSelect = new ListMultipleChoice<String>("existingEventTypesSelect", new Model(selectedEventTypeNames), eventTypeNameProvider);
-//		existingEventTypesSelect.setOutputMarkupId(true);
-//		
-//		existingEventTypesSelect.add(new AjaxFormComponentUpdatingBehavior("onchange"){ 
-//
-//			@Override 
-//			protected void onUpdate(AjaxRequestTarget target) { 
-////				selectedEventTypeName = existingEventTypesSelect.getChoices().get(Integer.parseInt(existingEventTypesSelect.getValue()));
-//				//collect Event Types
-//				List<SushiEventType> eventTypes = new ArrayList<SushiEventType>();
-//				for (String name : selectedEventTypeNames) {
-//					eventTypes.add(SushiEventType.findByTypeName(name));
-//				}
-//				conditionInput.setSelectedEventTypes(eventTypes);
-//				conditionInput.updateAttributesValues();
-//				target.add(conditionInput.getConditionAttributeSelect());
-//				target.add(conditionInput.getConditionValueSelect());	
-//				
-//				target.add(relevantEventTypeColumnsPalette);
-//			}
-//		});
-//		return existingEventTypesSelect;
 	}
 	
 	private Component addRelevantEventTypeColumnsPalette() {
@@ -238,26 +225,23 @@ public class ExistingEventTypeEditor extends Panel {
 					SushiEventType newEventType = new SushiEventType(newEventTypeName);
 					newEventType.addValueTypes(selectedEventTypeAttributes);
 					Broker.send(newEventType);
+					
 					//create EventTypeRule
 					Set<SushiEventType> usedEventTypes = new HashSet<SushiEventType>();
 					for(SushiEventType selectedEventType: selectedEventTypes){
 						usedEventTypes.add(selectedEventType);
 					}
-					
 					SushiCondition condition = conditionInput.getCondition();
-					//create EventTypeRule
 					EventTypeRule newEventTypeRule = new EventTypeRule(new ArrayList<SushiEventType>(usedEventTypes), condition, newEventType); 
 					newEventTypeRule.save();
+					
 					//execute on existing data
-					ArrayList<SushiEvent> newEvents = newEventTypeRule.findEventsForEventType();
-					ArrayList<SushiEvent> copiedEvents = new ArrayList<SushiEvent>();
-					for (SushiEvent newEvent: newEvents) {
-						copiedEvents.add(new SushiEvent(newEventType, newEvent.getTimestamp(), (SushiMapTree<String, Serializable>)newEvent.getValues()));
-					}
-					Broker.send(copiedEvents);
+					ArrayList<SushiEvent> newEvents = newEventTypeRule.execute();
+					Broker.send(newEvents);
+					
 					target.add(eventTypesCheckBoxMultipleChoice);
 					PageParameters pageParameters = new PageParameters();
-					pageParameters.add("successFeedback", copiedEvents.size() + " events have been added to " + newEventTypeName);
+					pageParameters.add("successFeedback", newEvents.size() + " events have been added to " + newEventTypeName);
 					setResponsePage(MainPage.class, pageParameters);
 				} else if (SushiEventType.getAllTypeNames().contains(newEventTypeName)) {
 					target.appendJavaScript("$.unblockUI();");

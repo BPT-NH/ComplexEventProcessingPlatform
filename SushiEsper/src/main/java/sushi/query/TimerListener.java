@@ -2,7 +2,7 @@ package sushi.query;
 
 import java.util.Date;
 
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.eventhandling.Broker;
@@ -38,7 +38,7 @@ public class TimerListener extends Thread {
 		System.err.println("Send Boundary Timer Event to Esper" + createBoundaryTimerEvent());
 		
 		Broker.getLock().lock();
-		SushiEsper.getInstance().addEvent(createBoundaryTimerEvent());
+		SushiStreamProcessingAdapter.getInstance().addEvent(createBoundaryTimerEvent());
 		Broker.getLock().unlock();
 	}
 

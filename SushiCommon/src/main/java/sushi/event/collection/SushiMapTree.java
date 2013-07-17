@@ -29,8 +29,7 @@ import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 
 /**
- * @author micha
- *
+ * TreeStructure used for structured key value mapping. Each node can have childes. Its possible to have many root nodes.
  * @param <K>
  * @param <V>
  */
@@ -45,6 +44,7 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 	@Column(name="SushiMapID")
 	protected int ID;
 	
+	// splitted root elements and hierachical for more convinience
 	@OneToMany(cascade={CascadeType.PERSIST, CascadeType.REMOVE})
 	@JoinTable(name="SushiMapTree_SushiMapTreeElements")
 	private List<SushiMapElement<K,V>> treeElements = new ArrayList<SushiMapElement<K,V>>();
@@ -53,9 +53,7 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 	@JoinTable(name="SushiMapTree_SushiMapTreeRootElements")
 	private List<SushiMapElement<K,V>> treeRootElements = new ArrayList<SushiMapElement<K,V>>();
 	
-	/**
-	 * Diese Spalte wurde nur hinzugefügt, da das Element sonst nicht per JPA abspeicherbar wäre.
-	 */
+	 // JPA cannot save empty objects. this element is carrying  
 	@Column(name="Test")
 	private String test = "Test";
 	
@@ -75,7 +73,6 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 	}
 	
 	public V getValueOfAttribute(String attribute) {
-		//TODO: Abfrage, die hierarchisch funktioniert
 		for (SushiMapElement<K, V>  element : treeElements) {
 			if (element.getKey().equals(attribute)) {
 				return element.getValue();
@@ -84,6 +81,9 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return null;
 	}
 	
+	/**
+	 * @return Values of the Elements in the first hierarchy
+	 */
 	public List<V> getRootElementValues(){
 		List<V> rootElementValues = new ArrayList<V>();
 		for(SushiMapElement<K, V> currentTreeElement : treeRootElements){
@@ -92,6 +92,10 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return rootElementValues;
 	}
 	
+	/**
+	 * @param treeElementKey
+	 * @return value of the partent of the node of the given key
+	 */
 	public V getParentValue(K treeElementKey){
 		for(SushiMapElement<K, V> currentTreeElement : treeElements){
 			if(currentTreeElement.getKey() == treeElementKey){
@@ -101,6 +105,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param treeElementKey
+	 * @return key of the node of the given key
+	 */
 	public K getParentKey(K treeElementKey){
 		for(SushiMapElement<K, V> currentTreeElement : treeElements){
 			if(currentTreeElement.getKey() == treeElementKey){
@@ -111,9 +120,8 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 	}
 	
 	/**
-	 * Returns all children keys for a specific element in the tree with the key treeElementKey.
 	 * @param treeElementKey
-	 * @return
+	 * @return all children keys for a specific element in the tree with the key treeElementKey.
 	 */
 	public List<K> getChildrenKeys(K treeElementKey){
 		List<K> childrenKeys = new ArrayList<K>();
@@ -125,9 +133,8 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 	}
 	
 	/**
-	 * Returns all children values for a specific element in the tree with the key treeElementKey.
 	 * @param treeElementKey
-	 * @return
+	 * @return all children values for a specific element in the tree with the key treeElementKey.
 	 */
 	public List<V> getChildrenValues(K treeElementKey){
 		List<V> childrenValues = new ArrayList<V>();
@@ -138,6 +145,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return childrenValues;
 	}
 	
+	/**
+	 * checks if the node of the given key has children
+	 * @param treeElementKey
+	 * @return
+	 */
 	public boolean hasChildren(K treeElementKey){
 		SushiMapElement<K,V> currentMapElement = findMapElementByKey(treeElementKey);
 		return currentMapElement.hasChildren();
@@ -157,6 +169,12 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		}
 	}
 	
+	/**
+	 * adds root node with the given key and value
+	 * @param childKey
+	 * @param childValue
+	 * @return
+	 */
 	public boolean addRootElement(K childKey, V childValue){
 		SushiMapElement<K,V> element = new SushiMapElement<K,V>(childKey, childValue);
 		return (treeRootElements.add(element) && treeElements.add(element));
@@ -219,7 +237,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return removeTreeElementValue;
 	}
 	
-	// TODO: consider putting this into a subclass of SushiMapTree<String, Serializable>
+	/**
+	 * removes the given node from the tree
+	 * @param removeTreeElement
+	 * @return
+	 */
 	private V removeTreeElement(SushiMapElement<K, V> removeTreeElement) {
 		V removeTreeElementValue = null;
 		if(removeTreeElement != null){
@@ -282,6 +304,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return elementSet;
 	}
 	
+	/**
+	 * return value of the node of the given key
+	 * @param elementKey
+	 * @return
+	 */
 	public V findElement(K elementKey){
 		SushiMapElement<K, V> element = findMapElementByKey(elementKey);
 		if(element != null){
@@ -292,6 +319,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		
 	}
 	
+	/**
+	 * return node with the given key
+	 * @param treeElementKey
+	 * @return
+	 */
 	private SushiMapElement<K, V> findMapElementByKey(K treeElementKey){
 		if(treeElementKey == null){
 			return null;
@@ -304,11 +336,17 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return null;
 	}
 	
+	/**
+	 * @return all maptrees
+	 */
 	public static List<SushiMapTree> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("SELECT t from SushiMapTree t");
 		return q.getResultList();
 	}
 	
+	/**
+	 * removes all maptrees from DB
+	 */
 	public static void removeAll() {
 		try {
 			EntityTransaction entr = Persistor.getEntityManager().getTransaction();
@@ -341,6 +379,11 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return tree;
 	}
 	
+	/**
+	 * deletes all elements except the given
+	 * @param collection
+	 * @return
+	 */
 	public boolean retainAll(Collection collection){
 		boolean retainSuccess = true;
 		List<SushiMapElement<K, V>> copyTreeList = new ArrayList<SushiMapElement<K, V>>(treeElements);
@@ -352,7 +395,6 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		return retainSuccess;
 	}
 	
-	// TODO: consider putting this into a subclass of SushiMapTree<String, Serializable>
 	/**
 	 * use this only if the SushiMapTree is used as attribute name/value mapping
 	 * 
@@ -369,6 +411,10 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 		}
 	}
 
+	/**
+	 * delete all node except those which keys are mentioned
+	 * @param retainableKeys
+	 */
 	public void retainAllKeys(ArrayList<String> retainableKeys) {
 		for(K key : keySet()){
 			if(!retainableKeys.contains(key)){
@@ -399,11 +445,13 @@ public class SushiMapTree<K, V> extends Persistable implements Map<K,V> {
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			return (SushiMapTree<K, V>) ois.readObject();
-		} catch (IOException e) {
-			return null;
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			return null;
 		}
 	}
 
+	@Override
+	public int getID() {
+		return ID;
+	}
 }

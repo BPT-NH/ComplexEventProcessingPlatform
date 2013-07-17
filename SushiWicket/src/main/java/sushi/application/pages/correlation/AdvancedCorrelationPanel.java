@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -42,6 +43,7 @@ public class AdvancedCorrelationPanel extends Panel {
 	private final DropDownChoice<SushiEventType> timeCorrelationEventTypeSelect;
 	private final RadioChoice<String> timeCorrelationAfterOrBeforeType;
 	private ConditionInputPanel conditionPanel;
+	private TextField<String> multipleConditionsTextField;
 	private static final ResourceReference Label_CSS = new PackageResourceReference(AdvancedCorrelationPanel.class, "label.css");
 	
 	@Override
@@ -96,12 +98,36 @@ public class AdvancedCorrelationPanel extends Panel {
 		});
 		advancedCorrelationForm.add(timeCorrelationMinutesInput);
 		
-		timeCorrelationAfterOrBeforeType = new RadioChoice<String>("afterOrBeforeRadioGroup", new PropertyModel<String>(this, "selectedTimeRadioOption"), timeCorrelationRadioValues);
+		timeCorrelationAfterOrBeforeType = new RadioChoice<String>("afterOrBeforeRadioGroup", new PropertyModel<String>(this, "selectedTimeRadioOption"), timeCorrelationRadioValues) {
+			public String getSuffix() { 
+				return "&nbsp;&nbsp;&nbsp;"; 
+			}
+		};
 		advancedCorrelationForm.add(timeCorrelationAfterOrBeforeType);
 		
-		conditionPanel = new ConditionInputPanel("conditionInput");
+		conditionPanel = new ConditionInputPanel("conditionInput", true);
 		advancedCorrelationForm.add(conditionPanel);
 		
+		multipleConditionsTextField = new TextField<String>("multipleConditionsTextField", new Model<String>());
+		multipleConditionsTextField.setOutputMarkupId(true);
+		OnChangeAjaxBehavior onChangeAjaxBehavior = new OnChangeAjaxBehavior() {
+			private static final long serialVersionUID = -5737941362786901904L;
+			
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				if (isMultipleConditionsTextFieldFilled()) {
+					conditionPanel.disableAllComponents(target);
+				} else {
+					conditionPanel.enableAllComponents(target);
+				}
+			}
+        };
+        multipleConditionsTextField.add(onChangeAjaxBehavior);
+		advancedCorrelationForm.add(multipleConditionsTextField);
+	}
+	
+	private boolean isMultipleConditionsTextFieldFilled() {
+		return multipleConditionsTextField.getModelObject() != null && !multipleConditionsTextField.getModelObject().isEmpty();
 	}
 
 	public String getSelectedTimeRadioOption() {
@@ -110,6 +136,15 @@ public class AdvancedCorrelationPanel extends Panel {
 
 	public void setSelectedTimeRadioOption(String selectedTimeRadioOption) {
 		this.selectedTimeRadioOption = selectedTimeRadioOption;
+	}
+
+	public TextField<String> getMultipleConditionsTextField() {
+		return multipleConditionsTextField;
+	}
+
+	public void setMultipleConditionsTextField(
+			TextField<String> multipleConditionsTextField) {
+		this.multipleConditionsTextField = multipleConditionsTextField;
 	}
 
 	public CheckBox getTimeCorrelationCheckBox() {
@@ -130,6 +165,7 @@ public class AdvancedCorrelationPanel extends Panel {
 
 	public TimeCondition getTimeCondition() {
 		int minutes;
+		String conditionString;
 		if(!timeCorrelationMinutes.isEmpty()){
 			minutes = Integer.valueOf(timeCorrelationMinutes);
 		} else {
@@ -137,12 +173,12 @@ public class AdvancedCorrelationPanel extends Panel {
 		}
 		
 		boolean isAfter = selectedTimeRadioOption.equals("after") ? true : false;
-		/*
-		 *  TODO: Der conditionString sollten nicht mehr gebaut werden, 
-		 *  die beiden Werte sollten einfach direkt dem TimeCondition-Konstruktor übergeben werden.
-		 */
-		String conditionString = conditionPanel.getCondition().getConditionString();
-		System.out.println(conditionString);
+		if (isMultipleConditionsTextFieldFilled()) {
+			conditionString = multipleConditionsTextField.getModelObject();
+		} else {
+			conditionString = conditionPanel.getCondition().getConditionString();
+		}
+//		System.out.println(conditionString);
 		TimeCondition timeCondition = new TimeCondition(selectedEventType, minutes, isAfter, conditionString);
 		return timeCondition;
 	}

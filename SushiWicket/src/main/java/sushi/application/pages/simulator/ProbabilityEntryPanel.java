@@ -21,7 +21,7 @@ public class ProbabilityEntryPanel extends Panel {
 		super(id);
 		Form<Void> form = new Form<Void>("form");
 		
-		textField = new TextField<String>("textFieldID", Model.of(simulationTreeTableProvider.getInputForEntry(entryId)));
+		textField = new TextField<String>("textFieldID", Model.of(simulationTreeTableProvider.getProbabilityForEntry(entryId)));
 		textField.setOutputMarkupPlaceholderTag(true);
 		textField.setOutputMarkupId(true);
 		textField.add(new AjaxFormComponentUpdatingBehavior("onchange"){ 
@@ -31,14 +31,7 @@ public class ProbabilityEntryPanel extends Panel {
 			@Override 
 			protected void onUpdate(AjaxRequestTarget target) {
 				
-				simulationTreeTableProvider.setInputForEntry(textField.getValue(), entryId);
-				simulationTreeTableProvider.updateAllEqualInputFields(textField.getValue(), entryId);
-				if(treeTable != null){
-					target.add(treeTable);
-				}
-				else{
-					target.add(getPage());
-				}
+				simulationTreeTableProvider.setProbabilityForEntry(textField.getValue(), entryId);
 			}
 		});
 		

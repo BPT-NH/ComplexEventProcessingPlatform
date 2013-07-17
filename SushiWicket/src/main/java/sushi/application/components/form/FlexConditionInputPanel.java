@@ -115,7 +115,7 @@ public class FlexConditionInputPanel extends Panel{
 	public void updateAttributesValues() {
 		Set<String> attributeValues = new HashSet();
 		for (SushiEventType eventType : selectedEventTypes) {
-			attributeValues.addAll(eventType.getAttributeKeysFromMap());
+			attributeValues.addAll(eventType.getAttributeExpressionsWithoutTimestampName());
 		}
 		conditionAttributeSelect.setChoices(new ArrayList(attributeValues));
 	}

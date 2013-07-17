@@ -43,10 +43,6 @@ public class SushiTreeElement<T> extends Persistable {
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<SushiTreeElement<T>> children = new ArrayList<SushiTreeElement<T>>();
 	
-//	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	@JoinColumn(name = "patternTree_ID")
-//	private SushiPatternTree patternTree;
-		
 	public SushiTreeElement() {
 		this.ID = 0;
 	}
@@ -130,6 +126,14 @@ public class SushiTreeElement<T> extends Persistable {
 		return children;
 	}
 	
+	public List<T> getChildValues() {
+		List<T> childValues = new ArrayList<T>();
+		for(SushiTreeElement<T> child : children){
+			childValues.add(child.getValue());
+		}
+		return childValues;
+	}
+	
 	public boolean hasChildren(){
 		return !children.isEmpty();
 	}
@@ -200,4 +204,5 @@ public class SushiTreeElement<T> extends Persistable {
 	public String toString(){
 		return value.toString();
 	}
+
 }

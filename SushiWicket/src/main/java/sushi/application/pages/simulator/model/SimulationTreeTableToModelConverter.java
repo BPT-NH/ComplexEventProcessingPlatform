@@ -3,6 +3,8 @@ package sushi.application.pages.simulator.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.antlr.grammar.v3.ANTLRParser.finallyClause_return;
+
 import sushi.bpmn.decomposition.ANDComponent;
 import sushi.bpmn.decomposition.Component;
 import sushi.bpmn.decomposition.LoopComponent;
@@ -19,6 +21,7 @@ import sushi.bpmn.monitoringpoint.MonitoringPoint;
 import sushi.bpmn.monitoringpoint.MonitoringPointStateTransition;
 import sushi.event.SushiEventType;
 import sushi.event.collection.SushiTree;
+import sushi.util.Tuple;
 
 /**
  * This class converts a tree from the simple simulation page to a BPMN model for the simulator.
@@ -33,15 +36,15 @@ public class SimulationTreeTableToModelConverter {
 	
 	public BPMNProcess convertTreeToModel(SushiTree<Object> tree){
 		this.tree = tree;
-		BPMNStartEvent startEvent = new BPMNStartEvent(Integer.toString(IDCounter++), "Start", null);
+		BPMNStartEvent startEvent = new BPMNStartEvent(createID(), "Start", null);
 		process.addBPMNElement(startEvent);
-		BPMNEndEvent endEvent = new BPMNEndEvent(Integer.toString(IDCounter++), "End", null);
+		BPMNEndEvent endEvent = new BPMNEndEvent(createID(), "End", null);
 		process.addBPMNElement(endEvent);
 		convertTreeToBPMNTree();
 		//Annahme, dass Tree immer mit einer Component (Sequence, XOR, AND oder LOOP) beginnt
-		List<AbstractBPMNElement> subStartAndEnd = createSubBranch(bpmnTree.getRootElements().get(0));
-		AbstractBPMNElement.connectElements(startEvent, subStartAndEnd.get(0));
-		AbstractBPMNElement.connectElements(subStartAndEnd.get(subStartAndEnd.size() - 1), endEvent);
+		Tuple<AbstractBPMNElement, AbstractBPMNElement> subStartAndEnd = createSubBranch(bpmnTree.getRootElements().get(0));
+		AbstractBPMNElement.connectElements(startEvent, subStartAndEnd.x);
+		AbstractBPMNElement.connectElements(subStartAndEnd.y, endEvent);
 		return process;
 	}
 	
@@ -50,105 +53,91 @@ public class SimulationTreeTableToModelConverter {
 	 * @param branchStartElement
 	 * @return a list with the start and end element of the created branch
 	 */
-	private List<AbstractBPMNElement> createSubBranch(AbstractBPMNElement branchStartElement) {
-		List<AbstractBPMNElement> startAndEndElements = new ArrayList<AbstractBPMNElement>();
+	private Tuple<AbstractBPMNElement, AbstractBPMNElement> createSubBranch(AbstractBPMNElement branchStartElement) {
 		if(branchStartElement instanceof Component){
-			if(branchStartElement instanceof ANDComponent){
-				startAndEndElements = createAndSubBranch((ANDComponent)branchStartElement);
+			if(branchStartElement instanceof SequenceComponent){
+				return createSequenceSubBranch((SequenceComponent)branchStartElement);
+			} else if(branchStartElement instanceof ANDComponent){
+				return createAndSubBranch((ANDComponent)branchStartElement);
 			} else if(branchStartElement instanceof XORComponent){
-				startAndEndElements = createXORSubBranch((XORComponent)branchStartElement);
-			} else if(branchStartElement instanceof SequenceComponent){
-				startAndEndElements = createSequenceSubBranch((SequenceComponent)branchStartElement);
+				return createXORSubBranch((XORComponent)branchStartElement);
 			} else if(branchStartElement instanceof LoopComponent){
-				startAndEndElements = createLoopSubBranch((LoopComponent)branchStartElement);
+				return createLoopSubBranch((LoopComponent)branchStartElement);
 			}
-		} else {
-			BPMNTask task = (BPMNTask) branchStartElement;
-			process.addBPMNElement(task);
-			startAndEndElements.add(task);	//Start
-			startAndEndElements.add(task);	//End
 		}
-		return startAndEndElements;
+		BPMNTask task = (BPMNTask) branchStartElement;
+		process.addBPMNElement(task);
+		return(new Tuple<AbstractBPMNElement, AbstractBPMNElement>(task, task));
 	}
 
-	private List<AbstractBPMNElement> createLoopSubBranch(LoopComponent branchStartElement) {
-		List<AbstractBPMNElement> startAndEnd = new ArrayList<AbstractBPMNElement>();
+	private Tuple<AbstractBPMNElement, AbstractBPMNElement> createSequenceSubBranch(SequenceComponent branchStartElement) {
 		List<AbstractBPMNElement> children = bpmnTree.getChildren(branchStartElement);
-		String ID = Integer.toString(IDCounter++);
+		AbstractBPMNElement firstElement = null;
+		AbstractBPMNElement predecessor = null;
+		for(int i = 0; i < children.size(); i++){
+			Tuple<AbstractBPMNElement, AbstractBPMNElement> subStartAndEnd = createSubBranch(children.get(i));
+			if(i == 0){ // erstes Element
+				firstElement = (subStartAndEnd.x);
+			} else { //Elemente dazwischen
+				AbstractBPMNElement.connectElements(predecessor, subStartAndEnd.x);
+			}
+			predecessor = subStartAndEnd.y;
+		}
+		//letztes Element der letzten Subkomponente ist gleichzeitig letztes Element der Sequenz
+		return new Tuple<AbstractBPMNElement, AbstractBPMNElement>(firstElement, predecessor);
+	}
+
+	private Tuple<AbstractBPMNElement, AbstractBPMNElement> createAndSubBranch(ANDComponent branchStartElement) {
+		String ID = createID();
+		BPMNAndGateway startGateway = new BPMNAndGateway(ID , "AND" + ID, null);
+		process.addBPMNElement(startGateway);
+		ID = createID();
+		BPMNAndGateway endGateway = new BPMNAndGateway(ID , "AND" + ID, null);
+		process.addBPMNElement(endGateway);
+		//alle Unterelemente erstellen und mit Gateways verbinden
+		for(AbstractBPMNElement child : bpmnTree.getChildren(branchStartElement)){
+			Tuple<AbstractBPMNElement, AbstractBPMNElement> subStartAndEnd = createSubBranch(child);
+			AbstractBPMNElement.connectElements(startGateway, subStartAndEnd.x);
+			AbstractBPMNElement.connectElements(subStartAndEnd.y, endGateway);
+		}
+		return new Tuple<AbstractBPMNElement, AbstractBPMNElement>(startGateway, endGateway);
+	}
+	
+	private Tuple<AbstractBPMNElement, AbstractBPMNElement> createXORSubBranch(XORComponent branchStartElement) {
+		String ID = createID();
 		BPMNXORGateway startGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
 		process.addBPMNElement(startGateway);
-		startAndEnd.add(startGateway);
-		ID = Integer.toString(IDCounter++);
+		ID = createID();
+		BPMNXORGateway endGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
+		process.addBPMNElement(endGateway);
+		for(AbstractBPMNElement child : bpmnTree.getChildren(branchStartElement)){
+			Tuple<AbstractBPMNElement, AbstractBPMNElement> subStartAndEnd = createSubBranch(child);
+			AbstractBPMNElement.connectElements(startGateway, subStartAndEnd.x);
+			AbstractBPMNElement.connectElements(subStartAndEnd.y, endGateway);
+		}
+		return new Tuple<AbstractBPMNElement, AbstractBPMNElement>(startGateway, endGateway);
+	}
+	
+	private Tuple<AbstractBPMNElement, AbstractBPMNElement> createLoopSubBranch(LoopComponent branchStartElement) {
+		List<AbstractBPMNElement> children = bpmnTree.getChildren(branchStartElement);
+		String ID = createID();
+		BPMNXORGateway startGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
+		process.addBPMNElement(startGateway);
+		ID = createID();
 		BPMNXORGateway endGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
 		process.addBPMNElement(endGateway);
 		//Schleife einbauen
 		AbstractBPMNElement.connectElements(endGateway, startGateway);
-		startAndEnd.add(endGateway);
 		AbstractBPMNElement predecessor = startGateway;
 		for(int i = 0; i < children.size(); i++){
-			List<AbstractBPMNElement> subStartAndEnd = createSubBranch(children.get(i));
-			AbstractBPMNElement.connectElements(predecessor, subStartAndEnd.get(0));
+			Tuple<AbstractBPMNElement, AbstractBPMNElement> subStartAndEnd = createSubBranch(children.get(i));
+			AbstractBPMNElement.connectElements(predecessor, subStartAndEnd.x);
 			if(i == children.size() - 1){ //letztes Element
-				AbstractBPMNElement.connectElements(subStartAndEnd.get(1), endGateway);
+				AbstractBPMNElement.connectElements(subStartAndEnd.y, endGateway);
 			} 
-			predecessor = subStartAndEnd.get(1);
+			predecessor = subStartAndEnd.y;
 		}
-		return startAndEnd;
-	}
-
-	private List<AbstractBPMNElement> createSequenceSubBranch(SequenceComponent branchStartElement) {
-		List<AbstractBPMNElement> startAndEnd = new ArrayList<AbstractBPMNElement>();
-		List<AbstractBPMNElement> children = bpmnTree.getChildren(branchStartElement);
-		AbstractBPMNElement predecessor = null;
-		for(int i = 0; i < children.size(); i++){
-			List<AbstractBPMNElement> subStartAndEnd = createSubBranch(children.get(i));
-			if(i == 0){ // erstes Element
-				startAndEnd.add(subStartAndEnd.get(0));
-			} else { //Elemente dazwischen
-				AbstractBPMNElement.connectElements(predecessor, subStartAndEnd.get(0));
-				if(i == children.size() - 1){ //letztes Element
-					startAndEnd.add(subStartAndEnd.get(1));
-				} 
-			}
-			predecessor = subStartAndEnd.get(1);
-		}
-		return startAndEnd;
-	}
-
-	private List<AbstractBPMNElement> createAndSubBranch(ANDComponent branchStartElement) {
-		List<AbstractBPMNElement> startAndEnd = new ArrayList<AbstractBPMNElement>();
-		String ID = Integer.toString(IDCounter++);
-		BPMNAndGateway startGateway = new BPMNAndGateway(ID, "AND" + ID, null);
-		process.addBPMNElement(startGateway);
-		startAndEnd.add(startGateway);
-		ID = Integer.toString(IDCounter++);
-		BPMNAndGateway endGateway = new BPMNAndGateway(ID, "AND" + ID, null);
-		process.addBPMNElement(endGateway);
-		startAndEnd.add(endGateway);
-		for(AbstractBPMNElement child : bpmnTree.getChildren(branchStartElement)){
-			List<AbstractBPMNElement> subStartAndEnd = createSubBranch(child);
-			AbstractBPMNElement.connectElements(startGateway, subStartAndEnd.get(0));
-			AbstractBPMNElement.connectElements(subStartAndEnd.get(1), endGateway);
-		}
-		return startAndEnd;
-	}
-	
-	private List<AbstractBPMNElement> createXORSubBranch(XORComponent branchStartElement) {
-		List<AbstractBPMNElement> startAndEnd = new ArrayList<AbstractBPMNElement>();
-		String ID = Integer.toString(IDCounter++);
-		BPMNXORGateway startGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
-		process.addBPMNElement(startGateway);
-		startAndEnd.add(startGateway);
-		ID = Integer.toString(IDCounter++);
-		BPMNXORGateway endGateway = new BPMNXORGateway(ID, "XOR" + ID, null);
-		process.addBPMNElement(endGateway);
-		startAndEnd.add(endGateway);
-		for(AbstractBPMNElement child : bpmnTree.getChildren(branchStartElement)){
-			List<AbstractBPMNElement> subStartAndEnd = createSubBranch(child);
-			AbstractBPMNElement.connectElements(startGateway, subStartAndEnd.get(0));
-			AbstractBPMNElement.connectElements(subStartAndEnd.get(subStartAndEnd.size() -1), endGateway);
-		}
-		return startAndEnd;
+		return new Tuple<AbstractBPMNElement, AbstractBPMNElement>(startGateway, endGateway);
 	}
 
 	/**
@@ -186,6 +175,11 @@ public class SimulationTreeTableToModelConverter {
 				}
 			}
 		}
+	}
+	
+	private String createID(){
+		IDCounter++;
+		return Integer.toString(IDCounter);
 	}
 
 }

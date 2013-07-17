@@ -32,9 +32,12 @@ import sushi.event.collection.SushiTree;
 import sushi.weather.importer.DWDHelper;
 import sushi.event.collection.SushiTree;
 
+/**
+ * Adapter for traffic incidents from tomtom api 
+ */
 public class TomTomTrafficimporter {
 
-	String TOMTOMAPIKEY = "TOMTOM API KEY";
+	String TOMTOMAPIKEY = "INSERT YOUR API KEY";
 	SushiEventType trafficEventType = null;
 	
 	public final static void main(String[] args) throws Exception {
@@ -42,12 +45,6 @@ public class TomTomTrafficimporter {
 		System.out.println("###############################################");
 		System.out.println(t.getTrafficSushiEventHamburgToBerlin());
 		System.out.println("###############################################");
-		
-//		System.out.println(trafficJsonPotsdam.toString(4));
-//		System.out.println(t.getFlattenTrafficIncidents(trafficJsonPotsdam));
-//		System.out.println(trafficJsonBerlin.toString(4));
-//		System.out.println(t.getFlattenTrafficIncidents(trafficJsonBerlin));
-//		t.getTrafficSushiEventsPotsdam();
 	}
 
 	/**

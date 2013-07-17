@@ -34,12 +34,19 @@ import sushi.application.pages.AbstractSushiPage;
 import sushi.application.pages.input.bpmn.model.ProcessModelProvider;
 import sushi.application.pages.process.modal.ProcessEditorModal;
 import sushi.application.pages.simulator.BPMNSimulationPanel;
+import sushi.application.pages.simulator.SimulationPanel;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.BPMNProcess;
 import sushi.process.SushiProcess;
 import sushi.xml.importer.BPM2XMLToSignavioXMLConverter;
-import sushi.xml.importer.SignavioBPMNParser;
+import sushi.xml.importer.BPMNParser;
 
+/**
+ * This panel allows the upload and visualisation of a BPMN process model from a BPMN2.0-XML file.
+ * Furthermore it is possible to simulate this process with the {@link SimulationPanel}.
+ * @author micha
+ * @author benni
+ */
 public class BPMNProcessUploadPanel extends Panel{
 
 	private static final long serialVersionUID = 1L;
@@ -65,11 +72,16 @@ public class BPMNProcessUploadPanel extends Panel{
 	private BPMNProcessUploadPanel bpmnProcessUploadPanel;
 	private ExternalPage externalPage;
 	private BPMNSimulationPanel simulationPanel;
-	//TODO:
 	private final String pathToCoreComponents = "http://localhost:8080/signaviocore/p/editor?id=c%3A%3Btemp%3B";
-	private final String signavioCoreWorkspace = "/home/platformaccount/signaviocore-workspace";
+	private final String signavioCoreWorkspace = "~/signaviocore-workspace";
 	private List<Component> targets;
-
+	
+	/**
+	 * This is the constructor for a panel, which allows the upload and visualisation of a BPMN process model from a BPMN2.0-XML file.
+	 * Furthermore it is possible to simulate this process with the {@link SimulationPanel}.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	@SuppressWarnings("unchecked")
 	public BPMNProcessUploadPanel(String id, final AbstractSushiPage abstractSushiPage) {
 		super(id);
@@ -90,7 +102,7 @@ public class BPMNProcessUploadPanel extends Panel{
         
         addResultForm();
         //TODO:
-		externalPage = new ExternalPage("iframe", "http://localhost:8080/signaviocore/p/explorer");
+		externalPage = new ExternalPage("iframe", "http://localhost:8181/signaviocore/p/explorer");
 		externalPage.setOutputMarkupId(true);
 		add(externalPage);
 		
@@ -268,7 +280,7 @@ public class BPMNProcessUploadPanel extends Panel{
 					fileNameWithoutExtension = fileName.substring(0,index);
 					String fileExtension = fileName.substring(index + 1, fileName.length());
 					if(fileExtension.toLowerCase().contains("xml") || fileExtension.toLowerCase().contains("bpmn")){
-						processModel = SignavioBPMNParser.generateProcessFromXML(newFile.getAbsolutePath());
+						processModel = BPMNParser.generateProcessFromXML(newFile.getAbsolutePath());
 						BPM2XMLToSignavioXMLConverter signavioConverter = new BPM2XMLToSignavioXMLConverter(newFile.getAbsolutePath());
 //						String newFileName = signavioConverter.generateSignavioXMLFromBPM2XML();
 						processModelProvider.setProcessModel(processModel);

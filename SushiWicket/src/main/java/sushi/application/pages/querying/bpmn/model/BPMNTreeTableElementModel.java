@@ -5,6 +5,12 @@ import java.util.List;
 
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringTreeTableElement;
+
+/**
+ * This model provides a tree of {@link BPMNTreeTableElement}s.
+ * @author micha
+ */
 public class BPMNTreeTableElementModel extends LoadableDetachableModel<BPMNTreeTableElement> {
 	
 	private static final long serialVersionUID = 1L;

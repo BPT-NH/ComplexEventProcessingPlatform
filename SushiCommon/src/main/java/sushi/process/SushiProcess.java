@@ -25,6 +25,7 @@ import javax.persistence.Transient;
 
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.BPMNProcess;
+import sushi.correlation.CorrelationRule;
 import sushi.correlation.TimeCondition;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
@@ -33,8 +34,9 @@ import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 
 /**
+ * This class represents a business process with bounded {@link SushiEventType}s and eventually a associated {@link BPMNProcess}.
+ * The process knows the correlation rules under which events are assigned to concrete {@link SushiProcessInstance}s of this process. 
  * @author micha
- *
  */
 @Entity
 @Table(name = "Process")
@@ -66,6 +68,9 @@ public class SushiProcess extends Persistable implements Serializable {
 	@OneToMany(fetch=FetchType.EAGER)
 	private List<SushiAttribute> correlationAttributes = new ArrayList<SushiAttribute>();
 	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "process")
+	private Set<CorrelationRule> correlationRules = new HashSet<CorrelationRule>();
+
 //	@OneToOne(cascade = CascadeType.MERGE)
 	@Transient
 	private SushiTree<AbstractBPMNElement> processDecompositionTree = new SushiTree<AbstractBPMNElement>();
@@ -117,6 +122,14 @@ public class SushiProcess extends Persistable implements Serializable {
 	public List<SushiAttribute> getCorrelationAttributes() {
 		return correlationAttributes;
 	}
+
+	public void setCorrelationAttributes(List<SushiAttribute> correlationAttributes) {
+		this.correlationAttributes = correlationAttributes;
+	}
+	
+	public boolean isCorrelationWithCorrelationRules() {
+		return !correlationRules.isEmpty();
+	}
 	
 	public void addCorrelationAttribute(SushiAttribute correlationAttribute){
 		if(!correlationAttributes.contains(correlationAttribute)){
@@ -129,13 +142,35 @@ public class SushiProcess extends Persistable implements Serializable {
 			addCorrelationAttribute(correlationAttribute);
 		}
 	}
+	
+	public void removeCorrelationAttribute(SushiAttribute correlationAttribute){
+		correlationAttributes.remove(correlationAttribute);
+	}
 
-	public void setCorrelationAttributes(List<SushiAttribute> correlationAttributes) {
-		this.correlationAttributes = correlationAttributes;
+	public Set<CorrelationRule> getCorrelationRules() {
+		return correlationRules;
 	}
 	
-	public void removeCorrelationAttribute(String correlationAttribute){
-		correlationAttributes.remove(correlationAttribute);
+	public void setCorrelationRules(Set<CorrelationRule> correlationRules) {
+		this.correlationRules = correlationRules;
+	}
+
+	public void addCorrelationRule(CorrelationRule correlationRule){
+		if(!correlationRules.contains(correlationRule)){
+			correlationRules.add(correlationRule);
+			correlationRule.setProcess(this);
+		}
+	}
+	
+	public void addCorrelationRules(Set<CorrelationRule> correlationRules){
+		for(CorrelationRule rule : correlationRules){
+			addCorrelationRule(rule);
+		}
+	}
+	
+	public void removeCorrelationRule(CorrelationRule correlationRule){
+		correlationRules.remove(correlationRule);
+		correlationRule.setProcess(null);
 	}
 
 	public boolean addProcessInstance(SushiProcessInstance processInstance) {
@@ -181,11 +216,21 @@ public class SushiProcess extends Persistable implements Serializable {
 		return processText;
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("SELECT t FROM SushiProcess t");
 		return q.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have the given {@link SushiEventType}.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findByEventType(SushiEventType eventType){
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -197,11 +242,20 @@ public class SushiProcess extends Persistable implements Serializable {
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have the given attribute and associated value.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findByAttribute(String columnName, String value){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM Process WHERE " + columnName + " = '" + value + "'", SushiProcess.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have the given ID.
+	 * @return
+	 */
 	public static SushiProcess findByID(int ID){
 		List<SushiProcess> processes = findByAttribute("ID", Integer.toString(ID));
 		 if(!processes.isEmpty()){
@@ -211,14 +265,23 @@ public class SushiProcess extends Persistable implements Serializable {
 		 }
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have an ID greater than the given.
+	 * @return
+	 */
 	public static List<SushiProcess> findByIDGreaterThan(int ID){
 		return findByAttributeGreaterThan("ID", Integer.toString(ID));
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have an ID less than the given.
+	 * @return
+	 */
 	public static List<SushiProcess> findByIDLessThan(int ID){
 		return findByAttributeLessThan("ID", Integer.toString(ID));
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<SushiProcess> findByAttributeGreaterThan(String columnName, String value) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"SELECT * FROM Process " +
@@ -226,6 +289,7 @@ public class SushiProcess extends Persistable implements Serializable {
 		return query.getResultList();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static List<SushiProcess> findByAttributeLessThan(String columnName, String value) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"SELECT * FROM Process " +
@@ -237,6 +301,11 @@ public class SushiProcess extends Persistable implements Serializable {
 		return findByAttribute("NAME", name);
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have the given {@link SushiProcessInstance}.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findByProcessInstance (SushiProcessInstance processInstance){
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -248,6 +317,11 @@ public class SushiProcess extends Persistable implements Serializable {
 		return query.getResultList();
 	}
 	
+	/**
+	 * Returns all {@link SushiProcess}es from the database, which have a {@link SushiProcessInstance} with the given ID.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findByProcessInstanceID (int ID){
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -259,6 +333,7 @@ public class SushiProcess extends Persistable implements Serializable {
 		return query.getResultList();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findByTimeCondition(TimeCondition timeCondition) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -267,6 +342,7 @@ public class SushiProcess extends Persistable implements Serializable {
 		return query.getResultList();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static SushiProcess findByBPMNProcess(BPMNProcess bpmnProcess) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -280,6 +356,7 @@ public class SushiProcess extends Persistable implements Serializable {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static List<SushiProcess> findProcessesByBPMNProcess(BPMNProcess bpmnProcess) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
@@ -364,17 +441,10 @@ public class SushiProcess extends Persistable implements Serializable {
 
 	public void setTimeCondition(TimeCondition timeCondition) {
 		this.timeCondition = timeCondition;
+		if(timeCondition != null){
+			this.timeCondition.setProcess(this);
+		}
 	}
-	
-//	public static ArrayList<String> getCorrelationAttributesForProcess(SushiProcess process){
-//		List<SushiProcessInstance> processInstances = process.getProcessInstances();
-//		if(processInstances.size() > 0){
-//			return new ArrayList<String>(processInstances.get(0).getCorrelationAttributes().keySet());
-//		}
-//		else{
-//			return null;
-//		}
-//	}
 
 	public BPMNProcess getBpmnProcess() {
 		return bpmnProcess;
@@ -394,12 +464,17 @@ public class SushiProcess extends Persistable implements Serializable {
 	}
 	
 	/**
+	 * Returns true, if the process has a correlation rule.
 	 * @return
 	 */
 	public boolean hasCorrelation(){
-		return !correlationAttributes.isEmpty();
+		return !correlationAttributes.isEmpty() || !correlationRules.isEmpty();
 	}
 
+	/**
+	 * Returns a decompositional tree of the contained BPMN process, if any.
+	 * @return
+	 */
 	public SushiTree<AbstractBPMNElement> getProcessDecompositionTree() {
 		return processDecompositionTree;
 	}
@@ -407,6 +482,4 @@ public class SushiProcess extends Persistable implements Serializable {
 	public void setProcessDecompositionTree(SushiTree<AbstractBPMNElement> processDecompositionTree) {
 		this.processDecompositionTree = processDecompositionTree;
 	}
-	
-
 }

@@ -10,6 +10,10 @@ import sushi.application.components.form.WarnOnExitForm;
 import sushi.application.pages.AbstractSushiPage;
 import sushi.user.UserProvider;
 
+/**
+ * A page to render a register form to register new users.
+ * @author micha
+ */
 public class RegisterPage extends AbstractSushiPage {
 
 	private static final long serialVersionUID = -7896431319431474548L;
@@ -19,6 +23,9 @@ public class RegisterPage extends AbstractSushiPage {
 	private PasswordTextField passwordInput;
 	private PasswordTextField repeatPasswordInput;
 
+	/**
+	 * Constructor for a page to render a register form to register new users.
+	 */
 	public RegisterPage() {
 		super();
 		buildMainLayout();

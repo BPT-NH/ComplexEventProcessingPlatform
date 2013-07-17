@@ -50,7 +50,9 @@ public class BPMNProcessPreprocessor {
 	 * @param process
 	 */
 	private static void mergeEndEvents(BPMNProcess process) {
-		//TODO: Was ist, wenn EndEvent MonitoringPoints hat
+		//TODO: MonitoringPoints der EndEvents in neues EndEvent übernehmen
+		//Eigentlich müsste man die alten EndEvents mit XOR --> alte EndEvents --> XOR --> neues EndEvent zusammenführen, 
+		//um nicht die Information über die MonitoringPoints zu verlieren 
 		if(process.getEndEvents().size() > 1){
 			BPMNEndEvent newEndEvent = new BPMNEndEvent("End1", "MergedEndEvent", null);
 			BPMNXORGateway mergingXOR = new BPMNXORGateway("MergingXOR" + new Date().getTime(), "MergeXORBeforeEndEvent", null);

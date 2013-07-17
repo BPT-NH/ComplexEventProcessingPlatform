@@ -1,7 +1,12 @@
 package sushi.visualisation;
 
+/**
+ * This enumeration encapsulates the types of attribute charts ( @see SushiChartConfiguration).
+ * COLUMN : attribute chart for the frequency of values for a certain attribute.
+ * SPLATTER: attribute chart visualizing the single values of a certain attribute
+ */
 public enum SushiChartTypeEnum {
-	BAR ("distribution chart"),
+	COLUMN ("distribution chart"),
 	SPLATTER ("point chart");
 	
 	private String type;

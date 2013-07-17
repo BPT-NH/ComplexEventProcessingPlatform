@@ -1,6 +1,10 @@
 package sushi.adapter;
 
+import java.io.IOException;
 import java.util.Date;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.json.JSONException;
 import org.quartz.Job;
@@ -10,11 +14,15 @@ import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.xml.sax.SAXException;
 
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.eventhandling.Broker;
 import sushi.traffic.importer.TomTomTrafficimporter;
 
+/**
+ * Adapter for automated import of traffic events 
+ */
 public class SushiTrafficAdapter implements Job {
 
 	TomTomTrafficimporter trafficImporter;
@@ -26,7 +34,6 @@ public class SushiTrafficAdapter implements Job {
 	 */
 	public SushiTrafficAdapter(){
 		trafficImporter = new TomTomTrafficimporter();
-		registerTrafficEventType();
 	}
 
 	public static void main(String[] args) throws JSONException {
@@ -38,15 +45,26 @@ public class SushiTrafficAdapter implements Job {
 		Broker.send(trafficImporter.getTrafficEventtype());
 	}
 
-	public void importTrafficEvents() throws JSONException{
+	/**
+	 * import traffic events for berlin and potsdam 
+	 */
+	public void importTrafficEventsBerlinPotsdam() throws JSONException{
+		registerTrafficEventType();
 		Broker.send(trafficImporter.getTrafficSushiEventsBerlin());
 		Broker.send(trafficImporter.getTrafficSushiEventsPotsdam());
 	}
 	
-	public void importTrafficEventsHamburgToBerlin() throws JSONException{
-		Broker.send(trafficImporter.getTrafficSushiEventsBerlin());
+	/**
+	 * imports traffic events of the route from hamburg to berlin 
+	 */
+	public void importTrafficEventsHamburgToBerlin() throws JSONException, XPathExpressionException, ParserConfigurationException, SAXException, IOException{
+		registerTrafficEventType();
+		Broker.send(trafficImporter.getTrafficSushiEventHamburgToBerlin());
 	}
 
+	/**
+	 * creates an Quarz scheduler which imports every 120.5s trafficevents
+	 */
 	public void scheduleQuartzJob(){
 		try {
 			// Grab the Scheduler instance from the Factory 
@@ -56,7 +74,7 @@ public class SushiTrafficAdapter implements Job {
 			JobDetail jd = new JobDetail("trafficJob","group", SushiTrafficAdapter.class);
 
 			// triggers all 120.5 seconds the execution of execution, never ends
-			SimpleTrigger simpleTrigger = new SimpleTrigger("mytrigger",scheduler.DEFAULT_GROUP,
+			SimpleTrigger simpleTrigger = new SimpleTrigger("my traffic job",scheduler.DEFAULT_GROUP,
 					new Date(),null,SimpleTrigger.REPEAT_INDEFINITELY,120500);
 			// Tell quartz to schedule the job using our trigger
 			scheduler.scheduleJob(jd, simpleTrigger);
@@ -68,12 +86,25 @@ public class SushiTrafficAdapter implements Job {
 		}
 	}
 
+	/**
+	 * this method will be called from the scheduler
+	 */
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		try {
-			if (SushiEsper.getInstance().isActivatedWeatherAdapter()) importTrafficEvents();
-		} catch (JSONException e) {
+			if (SushiStreamProcessingAdapter.getInstance().isActivatedWeatherAdapter()) importTrafficEventsHamburgToBerlin();
+		} catch (JSONException | XPathExpressionException | ParserConfigurationException | SAXException | IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void deleteQuartzJob() {
+		try {
+		org.quartz.Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+		scheduler.deleteJob("trafficJob","group");
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

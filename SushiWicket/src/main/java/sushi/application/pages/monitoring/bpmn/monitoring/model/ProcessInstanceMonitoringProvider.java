@@ -19,7 +19,9 @@ import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 import sushi.process.SushiProcess;
 
 /**
+ * This class is the provider for {@link ProcessInstanceMonitor}s.
  * @author micha
+ *
  */
 public class ProcessInstanceMonitoringProvider extends AbstractDataProvider implements ISortableDataProvider<ProcessInstanceMonitor, String>, IFilterStateLocator {
 	
@@ -30,6 +32,9 @@ public class ProcessInstanceMonitoringProvider extends AbstractDataProvider impl
 	private ProcessInstanceMonitoringFilter processInstanceMonitorFilter = new ProcessInstanceMonitoringFilter();
 	private SushiProcess process;
 	
+	/**
+	 * Constructor for providing {@link ProcessInstanceMonitor}s.
+	 */
 	public ProcessInstanceMonitoringProvider(SushiProcess process) {
 		this.process = process;
 		processInstanceMonitors = filterProcessInstanceMonitors(BPMNQueryMonitor.getInstance().getProcessInstanceMonitors(process), processInstanceMonitorFilter);

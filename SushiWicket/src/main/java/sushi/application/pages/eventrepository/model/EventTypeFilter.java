@@ -1,63 +1,39 @@
 package sushi.application.pages.eventrepository.model;
 
-import java.io.Serializable;
-
+import sushi.application.pages.eventrepository.EventTypePanel;
 import sushi.event.SushiEventType;
 
-public class EventTypeFilter implements Serializable {
+/**
+ * This class filters {@link SushiEventType}s in the {@link EventTypePanel}.
+ * @author micha
+ */
+public class EventTypeFilter extends AbstractFilter {
 	
-	String filterValue;
-	String eventFilterCriteria;
-	String eventFilterCondition;
+	private static final long serialVersionUID = 1L;
 	
 	public EventTypeFilter(){
-
+		super();
 	}
 	
-	public EventTypeFilter(String eventFilterCriteria, String eventFilterCondition, String filterValue){
-		this.eventFilterCondition = eventFilterCondition;
-		this.eventFilterCriteria = eventFilterCriteria;
-		this.filterValue = filterValue;
+	/**
+	 * Constructor for the class, which filters {@link SushiEventType}s in the {@link EventTypePanel}.
+	 * @param filterCriteria
+	 * @param filterCondition
+	 * @param filterValue
+	 */
+	public EventTypeFilter(String filterCriteria, String filterCondition, String filterValue){
+		super(filterCriteria, filterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getEventFilterCriteria() {
-		return eventFilterCriteria;
-	}
-
-
-	public void setEventFilterCriteria(String eventFilterCriteria) {
-		this.eventFilterCriteria = eventFilterCriteria;
-	}
-
-
-	public String getEventFilterCondition() {
-		return eventFilterCondition;
-	}
-
-
-	public void setEventFilterCondition(String eventFilterCondition) {
-		this.eventFilterCondition = eventFilterCondition;
-	}
-
 
 	public boolean match(SushiEventType eventType) {
-		if(eventFilterCriteria == null || eventFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(eventFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(eventFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(eventType.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(eventFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(eventType.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(eventType.getID() == Integer.parseInt(filterValue)) return true;
@@ -66,7 +42,7 @@ public class EventTypeFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(eventFilterCriteria.equals("Name")){
+		} else if(filterCriteria.equals("Name")){
 			if(eventType.getTypeName().equals(filterValue)) return true;
 		} 
 		return false;

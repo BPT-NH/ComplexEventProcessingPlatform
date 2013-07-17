@@ -13,11 +13,19 @@ import sushi.application.images.ImageReference;
 import de.agilecoders.wicket.markup.html.bootstrap.carousel.CarouselImage;
 import de.agilecoders.wicket.markup.html.bootstrap.carousel.ICarouselImage;
 
+/**
+ * This class is a {@link IModel} and provides the images for the web application.
+ * @author micha
+ */
 public class ImageModel implements IModel<List<? extends ICarouselImage>>  {
 	
 	private static final long serialVersionUID = 6701834806582376422L;
 	List<ICarouselImage> images = new ArrayList<ICarouselImage>();
 	
+	/**
+	 * The constructor for this class, which provides the images for the web application.
+	 * @param component
+	 */
 	public ImageModel(Component component){
 		SharedResources sharedResources = SushiApplication.get().getSharedResources();
 		ResourceReference aligmentImageReference = sharedResources.get(ImageReference.class, "alignment.jpg", null, null, null, false);
@@ -48,7 +56,6 @@ public class ImageModel implements IModel<List<? extends ICarouselImage>>  {
 
 	@Override
 	public void detach() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -57,9 +64,10 @@ public class ImageModel implements IModel<List<? extends ICarouselImage>>  {
 		return images;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setObject(List<? extends ICarouselImage> images) {
-		images = images;
+		this.images = (List<ICarouselImage>) images;
 	}
 	
 }

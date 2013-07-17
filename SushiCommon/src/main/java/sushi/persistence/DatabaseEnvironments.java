@@ -1,5 +1,8 @@
 package sushi.persistence;
 
+/**
+ * This enum specificies the supported data base stages.
+ */
 public enum DatabaseEnvironments {
 	
 	DEVELOPMENT ("sushi_development"), 

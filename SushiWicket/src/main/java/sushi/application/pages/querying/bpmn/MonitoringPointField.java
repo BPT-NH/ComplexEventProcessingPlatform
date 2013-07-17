@@ -21,6 +21,10 @@ import sushi.bpmn.monitoringpoint.MonitoringPoint;
 import sushi.bpmn.monitoringpoint.MonitoringPointStateTransition;
 import sushi.event.SushiEventType;
 
+/**
+ * A form with a dropdown to assign monitoring points to BPMN elements on the base of {@link SushiEventType}s.
+ * @author micha
+ */
 public class MonitoringPointField implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -34,6 +38,10 @@ public class MonitoringPointField implements Serializable{
 	private String terminateEventTypeName;
 	private String skipEventTypeName;
 	
+	/**
+	 * Constructor for a form with a dropdown to assign monitoring points to BPMN elements on the base of {@link SushiEventType}s.
+	 * @param treeTableElement
+	 */
 	public MonitoringPointField(BPMNTreeTableElement treeTableElement){
 		this.treeTableElement = treeTableElement;
 		this.bpmnElement = treeTableElement.getContent();

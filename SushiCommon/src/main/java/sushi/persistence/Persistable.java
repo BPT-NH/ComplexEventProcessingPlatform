@@ -2,15 +2,17 @@ package sushi.persistence;
 
 import java.io.Serializable;
 
-
 /**
- * @author micha
- *
+ * This is the parent class for all class, which are saved via JPA.
  */
 public abstract class Persistable implements Serializable {
-	
+		
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Saves the current object to the database.
+	 * @return
+	 */
 	public Persistable save(){
 		try {
 			Persistor.getEntityManager().getTransaction().begin();
@@ -23,6 +25,10 @@ public abstract class Persistable implements Serializable {
 		}
 	}
 	
+	/**
+	 * Merges the state of the current object to the database.
+	 * @return
+	 */
 	public Persistable merge(){
 		try {
 			Persistor.getEntityManager().getTransaction().begin();
@@ -35,6 +41,10 @@ public abstract class Persistable implements Serializable {
 		}
 	}
 	
+	/**
+	 * Removes the current object from the database.
+	 * @return
+	 */
 	public Persistable remove(){
 		try {
 			Persistor.getEntityManager().getTransaction().begin();
@@ -48,6 +58,11 @@ public abstract class Persistable implements Serializable {
 		}
 	}
 
+	/**
+	 * Refreshes the state of the current object from the database.
+	 * Overwrites changes made to the object, if any. 
+	 * @return
+	 */
 	public Persistable refresh(){
 		try {
 			Persistor.getEntityManager().getTransaction().begin();
@@ -59,6 +74,12 @@ public abstract class Persistable implements Serializable {
 			return null;
 		}
 	}
+	
+	/**
+	 * Returns the database ID for the object.
+	 * @return
+	 */
+	public abstract int getID();
 	
 	/**
 	 * Waits, until other transactions are finished.

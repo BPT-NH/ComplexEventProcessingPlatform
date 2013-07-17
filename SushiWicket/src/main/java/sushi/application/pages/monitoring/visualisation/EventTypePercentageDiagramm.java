@@ -19,6 +19,10 @@ import com.googlecode.wickedcharts.highcharts.options.series.Point;
 import com.googlecode.wickedcharts.highcharts.options.series.PointSeries;
 import com.googlecode.wickedcharts.highcharts.options.series.Series;
  
+/**
+ * This class prepares a pie diagram that illustrates the percentage of events by event type.
+ * This object can be used to create a chart-object with the wicked chart framework.
+ */
 public class EventTypePercentageDiagramm extends Options {
  
   private static final long serialVersionUID = 1L;
@@ -50,23 +54,28 @@ public class EventTypePercentageDiagramm extends Options {
  
   }
 
-private Series<Point> prepareEventSeries() {
-	Series<Point> series = new PointSeries()
-    .setType(SeriesType.PIE)
-    .setName("Event Types Percentage");
+  /**
+   * prepare data for diagram by calculating percentages of events by eventtype
+   * @return data series for pie chart
+   */
+  private Series<Point> prepareEventSeries() {
+		Series<Point> series = new PointSeries()
+	    .setType(SeriesType.PIE)
+	    .setName("Event Types Percentage");
+		
+		//get overall number of events
+		double numberOfEvents = SushiEvent.getNumberOfEvents();
 	
-	//event types
-	double numberOfEvents = SushiEvent.getNumberOfEvents();
-
-	for (SushiEventType type : SushiEventType.findAll()) {
-		double numberOfEventsOfEventType = SushiEvent.getNumberOfEventsByEventType(type);
-		double percentage = 0;
-		//System.out.println(numberOfEventsOfEventType + " : " + numberOfEvents );
-		if (numberOfEvents > 0) {
-			percentage = numberOfEventsOfEventType / numberOfEvents;}
-		series.addPoint(new Point(type.getTypeName(), Math.round(percentage* 100)/100.0));
+		for (SushiEventType type : SushiEventType.findAll()) {
+			double numberOfEventsOfEventType = SushiEvent.getNumberOfEventsByEventType(type);
+			double percentage = 0;
+			if (numberOfEvents > 0) {
+				//calculate percentage
+				percentage = numberOfEventsOfEventType / numberOfEvents;
+			}
+			series.addPoint(new Point(type.getTypeName(), Math.round(percentage* 100)/100.0));
+		}
+		return series;
 	}
-	return series;
-}
  
 }

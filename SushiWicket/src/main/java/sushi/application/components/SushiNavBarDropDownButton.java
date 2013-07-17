@@ -9,8 +9,8 @@ import de.agilecoders.wicket.markup.html.bootstrap.button.dropdown.DropDownButto
 import de.agilecoders.wicket.markup.html.bootstrap.navbar.Navbar;
 
 /**
- * Special {@link DropDownButton} for a {@link Navbar}.
- *
+ * Subclass of {@link DropDownButton} for a {@link Navbar}.
+ * This DropDownButton solves the problem for being displayed correctly after a refresh.
  * @author micha
  */
 public class SushiNavBarDropDownButton extends DropDownButton {
@@ -19,7 +19,7 @@ public class SushiNavBarDropDownButton extends DropDownButton {
 	static final String COMPONENT_ID = "component";
 	
     /**
-     * Construct.
+     * Constructor for the {@link SushiNavBarDropDownButton}.
      *
      * @param model the label of this dropdown button
      */

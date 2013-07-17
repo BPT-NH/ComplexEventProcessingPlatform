@@ -1,7 +1,6 @@
 package sushi.query.bpmn;
 
 import sushi.bpmn.decomposition.Component;
-import sushi.bpmn.decomposition.SushiRPSTTree;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.query.PatternQueryType;
 import sushi.query.SushiPatternQuery;
@@ -9,12 +8,17 @@ import sushi.query.SushiQueryTypeEnum;
 
 
 /**
+ * This query factory creates queries for components of type AND.
  * @author micha
  */
 public class AndQueryFactory extends AbstractPatternQueryFactory {
 
-	public AndQueryFactory(SushiRPSTTree sushiRPSTTree) {
-		super(sushiRPSTTree);
+	/**
+	 * Constructor to create AND queries with a query factory.
+	 * @param patternQueryGenerator
+	 */
+	public AndQueryFactory(PatternQueryGenerator patternQueryGenerator) {
+		super(patternQueryGenerator);
 	}
 	
 	@Override

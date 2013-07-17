@@ -29,16 +29,23 @@ import sushi.application.pages.eventrepository.model.EventProvider;
 import sushi.event.SushiEvent;
 
 /**
- * Panel representing the content panel for the first tab.
+ * {@link Panel}, which shows the {@link SushiEvent}s stored in the database.
  */
 public class EventPanel extends Panel {
 	
+	private static final long serialVersionUID = 1L;
 	private List<IColumn<SushiEvent, String>> columns;
 	private DefaultDataTable<SushiEvent, String> dataTable;
 	private EventFilter eventFilter;
 	private EventProvider eventProvider;
 	private EventRepository eventRepository;
 	
+	/**
+	 * Constructor for the event panel. 
+	 * The page is initialized in this method and the data is loaded from the database.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	@SuppressWarnings("unchecked")
 	public EventPanel(String id, final EventRepository abstractSushiPage) {
 		super(id);
@@ -157,9 +164,7 @@ public class EventPanel extends Panel {
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				int entryId = ((SushiEvent) rowModel.getObject()).getID();
 				cellItem.add(new SelectEntryPanel(componentId, entryId, eventProvider));
-			};
-			
-			
+			};			
 		});
 
 		dataTable = new DefaultDataTable<SushiEvent, String>("events", columns, eventProvider, 20);

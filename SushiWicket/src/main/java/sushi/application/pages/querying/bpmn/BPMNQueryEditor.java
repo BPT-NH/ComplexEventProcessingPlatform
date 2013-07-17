@@ -25,14 +25,21 @@ import sushi.application.pages.querying.bpmn.model.BPMNTreeTableElement;
 import sushi.application.pages.querying.bpmn.model.BPMNTreeTableExpansionModel;
 import sushi.application.pages.querying.bpmn.model.BPMNTreeTableProvider;
 import sushi.application.pages.simulator.EmptyPanel;
-import sushi.bpmn.decomposition.SushiRPSTTree;
+import sushi.bpmn.decomposition.RPSTBuilder;
+import sushi.bpmn.element.BPMNEventType;
+import sushi.bpmn.element.BPMNIntermediateEvent;
 import sushi.bpmn.element.BPMNProcess;
+import sushi.bpmn.element.BPMNStartEvent;
 import sushi.bpmn.element.BPMNTask;
 import sushi.monitoring.bpmn.BPMNQueryMonitor;
 import sushi.process.SushiProcess;
+import sushi.query.SushiPatternQuery;
 import sushi.query.bpmn.PatternQueryGenerator;
 
 /**
+ * This page facilitates the creation of {@link SushiPatternQuery}s from a {@link BPMNProcess}.
+ * The user has to choose a {@link SushiProcess} on the page and can associate monitoring points 
+ * to the BPMN process elements in the {@link MonitoringPointsPanel}.
  * @author micha
  */
 public class BPMNQueryEditor extends AbstractSushiPage {
@@ -48,6 +55,9 @@ public class BPMNQueryEditor extends AbstractSushiPage {
 	private BPMNTreeTableProvider treeTableProvider;
 	private BPMNQueryEditorHelpModal helpModal;
 
+	/**
+	 * Constructor for a page, which facilitates the creation of {@link SushiPatternQuery}s from a {@link BPMNProcess}.
+	 */
 	public BPMNQueryEditor() {
 		super();
 		this.page = this;
@@ -131,6 +141,7 @@ public class BPMNQueryEditor extends AbstractSushiPage {
 		layoutForm.addOrReplace(treeTable);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	private List<IColumn<BPMNTreeTableElement, String>> createColumns() {
 		List<IColumn<BPMNTreeTableElement, String>> columns = new ArrayList<IColumn<BPMNTreeTableElement, String>>();
     
@@ -143,7 +154,12 @@ public class BPMNQueryEditor extends AbstractSushiPage {
 				BPMNTreeTableElement treeTableElement = (BPMNTreeTableElement) rowModel.getObject();
 				
 				int entryId = treeTableElement.getID();
-				if(treeTableElement.getContent() instanceof BPMNTask){
+				boolean isTask = treeTableElement.getContent() instanceof BPMNTask;
+				boolean isMonitorableEvent = 
+						(treeTableElement.getContent() instanceof BPMNIntermediateEvent && !((BPMNIntermediateEvent)treeTableElement.getContent()).getIntermediateEventType().equals(BPMNEventType.Timer)) 
+						|| (treeTableElement.getContent() instanceof BPMNStartEvent);
+				
+				if(isTask || isMonitorableEvent){
 					MonitoringPointsPanel monitoringPointsPanel = new MonitoringPointsPanel(componentId, entryId, treeTableElement);
 					cellItem.add(monitoringPointsPanel);
 				}
@@ -178,7 +194,7 @@ public class BPMNQueryEditor extends AbstractSushiPage {
 						target.add(page.getFeedbackPanel());
 					} else {
 						//BPMNProcess in RPST umwandeln
-						SushiRPSTTree rpst = new SushiRPSTTree(selectedBPMNProcess);
+						RPSTBuilder rpst = new RPSTBuilder(selectedBPMNProcess);
 						
 						BPMNQueryMonitor.getInstance().getProcessMonitorForProcess(process).getProcess().setProcessDecompositionTree(rpst.getProcessDecompositionTree());
 						
@@ -186,6 +202,8 @@ public class BPMNQueryEditor extends AbstractSushiPage {
 						//RPST in Queries umwandeln
 						try{
 							PatternQueryGenerator queryGenerator = new PatternQueryGenerator(rpst);
+							
+							queryGenerator.generateQueries();
 							
 							page.getFeedbackPanel().success("Queries created!");
 							target.add(page.getFeedbackPanel());

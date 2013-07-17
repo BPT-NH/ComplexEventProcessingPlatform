@@ -6,6 +6,10 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 
+/**
+ * This button provides an ajax behavior to block the UI while processing a request.
+ * The {@link BlockingAjaxButton} must be placed in a {@link BlockingForm}.
+ */
 public class BlockingAjaxButton extends AjaxButton {
 
 	private static final long serialVersionUID = 1L;

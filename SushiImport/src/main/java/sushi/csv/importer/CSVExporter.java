@@ -13,15 +13,13 @@ import sushi.event.collection.SushiMapTree;
 public class CSVExporter {
 
 	public File generateExportFile(SushiEventType eventType, List<SushiEvent> events){
-		//Datei anlegen
+		//create file
 		if(eventType.isHierarchical()){
 			return null;
 		}
 		File file = new File(System.getProperty("user.dir")+"/src/test/resources/" + eventType.getTypeName() + "export.csv");
 		try {
 			FileWriter writer = new FileWriter(file ,false);
-//			writer.write("sep=;");
-//			writer.write(System.getProperty("line.separator"));
 			List<String> attributeNames = eventType.getAttributeKeysFromMap();
 			writer.write(eventType.getTimestampName() + ";");
 			for(String attributeName : attributeNames){
@@ -35,21 +33,20 @@ public class CSVExporter {
 					writer.write(tree.getValueOfAttribute(attributeName)+";");
 				}
 			}
-			//Stream in Datei schreiben
+			//write stream to file
 			writer.flush();
-	       // Schließt den Stream
+	       // close the stream
 	       writer.close();
 			
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
-		// seperator Definieren
+		// define separator
 		//sep=;
-		// Columntitles vom Eventtyp auslesen
+		// read column titles from event type
 		List<String> attributeNames = eventType.getAttributeKeysFromMap();
-		//Werte der ausgewählten Events auslesen
+		//read values of the chosen events
 		for(SushiEvent e : events){
 			SushiMapTree<String, Serializable> values = e.getValues();
 //			values.ge

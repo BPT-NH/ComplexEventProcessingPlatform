@@ -4,8 +4,22 @@
 	<wicket:panel>
 		<div class="well-small">
 			<form wicket:id="simpleCorrelationForm">
-				<label>Select correlation attributes:</label> 
-				<select wicket:id="correlationEventTypesSelect"></select>
+				<table style="width:100%">
+					<tr>
+						<td width="50%">
+							<div class="checkbox form-inline well-small">
+								Select relevant event types: <br/><br/>
+								<span wicket:id="eventTypesCheckBoxMultipleChoice" />
+							</div>
+						</td>
+						<td width="50%">
+							<div class="checkbox form-inline well-small">
+								Select correlation attributes: <br/>
+								<select wicket:id="correlationEventTypesSelect"></select>
+							</div>
+						</td>
+					</tr>
+				</table>
 			</form>
 		</div>
 	</wicket:panel>

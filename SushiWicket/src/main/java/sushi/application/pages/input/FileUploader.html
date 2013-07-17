@@ -7,13 +7,11 @@
 	<body>
 		<wicket:extend>
 			<form wicket:id="uploadForm">
-			
-				<p>
-					<label>Upload a file (*.xls, *.xml, *.txt, *.edi): </label> 
+				<div class="well-small">
+					<label>Upload a file (*.xls, *.xml, *.xsd, *.csv, *.txt, *.edi): </label> 
 					<input wicket:id="fileUpload" size="40" type="file" class="btn"/>
 					<input type="submit" value="Upload" class="btn btn-primary"/>
-				</p>
-				
+				</div>
 			</form>		
 		</wicket:extend>
 	</body>

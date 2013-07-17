@@ -5,7 +5,7 @@ package sushi.monitoring.bpmn;
  * @author micha
  */
 public enum ViolationStatus {
-	None("None"), Exclusiveness("Exclusiveness"), Order("Order"), Missing("Missing"), Duplication("Duplication");
+	Exclusiveness("Exclusiveness"), Order("Order"), Missing("Missing"), Duplication("Duplication"), Loop("Loop");
 	
 	private String textValue;
 	

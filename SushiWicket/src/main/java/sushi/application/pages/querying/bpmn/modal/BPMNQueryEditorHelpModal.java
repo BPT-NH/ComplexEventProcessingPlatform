@@ -7,6 +7,10 @@ import org.apache.wicket.request.resource.ResourceReference;
 
 import sushi.application.components.form.BootstrapModal;
 
+/**
+ * This is a {@link BootstrapModal}, which displays a help text for BPMN query creation.
+ * @author micha
+ */
 public class BPMNQueryEditorHelpModal extends BootstrapModal {
 
 	private static final long serialVersionUID = 1L;
@@ -18,6 +22,10 @@ public class BPMNQueryEditorHelpModal extends BootstrapModal {
 		response.render(CssHeaderItem.forReference(MODAL_SIZE_CSS));
 	}
 	
+    /**
+     * Constructor for a {@link BootstrapModal}, which displays a help text for BPMN query creation.
+     * @param id
+     */
     public BPMNQueryEditorHelpModal(String id) {
     	super(id, "Help: BPMN Query Editor");
 	}

@@ -15,12 +15,20 @@ import sushi.application.components.form.WarnOnExitForm;
 import sushi.application.pages.AbstractSushiPage;
 import sushi.process.SushiProcess;
 
+/**
+ * This class is page to create and delete {@link SushiProcess}es from the database.
+ * @author micha
+ */
 public class ProcessEditor extends AbstractSushiPage {
 	
+	private static final long serialVersionUID = 1L;
 	private ListChoice<String> existingProcessesList;
 	private List<String> processNames = new ArrayList<String>();
 	private static String selectedProcessName = new String();
 	
+	/**
+	 * Constructor for a page to create and delete {@link SushiProcess}es from the database.
+	 */
 	public ProcessEditor(){
 		super();
 		Form<Void> processEditForm = new WarnOnExitForm("processEditForm");

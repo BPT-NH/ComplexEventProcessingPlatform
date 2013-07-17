@@ -4,27 +4,30 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import sushi.application.SushiAuthenticatedSession;
 import sushi.application.components.SushiNavBarDropDownButton;
 import sushi.application.pages.adapter.AdapterPage;
-import sushi.application.pages.aggregation.AggregationPage;
 import sushi.application.pages.correlation.CorrelationPage;
 import sushi.application.pages.eventrepository.EventRepository;
 import sushi.application.pages.eventrepository.eventtypeeditor.EventTypeEditor;
 import sushi.application.pages.export.Export;
 import sushi.application.pages.input.FileUploader;
+import sushi.application.pages.input.TomTomWeatherPage;
 import sushi.application.pages.input.bpmn.BPMNProcessUpload;
 import sushi.application.pages.main.MainPage;
 import sushi.application.pages.monitoring.bpmn.BPMNMonitoringPage;
+import sushi.application.pages.monitoring.eventviews.EventViewPage;
 import sushi.application.pages.monitoring.notification.NotificationPage;
-import sushi.application.pages.monitoring.visualisation.VisualisationPage;
+import sushi.application.pages.monitoring.visualisation.AttributeChartPage;
 import sushi.application.pages.querying.LiveQueryEditor;
 import sushi.application.pages.querying.OnDemandQueryEditor;
 import sushi.application.pages.querying.bpmn.BPMNQueryEditor;
 import sushi.application.pages.simulator.SimulationPage;
+import sushi.application.pages.transformation.TransformationPage;
 import sushi.application.pages.user.LoginPage;
 import de.agilecoders.wicket.markup.html.bootstrap.button.dropdown.MenuBookmarkablePageLink;
 import de.agilecoders.wicket.markup.html.bootstrap.common.NotificationPanel;
@@ -34,6 +37,10 @@ import de.agilecoders.wicket.markup.html.bootstrap.navbar.Navbar;
 import de.agilecoders.wicket.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.markup.html.bootstrap.navbar.NavbarComponents;
 
+/**
+ * All pages in the web application should be a child class of {@link AbstractSushiPage}.
+ * This page constructs the Bootstrap Navbar, adds a {@link FeedbackPanel} for status informations and the footer.
+ */
 public abstract class AbstractSushiPage extends WebPage {
 	
 	private static final long serialVersionUID = 1L;
@@ -45,6 +52,10 @@ public abstract class AbstractSushiPage extends WebPage {
 
 	private NotificationPanel feedbackPanel;
 
+	/**
+	 * Constructor for the {@link AbstractSushiPage}.
+	 * This page constructs the Bootstrap Navbar, adds a feedbackpanel for status informations and the footer.
+	 */
 	@SuppressWarnings("unchecked")
 	public AbstractSushiPage(){
 		// TODO: richtige URL?!
@@ -84,13 +95,14 @@ public abstract class AbstractSushiPage extends WebPage {
 		 return new SushiNavBarDropDownButton(Model.of("Import"))
 		 	.addButton(new MenuBookmarkablePageLink<FileUploader>(FileUploader.class, Model.of("Excel / XML / XSD")).setIconType(IconType.inbox))
 		 	.addButton(new MenuBookmarkablePageLink<BPMNProcessUpload>(BPMNProcessUpload.class, Model.of("BPMN")).setIconType(IconType.leaf))
+		 	.addButton(new MenuBookmarkablePageLink<TomTomWeatherPage>(TomTomWeatherPage.class, Model.of("TrafficAndWeather")).setIconType(IconType.leaf))
 		 	.setIconType(IconType.upload).add(new DropDownAutoOpen());
 	 }
 	
 	private Component newProcessingDropDownButton(){
 		 return new SushiNavBarDropDownButton(Model.of("Processing"))
-		 	.addButton(new MenuBookmarkablePageLink<EventTypeEditor>(AggregationPage.class, Model.of("Event Aggregator")))
-		 	.addButton(new MenuBookmarkablePageLink<CorrelationPage>(CorrelationPage.class, Model.of("Event Correlator")))
+		 	.addButton(new MenuBookmarkablePageLink<EventTypeEditor>(TransformationPage.class, Model.of("Event Transformation")).setIconType(IconType.filter))
+		 	.addButton(new MenuBookmarkablePageLink<CorrelationPage>(CorrelationPage.class, Model.of("Event Correlation")).setIconType(IconType.random))
 		 	.setIconType(IconType.cog).add(new DropDownAutoOpen());		
 	}
 	
@@ -105,16 +117,17 @@ public abstract class AbstractSushiPage extends WebPage {
 	 private Component newEventProducerDropDownButton() {
 		 return new SushiNavBarDropDownButton(Model.of("Event Producing"))
 		 	.addButton(new MenuBookmarkablePageLink<SimulationPage>(SimulationPage.class, Model.of("Simulator")))
-		 	.addButton(new MenuBookmarkablePageLink<AdapterPage>(AdapterPage.class, Model.of("Adapter")))
+//		 	.addButton(new MenuBookmarkablePageLink<AdapterPage>(AdapterPage.class, Model.of("Adapter")))
 		 	.setIconType(IconType.wrench).add(new DropDownAutoOpen());
 	 }
 	 
 	 private Component newMonitoringDropDownButton() {
 		 return new SushiNavBarDropDownButton(Model.of("Monitoring"))
-		 	.addButton(new MenuBookmarkablePageLink<VisualisationPage>(VisualisationPage.class, Model.of("Visualisation")))
 		 	.addButton(new MenuBookmarkablePageLink<BPMNMonitoringPage>(BPMNMonitoringPage.class, Model.of("BPMN")).setIconType(IconType.leaf))
+		 	.addButton(new MenuBookmarkablePageLink<AttributeChartPage>(AttributeChartPage.class, Model.of("Attribute Charts")))
+		 	.addButton(new MenuBookmarkablePageLink<EventViewPage>(EventViewPage.class, Model.of("Event Views")))
 		 	.addButton(new MenuBookmarkablePageLink<NotificationPage>(NotificationPage.class, Model.of("Notification")))
-		 	.add(new DropDownAutoOpen());
+		 	.setIconType(IconType.camera).add(new DropDownAutoOpen());
 	 }
 	
 	private void addFeedbackPanel() {

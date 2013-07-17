@@ -18,6 +18,10 @@ import sushi.event.SushiEventType;
 import sushi.persistence.Persistor;
 import sushi.process.SushiProcess;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiProcess}.
+ * @author micha
+ */
 @FixMethodOrder(MethodSorters.JVM)
 public class ProcessPersistorTest implements PersistenceTest {
 	

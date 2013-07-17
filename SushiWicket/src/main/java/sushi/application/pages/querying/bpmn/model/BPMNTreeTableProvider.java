@@ -10,8 +10,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SingleSortState;
 
 import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.bpmn.decomposition.Component;
-import sushi.bpmn.decomposition.SushiRPSTTree;
-import sushi.bpmn.decomposition.TreeBuilder;
+import sushi.bpmn.decomposition.RPSTBuilder;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.BPMNProcess;
 import sushi.event.collection.SushiTree;
@@ -35,9 +34,7 @@ public class BPMNTreeTableProvider extends AbstractDataProvider implements ISort
 		this.treeTableElements = new ArrayList<BPMNTreeTableElement>();
 		this.process = process;
 		if(process != null){
-//			TreeBuilder treeBuilder = new TreeBuilder(process);
-//			bpmnComponentTree = treeBuilder.buildComponentTree();
-			bpmnComponentTree = new SushiRPSTTree(process).getProcessDecompositionTree();
+			bpmnComponentTree = new RPSTBuilder(process).getProcessDecompositionTree();
 			createTreeTableElements(bpmnComponentTree);
 		}
 	}
@@ -210,8 +207,7 @@ public class BPMNTreeTableProvider extends AbstractDataProvider implements ISort
 	public void setProcess(BPMNProcess process) {
 		this.process = process;
 		if(process != null){
-			TreeBuilder treeBuilder = new TreeBuilder(process);
-			bpmnComponentTree = treeBuilder.buildComponentTree();
+			bpmnComponentTree = new RPSTBuilder(process).getProcessDecompositionTree();
 			createTreeTableElements(bpmnComponentTree);
 		}
 	}

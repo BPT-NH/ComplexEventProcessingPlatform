@@ -29,15 +29,22 @@ import sushi.application.pages.eventrepository.model.EventTypeProvider;
 import sushi.event.SushiEventType;
 
 /**
- * Panel representing the content panel for the event type tab.
+ * {@link Panel}, which shows the {@link SushiEventType}s stored in the database.
  */
 public class EventTypePanel extends Panel {
 
+	private static final long serialVersionUID = 1L;
 	private List<IColumn<SushiEventType, String>> columns;
 	private EventTypeFilter eventTypeFilter;
 	private EventTypeProvider eventTypeProvider;
 	private DefaultDataTable<SushiEventType, String> dataTable;
 
+	/**
+	 * Constructor for the event type panel. 
+	 * The page is initialized in this method and the data is loaded from the database.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public EventTypePanel(String id, final AbstractSushiPage abstractSushiPage) {
 		super(id);
 		
@@ -136,6 +143,9 @@ public class EventTypePanel extends Panel {
 		columns.add(new PropertyColumn<SushiEventType, String>(Model.of("Timestamp"), "timestampName"));
 		columns.add(new PropertyColumn<SushiEventType, String>(Model.of("Attributes"), "valueTypes"));
 		columns.add(new AbstractColumn<SushiEventType, String>(new Model("Select")) {
+			
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				int entryId = ((SushiEventType) rowModel.getObject()).getID();

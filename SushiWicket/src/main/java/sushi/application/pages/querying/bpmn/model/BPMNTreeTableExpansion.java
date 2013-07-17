@@ -10,7 +10,7 @@ import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Session;
 
 /**
- * handles the expansion state of a tree component
+ * Handles the expansion state of a tree component.
  */
 public class BPMNTreeTableExpansion implements Set<BPMNTreeTableElement>, Serializable {
 	

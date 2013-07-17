@@ -20,9 +20,15 @@
   -->
 
 <serviceGroup>
-	<service name="XMLImportWebservice">
-		<parameter name="ServiceClass">de.hpi.XMLImportWebservice</parameter>
+	<service name="EventProcessingPlatformWebservice">
+		<parameter name="ServiceClass">de.hpi.EventProcessingPlatformWebservice</parameter>
 		<operation name="importEvents">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="registerEventType">
+			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+		</operation>
+		<operation name="addQueryNotification">
 			<messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
 		</operation>
 	</service>

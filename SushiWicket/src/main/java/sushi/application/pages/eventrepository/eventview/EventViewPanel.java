@@ -1,6 +1,7 @@
 package sushi.application.pages.eventrepository.eventview;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,9 @@ import sushi.event.SushiEvent;
 import sushi.event.collection.SushiMapElement;
 import sushi.event.collection.SushiTreeElement;
 
+/**
+ * This panel displays an event with its key information and its attributes in a tree structure.
+ */
 public class EventViewPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -22,6 +26,7 @@ public class EventViewPanel extends Panel {
 	private SushiLabelTree<SushiTreeElement> tree;
 	private Label label;
 	private Label timestamp;
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 	
 	public EventViewPanel(String id, SushiEvent event) {
     	super(id);
@@ -41,7 +46,7 @@ public class EventViewPanel extends Panel {
     	timestamp.setOutputMarkupId(true);
     	add(timestamp);
     	
-		// hierarchische Anzeige von verfügbaren Attributen
+		// hierarchical display of attributes
 		tree = new SushiLabelTree<SushiTreeElement>("treeTable", new TreeProvider(new ArrayList<SushiTreeElement<String>>(generateNodesOfEventTypeTree())), new TreeExpansionModel());
         TreeExpansion.get().expandAll();
         tree.setOutputMarkupId(true);
@@ -57,11 +62,11 @@ public class EventViewPanel extends Panel {
     	addOrReplace(label);
     	
     	//timestamp
-    	timestamp = new Label("timestamp", event.getTimestamp());
+    	timestamp = new Label("timestamp", dateFormatter.format(event.getTimestamp()));
     	timestamp.setOutputMarkupId(true);
     	addOrReplace(timestamp);
     	
-		// hierarchische Anzeige von verfügbaren Attributen
+		// hierarchical display of attributes
 		tree = new SushiLabelTree<SushiTreeElement>("treeTable", new TreeProvider(generateNodesOfEventTypeTree()), new TreeExpansionModel());
         TreeExpansion.get().expandAll();
         tree.setOutputMarkupId(true);

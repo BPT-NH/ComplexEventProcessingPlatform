@@ -1,66 +1,46 @@
 package sushi.application.pages.eventrepository.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import sushi.application.pages.eventrepository.ProcessInstancePanel;
 import sushi.process.SushiProcess;
 import sushi.process.SushiProcessInstance;
 
-public class ProcessInstanceFilter implements Serializable {
+/**
+ * This class filters {@link SushiProcessInstance}es in the {@link ProcessInstancePanel}.
+ * @author micha
+ */
+public class ProcessInstanceFilter extends AbstractFilter {
 	
-	String filterValue;
-	String processInstanceFilterCriteria;
-	String processInstanceFilterCondition;
+	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Constructor for the class, which filters {@link SushiProcessInstance}s in the {@link ProcessInstancePanel}.
+	 */
 	public ProcessInstanceFilter(){
-
+		super();
 	}
 	
-	public ProcessInstanceFilter(String processInstanceFilterCriteria, String processInstanceFilterCondition, String filterValue){
-		this.processInstanceFilterCondition = processInstanceFilterCondition;
-		this.processInstanceFilterCriteria = processInstanceFilterCriteria;
-		this.filterValue = filterValue;
+	/**
+	 * Constructor for the class, which filters {@link SushiProcessInstance}s in the {@link ProcessInstancePanel}.
+	 * @param filterCriteria
+	 * @param filterCondition
+	 * @param filterValue
+	 */
+	public ProcessInstanceFilter(String filterCriteria, String filterCondition, String filterValue){
+		super(filterCriteria, filterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getProcessInstanceFilterCriteria() {
-		return processInstanceFilterCriteria;
-	}
-
-
-	public void setProcessInstanceFilterCriteria(String processFilterCriteria) {
-		this.processInstanceFilterCriteria = processFilterCriteria;
-	}
-
-
-	public String getProcessInstanceFilterCondition() {
-		return processInstanceFilterCondition;
-	}
-
-
-	public void setProcessInstanceFilterCondition(String processFilterCondition) {
-		this.processInstanceFilterCondition = processFilterCondition;
-	}
-
 
 	public boolean match(SushiProcessInstance processInstance) {
-		if(processInstanceFilterCriteria == null || processInstanceFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(processInstanceFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(processInstanceFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(processInstance.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processInstanceFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(processInstance.getID() > Integer.parseInt(filterValue)) return true;
 				} else {
 					if(processInstance.getID() == Integer.parseInt(filterValue)) return true;
@@ -69,7 +49,7 @@ public class ProcessInstanceFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(processInstanceFilterCriteria.equals("Process")){
+		} else if(filterCriteria.equals("Process")){
 			List<SushiProcess> filterProcesses = SushiProcess.findByName(filterValue);
 			if(!filterProcesses.isEmpty()){
 				List<SushiProcessInstance> filteredProcessInstances = new ArrayList<SushiProcessInstance>();
@@ -78,11 +58,11 @@ public class ProcessInstanceFilter implements Serializable {
 				}
 				return filteredProcessInstances.contains(processInstance);
 			}
-		} else if(processInstanceFilterCriteria.equals("Process (ID)")){
+		} else if(filterCriteria.equals("Process (ID)")){
 			try {
-				if(processInstanceFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(processInstance.getProcess().getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processInstanceFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(processInstance.getProcess().getID() > Integer.parseInt(filterValue)) return true;
 				} else {
 					if(processInstance.getProcess().getID() == Integer.parseInt(filterValue)) return true;

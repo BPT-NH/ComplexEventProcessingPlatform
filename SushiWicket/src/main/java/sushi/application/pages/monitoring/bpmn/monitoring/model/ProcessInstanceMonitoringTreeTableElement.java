@@ -13,7 +13,8 @@ import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 import sushi.query.SushiPatternQuery;
 
 /**
- * representation of a tree node
+ * Representation of a tree node of the process instance treetable.
+ * Each element contains a {@link SushiPatternQuery} and associated informations for these query.
  *
  * @param <T> type of content to be stored
  */

@@ -37,8 +37,8 @@ import sushi.bpmn.monitoringpoint.MonitoringPointStateTransition;
 import sushi.persistence.Persistable;
 
 /**
+ * This class is a logical representation for a BPMN element.
  * @author micha
- *
  */
 @Entity
 @Table(name = "BPMNElement")
@@ -101,6 +101,10 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return predecessors;
 	}
 	
+	/**
+	 * Returns all elements, that are predecessor of the current element and its predecessor (all indirect predecessors).
+	 * @return
+	 */
 	public Set<AbstractBPMNElement> getIndirectPredecessors(){
 		Set<AbstractBPMNElement> elements = new HashSet<AbstractBPMNElement>();
 		elements = getIndirectPredecessorsWithSelf(this, elements);
@@ -123,6 +127,10 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return elements;
 	}
 	
+	/**
+	 * Returns all elements, that are on a path starting from the current element (all indirect successors).
+	 * @return
+	 */
 	public Set<AbstractBPMNElement> getIndirectSuccessors(){
 		Set<AbstractBPMNElement> elements = new HashSet<AbstractBPMNElement>();
 		for(AbstractBPMNElement element : this.getSuccessors()){
@@ -131,6 +139,11 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return elements;
 	}
 	
+	/**
+	 * Proofs, if the given element is a indirect successor of the current element.
+	 * @param element
+	 * @return
+	 */
 	public boolean isIndirectSuccessor(AbstractBPMNElement element){
 		if(!this.equals(element)){
 			return this.getIndirectSuccessors().contains(element);
@@ -159,6 +172,10 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		this.predecessors = predecessor;
 	}
 
+	/**
+	 * Returns the direct successors.
+	 * @return
+	 */
 	public Set<AbstractBPMNElement> getSuccessors() {
 		return successors;
 	}
@@ -167,6 +184,10 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		this.successors = successors;
 	}
 	
+	/**
+	 * Adds an element as a predecessor for the current element.
+	 * @param element
+	 */
 	public void addPredecessor(AbstractBPMNElement element) {
 		if(!predecessors.contains(element)){
 			this.predecessors.add(element);
@@ -181,10 +202,18 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		this.predecessors = new HashSet<AbstractBPMNElement>();
 	}
 	
+	/**
+	 * Proofs, if this element has any predecessors.
+	 * @return
+	 */
 	public boolean hasPredecessor() {
 		return (! this.predecessors.isEmpty());
 	}
 
+	/**
+	 * Proofs, if this element has any successors.
+	 * @return
+	 */
 	public boolean hasSuccessors() {
 		return (! this.successors.isEmpty());
 	}
@@ -201,6 +230,10 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return false;
 	}
 	
+	/**
+	 * Adds an element as a successor for the current element.
+	 * @param element
+	 */
 	public void addSuccessor(AbstractBPMNElement element) {
 		if(!successors.contains(element)){
 			this.successors.add(element);
@@ -235,6 +268,11 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return monitoringPoints;
 	}
 	
+	/**
+	 * Returns the monitoring point with the given {@link MonitoringPointStateTransition} or null.
+	 * @param transitionType
+	 * @return
+	 */
 	public MonitoringPoint getMonitoringPointByStateTransitionType(MonitoringPointStateTransition transitionType){
 		for(MonitoringPoint monitoringPoint : monitoringPoints){
 			if(monitoringPoint.getStateTransitionType().equals(transitionType)){
@@ -260,7 +298,6 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 	}
 	
 	public boolean hasMonitoringPoints() {
-		//TODO: Monitoring-EventType sollte nicht leer sein
 		return monitoringPoints != null && !monitoringPoints.isEmpty();
 	}
 	
@@ -310,6 +347,8 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 	}
 	
 	/**
+	 * Returns all elements on a path between the given start and end element. 
+	 * Their must exist a path between these elements.
 	 * @param startElement - excluded
 	 * @param endElement - excluded
 	 * @return
@@ -352,6 +391,12 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 		return elements;
 	}
 	
+	/**
+	 * Returns all elements, that belong to the shortest path between the given start and end element. 
+	 * @param sourceElement
+	 * @param destinationElement
+	 * @return
+	 */
 	public static List<AbstractBPMNElement> getShortestPathBetween(AbstractBPMNElement sourceElement, AbstractBPMNElement destinationElement){
 		Map<AbstractBPMNElement, Boolean> visitedElements = new HashMap<AbstractBPMNElement, Boolean>();
 		Map<AbstractBPMNElement, AbstractBPMNElement> previousElements = new HashMap<AbstractBPMNElement, AbstractBPMNElement>();
@@ -387,108 +432,91 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 	
 	@Override
 	public int getX() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setX(int x) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public int getY() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setY(int y) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public int getWidth() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setWidth(int w) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public int getHeight() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void setHeight(int h) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setLocation(int x, int y) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setSize(int w, int h) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void setLayout(int x, int y, int w, int h) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Object getTag() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setTag(Object tag) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setDescription(String desc) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public int compareTo(IGObject o) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public String getLabel() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	/**
-	 * Connects the two elements as predecessor and successor.
+	 * Connects the two given elements as predecessor and successor.
 	 * @param predecessor
 	 * @param successor
 	 */
@@ -500,7 +528,7 @@ public abstract class AbstractBPMNElement extends Persistable implements IVertex
 	}
 	
 	/**
-	 * Disconnects the two elements as predecessor and successor.
+	 * Disconnects the two given elements as predecessor and successor.
 	 * @param predecessor
 	 * @param successor
 	 */

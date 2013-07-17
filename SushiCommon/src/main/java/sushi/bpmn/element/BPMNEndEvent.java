@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 
 /**
+ * This class represents the end events in a BPMN process.
  * @author micha
  *
  */

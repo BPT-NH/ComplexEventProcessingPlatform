@@ -1,7 +1,9 @@
 package sushi.event.attribute;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,15 +13,28 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import sushi.correlation.CorrelationRule;
+import sushi.event.SushiEventType;
 import sushi.persistence.Persistable;
+import sushi.persistence.Persistor;
 
+/**
+ *  Representation of an Attribute/Datatype element of the SushiAttributTree
+ */
 @Entity
-@Table(name = "SushiAttribute")
+@Table(
+	name = "SushiAttribute"
+)
 public class SushiAttribute extends Persistable {
 	
 	private static final long serialVersionUID = -3804228219409837851L;
@@ -28,11 +43,21 @@ public class SushiAttribute extends Persistable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected int ID;
 	
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne
+	@JoinColumn(name="AttributeTreeID")
+	private SushiAttributeTree attributeTree;
+	
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private SushiAttribute parent;
 	
-	@OneToMany(cascade = CascadeType.PERSIST)
+	@OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<SushiAttribute> children = new ArrayList<SushiAttribute>();
+	
+	@OneToMany(mappedBy = "firstAttribute")
+	private Set<CorrelationRule> correlationRulesFirst = new HashSet<CorrelationRule>();
+	
+	@OneToMany(mappedBy = "secondAttribute")
+	private Set<CorrelationRule> correlationRulesSecond = new HashSet<CorrelationRule>();
 	
 	@Column(name = "Name")
 	protected String name;
@@ -42,7 +67,7 @@ public class SushiAttribute extends Persistable {
 	private SushiAttributeTypeEnum type = SushiAttributeTypeEnum.STRING;
 	
 	/**
-	 * for temporary use in AggregationRuleEditor only
+	 * for temporary use in TransformationRuleEditor only
 	 * not persisted by JPA
 	 */
 	@Transient
@@ -169,6 +194,9 @@ public class SushiAttribute extends Persistable {
 		return !children.isEmpty();
 	}
 	
+	/**
+	 * adds child node to attribute element 
+	 */
 	public boolean addChild(SushiAttribute attribute) {
 		if (!attribute.hasParent()) {
 			attribute.setParent(attribute);
@@ -221,6 +249,10 @@ public class SushiAttribute extends Persistable {
 		return getLevelInTree(attribute.getParent(), rootLevel + 1);
 	}
 
+	/**
+	 * 
+	 * @return returns recursive the path to this element as XPath
+	 */
 	public String getXPath() {
 		if (parent == null) {
 			return "/" + name.toString().replaceAll(" ", "");
@@ -236,8 +268,52 @@ public class SushiAttribute extends Persistable {
 		return parent.getAttributeExpression() + "." +  name;
 	}
 	
+	private SushiAttribute getRootLevelParent() {
+		if (parent == null) {
+			return this;
+		}
+		return parent.getRootLevelParent();
+	}
+	
+	@JsonIgnore
+	public SushiEventType getEventType() {
+		SushiAttribute rootLevelParent = getRootLevelParent();
+		Query query = Persistor.getEntityManager().createNativeQuery("" +
+				"SELECT * FROM EventType " +
+				"WHERE Attributes = '" + rootLevelParent.getAttributeTree().getID() + "'", SushiEventType.class);
+		return (SushiEventType) query.getSingleResult();
+	}
+	
 	/**
-	 * attributes are equal if their parent attributes and names are equal
+	 * attribute identifier consisting of event type name plus attribute expression
+	 * example: Order.orderId for first level attribute with name "orderId" of event type "Order"
+	 * 
+	 * @return qualified attribute name
+	 */
+	public String getQualifiedAttributeName() {
+		return getEventType().getTypeName() + "." + getAttributeExpression();
+	}
+	
+	@JsonIgnore
+	public SushiAttributeTree getAttributeTree() {
+		return attributeTree;
+	}
+	
+	public void setAttributeTree(SushiAttributeTree attributeTree) {
+		this.attributeTree = attributeTree;
+	}
+	
+	public boolean addToCorrelationRulesFirst(CorrelationRule rule) {
+		return correlationRulesFirst.add(rule);
+	}
+	
+	public boolean addToCorrelationRulesSecond(CorrelationRule rule) {
+		return correlationRulesSecond.add(rule);
+	}
+
+	/**
+	 * attributes are equal if their parent attributes and attribute names are equal
+	 * NOTE: use equalsWithEventType(SushiAttribute element) for including the event type
 	 */
 	@Override
 	public boolean equals(Object element) {
@@ -248,27 +324,36 @@ public class SushiAttribute extends Persistable {
 			 * because it would be else possible to add attributes
 			 * with the same name to a parent attribute
 			 */
-//			if (type != null && !type.equals(attribute.getAttributeType())) {
-//				return false;
-//			}
-//			if (parent != null && !parent.equals(attribute.getParent())) {
-//				return false;
-//			}
-			boolean bool = getAttributeExpression().equals(attribute.getAttributeExpression());
-			return bool;
+			return getAttributeExpression().equals(attribute.getAttributeExpression());
 		} else {
 			return false;
 		}
 	}
 	
 	/**
+	 * equality by parent attributes and attribute names
+	 */
+	public boolean equalsWithEventType(SushiAttribute attribute) {
+		boolean bool1 = false, bool2 = false;
+		if (getRootLevelParent().getAttributeTree() == null) {
+			bool1 = (attribute.getAttributeTree() == null) ? true : false;
+		} else {
+			bool1 = getRootLevelParent().getAttributeTree().equals(attribute.getAttributeTree());
+		}
+		bool2 = getAttributeExpression().equals(attribute.getAttributeExpression());
+		return bool1 && bool2;
+	}
+	
+	/**
 	 * attributes have the same hashcode if their types and names are equal
+	 * and if they belong to the same attribute tree (-> event type)
 	 */
 	@Override
 	public int hashCode() {
 		int hashCode = 0;
 		if (type != null) hashCode += type.hashCode();
-		if (getXPath() != null) hashCode += getXPath().hashCode();  
+		if (getXPath() != null) hashCode += getXPath().hashCode();
+		if (attributeTree != null) hashCode += attributeTree.hashCode();
 		return hashCode;
 	}
 	

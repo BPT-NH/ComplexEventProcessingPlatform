@@ -1,5 +1,8 @@
 package sushi.event.attribute;
 
+/**
+ * Encapsulates types which we support for attributes  
+ */
 public enum SushiAttributeTypeEnum {
 	
 	STRING ("String"), 
@@ -16,9 +19,6 @@ public enum SushiAttributeTypeEnum {
 		return type;
 	}
 	
-	/**
-	 * Consider using built-in method name() instead.
-	 */
 	@Override 
 	public String toString() {
 		// only capitalize the first letter

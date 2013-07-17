@@ -7,10 +7,20 @@ import org.apache.wicket.request.Request;
 import sushi.user.SushiUser;
 import sushi.user.UserProvider;
 
+/**
+ * The session class for an authenticated session for the web application.
+ * @author micha
+ */
 public class SushiAuthenticatedSession extends AuthenticatedWebSession {
 	
-    private SushiUser user;
+	private static final long serialVersionUID = 1L;
+	
+	private SushiUser user;
 
+    /**
+     * Constructor for an authenticated session for the web application.
+     * @param request
+     */
     protected SushiAuthenticatedSession(Request request){
         super(request);
     }
@@ -36,8 +46,9 @@ public class SushiAuthenticatedSession extends AuthenticatedWebSession {
     }
 
     /**
+     * Sets a new user.
      * @param user
-     *            New user
+     * 
      */
     public void setUser(final SushiUser user){
         this.user = user;

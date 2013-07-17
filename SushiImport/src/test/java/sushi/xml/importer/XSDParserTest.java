@@ -16,8 +16,8 @@ import sushi.xml.importer.XMLParsingException;
 import sushi.xml.importer.XSDParser;
 
 /**
+ * This class tests the parsing of a XSD file to generate an event type.
  * @author micha
- *
  */
 public class XSDParserTest {
 	

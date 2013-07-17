@@ -22,8 +22,11 @@ import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceM
 import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringProvider;
 import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 import sushi.process.SushiProcess;
+import sushi.process.SushiProcessInstance;
 
 /**
+ * This panel facilitates the monitoring of running {@link SushiProcessInstance}s.
+ * The details for a single process instance are visualized with a {@link ProcessInstanceMonitoringStatusPanel}.
  * @author micha
  */
 @SuppressWarnings("serial")
@@ -38,6 +41,11 @@ public class BPMNMonitoringPanel extends Panel {
 	private SushiProcess process;
 	private ProcessInstanceMonitoringModal processInstanceMonitorModal;
 	
+	/**
+	 * Constructor for a panel, which facilitates the monitoring of running {@link SushiProcessInstance}s.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public BPMNMonitoringPanel(String id, final AbstractSushiPage abstractSushiPage) {
 		super(id);
 		this.abstractSushiPage = abstractSushiPage;

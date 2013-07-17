@@ -28,15 +28,22 @@ import sushi.application.pages.eventrepository.model.BPMNProcessProvider;
 import sushi.bpmn.element.BPMNProcess;
 
 /**
- * Panel representing the content panel for the process tab.
+ * {@link Panel}, which shows the {@link BPMNProcess}s stored in the database.
  */
 public class BPMNProcessPanel extends Panel {
 
+	private static final long serialVersionUID = 1L;
 	private List<IColumn<BPMNProcess, String>> columns;
 	private BPMNProcessFilter bpmnProcessFilter;
 	private BPMNProcessProvider bpmnProcessProvider;
 	private DefaultDataTable<BPMNProcess, String> dataTable;
 
+	/**
+	 * Constructor for the BPMN process panel. 
+	 * The page is initialized in this method and the data is loaded from the database.
+	 * @param id
+	 * @param abstractSushiPage
+	 */
 	public BPMNProcessPanel(String id, final AbstractSushiPage abstractSushiPage) {
 		super(id);
 		

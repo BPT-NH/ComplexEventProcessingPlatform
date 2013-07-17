@@ -30,8 +30,8 @@ import sushi.persistence.Persistor;
 import sushi.util.XMLUtils;
 
 /**
- * @author micha
- *
+ * 
+ * Node for SusiTreeMap. Encapsulate Key/Value pair. Can have childnodes. Knows parent node.
  * @param <K>
  * @param <V>
  */
@@ -49,10 +49,10 @@ public class SushiMapElement<K, V> extends Persistable {
 	@OneToMany(cascade = CascadeType.PERSIST)
 	private List<SushiMapElement<K, V>> children = new ArrayList<SushiMapElement<K, V>>();
 	
-	@Column(name = "MapKey")
+	@Column(name = "MapKey", length=255)
 	K key;
 	
-	@Column(name = "MapValue")
+	@Column(name = "MapValue", length=15000)
 	V value;
 	
 	public SushiMapElement(){
@@ -73,7 +73,6 @@ public class SushiMapElement<K, V> extends Persistable {
 		}
 	}
 	
-	// TODO: consider putting this into a subclass of SushiMapElement<String, Serializable>
 	/**
 	 * use this only if the SushiMapElement is used as attribute name/value mapping
 	 * 
@@ -88,6 +87,10 @@ public class SushiMapElement<K, V> extends Persistable {
 		return parent.getAttributeExpression() + "." + (String) key;
 	}
 	
+	/**
+	 * converts the tree structure into typed XML nodes
+	 * @return
+	 */
 	public Document getNodeWithChildnodes() {
 		 DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 		  domFactory.setNamespaceAware(true);
@@ -101,7 +104,6 @@ public class SushiMapElement<K, V> extends Persistable {
 		  Document doc = builder.newDocument();
 		  Element root = doc.createElement(((String) key).replaceAll(" ", ""));
 		  if (getChildren().isEmpty()) {
-			  System.out.print(key + " ");
 			  V content = (V) value;
 			  //save typed stuff
 			  if (content instanceof Date) {
@@ -109,15 +111,12 @@ public class SushiMapElement<K, V> extends Persistable {
 			  }
 			  else if (content instanceof Integer) {
 				 root.setTextContent(XMLUtils.getXMLInteger((Integer) content));
-				 System.out.println(XMLUtils.getXMLInteger((Integer) content));
 			  }
 			  else {
 				  root.setTextContent((String) content);
-				  System.out.println(content);
 			  }
 		  }
 		  doc.appendChild(root);
-		  
 		  for (SushiMapElement child : getChildren()){
 			  Node importedNode =  doc.importNode(child.getNodeWithChildnodes().getFirstChild(), true);
 			  root.appendChild(importedNode);
@@ -202,5 +201,9 @@ public class SushiMapElement<K, V> extends Persistable {
 			System.out.println(ex.getMessage());
 		}
 	}
-	
+
+	@Override
+	public int getID() {
+		return ID;
+	}	
 }

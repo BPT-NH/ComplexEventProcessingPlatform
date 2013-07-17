@@ -1,65 +1,39 @@
 package sushi.application.pages.monitoring.bpmn.analysis.model;
 
-import java.io.Serializable;
-
+import sushi.application.pages.eventrepository.model.AbstractFilter;
 import sushi.monitoring.bpmn.ProcessMonitor;
 
-public class ProcessMonitoringFilter implements Serializable {
+/**
+ * This class filters {@link ProcessMonitor}s.
+ * @author micha
+ */
+public class ProcessMonitoringFilter extends AbstractFilter {
 	
 	private static final long serialVersionUID = 1L;
 	
-	String filterValue;
-	String processMonitorFilterCriteria;
-	String processMonitorFilterCondition;
-	
+	/**
+	 * Constructor for the class, which filters {@link ProcessMonitor}s.
+	 */
 	public ProcessMonitoringFilter(){
-
+		super();
 	}
 	
+	/**
+	 * Constructor for the class, which filters {@link ProcessMonitor}s.
+	 */
 	public ProcessMonitoringFilter(String processMonitorFilterCriteria, String processMonitorFilterCondition, String filterValue){
-		this.processMonitorFilterCondition = processMonitorFilterCondition;
-		this.processMonitorFilterCriteria = processMonitorFilterCriteria;
-		this.filterValue = filterValue;
+		super(processMonitorFilterCriteria, processMonitorFilterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getProcessMonitorFilterCriteria() {
-		return processMonitorFilterCriteria;
-	}
-
-
-	public void setProcessMonitorFilterCriteria(String processMonitorFilterCriteria) {
-		this.processMonitorFilterCriteria = processMonitorFilterCriteria;
-	}
-
-
-	public String getProcessMonitorFilterCondition() {
-		return processMonitorFilterCondition;
-	}
-
-
-	public void setProcessMonitorFilterCondition(String processMonitorFilterCondition) {
-		this.processMonitorFilterCondition = processMonitorFilterCondition;
-	}
-
 
 	public boolean match(ProcessMonitor processMonitor) {
-		if(processMonitorFilterCriteria == null || processMonitorFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		} 
-		if(processMonitorFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(processMonitorFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(processMonitor.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processMonitorFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(processMonitor.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(processMonitor.getID() == Integer.parseInt(filterValue)) return true;

@@ -16,6 +16,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Helper class for DWD Importer 
+ */
 public class DWDHelper {
 	
 	public static void main(String[] args) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {

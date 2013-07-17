@@ -24,7 +24,12 @@ import sushi.application.pages.monitoring.bpmn.analysis.modal.model.ProcessAnaly
 import sushi.application.pages.monitoring.bpmn.analysis.modal.model.ProcessAnalysingTreeTableProvider;
 import sushi.application.pages.monitoring.bpmn.monitoring.model.ProcessInstanceMonitoringTreeTableExpansionModel;
 import sushi.monitoring.bpmn.ProcessMonitor;
+import sushi.process.SushiProcess;
 
+/**
+ * This is a modal for displaying the analysis status for a {@link SushiProcess}.
+ * @author micha
+ */
 public class ProcessAnalysingModal extends BootstrapModal {
 
 	private static final long serialVersionUID = 1L;
@@ -42,6 +47,10 @@ public class ProcessAnalysingModal extends BootstrapModal {
 		response.render(CssHeaderItem.forReference(MODAL_SIZE_CSS));
 	}
 	
+    /**
+     * Constructor for a modal, which displays the analysis status for a {@link SushiProcess}.
+     * @param id
+     */
     public ProcessAnalysingModal(String id) {
     	super(id, "Process Analysis");
     	buildMainLayout();

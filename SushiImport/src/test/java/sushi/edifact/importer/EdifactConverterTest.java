@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 import sushi.FileUtils;
-import sushi.edifact.importer.EdifactParser;
+import sushi.edifact.importer.EdifactImporter;
 
 public class EdifactConverterTest {
 	
@@ -42,7 +42,7 @@ public class EdifactConverterTest {
 	
 	private void parseFile(String path) throws Exception {
 		String outPutpath = path.substring(0,path.indexOf(".")) + ".xml";
-		StreamResult result = EdifactParser.getInstance().convertEdiFileToXML(path);
+		StreamResult result = EdifactImporter.getInstance().convertEdiFileToXML(path);
 		FileUtils.writeResultToFile(result, outPutpath);
 		System.out.println("Edifact-File <" + path + "> converted to <" + path + ">.");
 		File output = new File(outPutpath);

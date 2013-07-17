@@ -5,11 +5,11 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,22 +25,21 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.bind.DatatypeConverter;
 
 import sushi.event.SushiEvent;
 import sushi.event.collection.SushiMapElement;
 import sushi.event.collection.SushiMapTree;
 import sushi.process.SushiProcessInstance;
 
+/**
+ * Utils for XML Document manipulation and generation.
+ * Transforms SushiEvents in XML representation.
+ */
 public class XMLUtils {
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-	private static SimpleDateFormat sdfStandard = new SimpleDateFormat();
 	
 	public enum XPathConstantsMapping {
 
@@ -59,6 +58,10 @@ public class XMLUtils {
 		}
 	}
 
+	/**
+	 * transforms SushiEvent into typed XML-Node. 
+	 * @return XML Representation of the given SushiEvent
+	 */
 	public static Node eventToNode(SushiEvent event) {
 		SushiMapTree<String, Serializable> values = event.getValues();
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -73,10 +76,6 @@ public class XMLUtils {
 		Document doc = builder.newDocument();
 		Element root = doc.createElement(event.getEventType().getTypeName());
 		doc.appendChild(root);
-//		String timestampName = event.getEventType().getTimestampName();
-//		if (timestampName == null) {
-//			timestampName = "Timestamp";
-//		}
 		Element time = doc.createElement("Timestamp");
 		time.setTextContent(getFormattedDate(event.getTimestamp()));
 		root.appendChild(time);
@@ -96,47 +95,44 @@ public class XMLUtils {
 		return doc;
 	}
 
-	
 	public static String getFormattedDate(Date date) {
 		return sdf.format(date);
-		//return sdfStandard.format(date);
 	}
 	
+	/**
+	 * Converts Date into XML-Tag with type xsd:dateTime
+	 */
 	  public static String getXMLDate(Date date) {
 		  Calendar calendar = Calendar.getInstance();
 		  calendar.setTime(date);
 		  return DatatypeConverter.printDateTime(calendar);
 	  }
 	  
+	  /**
+	   * Converts Integer into XML-Tag with type xsd:int
+	   */
 	  public static String getXMLInteger(Integer integer) {
 		  return DatatypeConverter.printInt(integer);
 	  }
 	  
 	  
 	  public static void printDocument(Document doc) {
-		  try {  
-			  TransformerFactory tf = TransformerFactory.newInstance();
-			  Transformer transformer;
-			
-				transformer = tf.newTransformer();
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-		    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-		    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-		    transformer.transform(new DOMSource(doc), 
-		         new StreamResult(new OutputStreamWriter(System.out, "UTF-8")));
-		  } catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
+		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer;
+			transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+			transformer.transform(new DOMSource(doc), new StreamResult(new OutputStreamWriter(System.out, "UTF-8")));
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		}
-	
+	}
 }

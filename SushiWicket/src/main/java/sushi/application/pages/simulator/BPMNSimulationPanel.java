@@ -2,6 +2,7 @@ package sushi.application.pages.simulator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,12 +14,16 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolb
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.tree.table.TreeColumn;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+
+import de.agilecoders.wicket.markup.html.bootstrap.tabs.Collapsible;
 
 import sushi.application.components.form.BlockingAjaxButton;
 import sushi.application.components.table.SelectEntryPanel;
@@ -29,33 +34,38 @@ import sushi.application.pages.simulator.model.SimulationTreeTableElement;
 import sushi.application.pages.simulator.model.SimulationTreeTableExpansion;
 import sushi.application.pages.simulator.model.SimulationTreeTableExpansionModel;
 import sushi.application.pages.simulator.model.SimulationTreeTableProvider;
+import sushi.bpmn.decomposition.XORComponent;
 import sushi.bpmn.element.AbstractBPMNElement;
+import sushi.bpmn.element.AbstractBPMNGateway;
 import sushi.bpmn.element.BPMNProcess;
+import sushi.bpmn.element.BPMNXORGateway;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.process.SushiProcess;
 import sushi.simulation.DerivationType;
+import sushi.simulation.SimulationUtils;
 import sushi.simulation.Simulator;
+import sushi.util.SetUtil;
+import sushi.util.Tuple;
 
 /**
  * Panel representing the content panel for the first tab.
  */
-public class BPMNSimulationPanel extends Panel {
+public class BPMNSimulationPanel extends SimulationPanel {
 	
 	private static final long serialVersionUID = -7896431319431474548L;
-	private AbstractSushiPage abstractSushiPage;
-	private TextField<String> instanceNumberInput;
-	private TextField<String> daysNumberInput;
-	private Form layoutForm;
+//	private AbstractSushiPage abstractSushiPage;
+//	private TextField<String> instanceNumberInput;
+//	private TextField<String> daysNumberInput;
+//	private Form<Void> layoutForm;
 	private BPMNProcessUploadPanel processUploadPanel;
 	private SimulationTreeTableProvider<Object> treeTableProvider;
 	private SushiLabelTreeTable<SimulationTreeTableElement<Object>, String> treeTable;
+	private BPMNSimUnexpectedEventPanel unexpectedEventPanel;
 
 	public BPMNSimulationPanel(String id, final AbstractSushiPage abstractSushiPage) {
-		super(id);
-		
-		this.abstractSushiPage = abstractSushiPage;
+		super(id, abstractSushiPage);
 		
 		layoutForm = new Form("outerLayoutForm");
 		
@@ -64,6 +74,8 @@ public class BPMNSimulationPanel extends Panel {
 		
 		treeTableProvider = new SimulationTreeTableProvider<Object>();
 		createTreeTable(layoutForm);
+		
+		addTabs();
 		
 		instanceNumberInput = new TextField<String>("instanceNumberInput", Model.of(""));
 		layoutForm.add(instanceNumberInput);
@@ -93,12 +105,14 @@ public class BPMNSimulationPanel extends Panel {
 				}
 				else{
 					if(!treeTableProvider.hasEmptyFields()){
-						Map<SushiEventType, Map<SushiAttribute, List<Serializable>>> eventTypeAttributeValues = treeTableProvider.getAttributeValuesFromModel();
+						Map<SushiAttribute, List<Serializable>> attributeValues = treeTableProvider.getAttributeValuesFromModel();
 						Map<AbstractBPMNElement, String> elementDurationStrings = treeTableProvider.getBPMNElementWithDuration();
 						Map<AbstractBPMNElement, DerivationType> elementDerivationTypes = treeTableProvider.getBPMNElementWithDerivationType();
 						Map<AbstractBPMNElement, String> elementDerivations = treeTableProvider.getBPMNElementWithDerivation();
+						Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, String>>> xorSplitsWithSuccessorProbabilityStrings = treeTableProvider.getXorSuccessorsWithProbability();
+						Map<BPMNXORGateway, List<Tuple<AbstractBPMNElement, Integer>>> xorSplitsWithSuccessorProbabilities = SimulationUtils.convertProbabilityStrings(xorSplitsWithSuccessorProbabilityStrings);
 						
-						Simulator simulator = new Simulator(process, model, eventTypeAttributeValues, elementDurationStrings, elementDerivations, elementDerivationTypes);
+						Simulator simulator = new Simulator(process, model, attributeValues, elementDurationStrings, elementDerivations, elementDerivationTypes, xorSplitsWithSuccessorProbabilities);
 						simulator.simulate(numberOfInstances);
 					} else {
 						abstractSushiPage.getFeedbackPanel().error("Please fill all attribute fields.");
@@ -178,15 +192,18 @@ public class BPMNSimulationPanel extends Panel {
     
 		columns.add(new PropertyColumn<SimulationTreeTableElement<Object>, String>(Model.of("ID"), "ID"));
 		columns.add(new TreeColumn<SimulationTreeTableElement<Object>, String>(Model.of("Sequence"), "content"));
-		columns.add(new PropertyColumn<SimulationTreeTableElement<Object>, String>(Model.of("Probability"), "probability"));
 		
-		columns.add(new AbstractColumn(new Model("Select")) {
+		columns.add(new AbstractColumn(new Model("Probability")) {
 			@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				
 				int entryId = ((SimulationTreeTableElement<Object>) rowModel.getObject()).getID();
-				if(((SimulationTreeTableElement<Object>) rowModel.getObject()).canHaveSubElements()){
-					cellItem.add(new SelectEntryPanel(componentId, entryId, treeTableProvider));
+				Object content = ((SimulationTreeTableElement<Object>) rowModel.getObject()).getContent();
+				if(content instanceof AbstractBPMNElement && SetUtil.containsXorSplit(((AbstractBPMNElement) content).getPredecessors())){
+					
+					ProbabilityEntryPanel probabilityEntryPanel = new ProbabilityEntryPanel(componentId, entryId, treeTableProvider);
+					cellItem.add(probabilityEntryPanel);
+					probabilityEntryPanel.setTable(treeTable);
 				}
 				else{
 					cellItem.add(new EmptyPanel(componentId, entryId, treeTableProvider));
@@ -247,5 +264,17 @@ public class BPMNSimulationPanel extends Panel {
 	
 	public Component getMonitoringPointTable() {
 		return treeTable;
+	}
+
+	@Override
+	protected void addUnexpectedEventPanel(List<ITab> tabs) {
+		tabs.add(new AbstractTab(new Model<String>("Unexpected Events (instance-dependent)")) {
+
+			public Panel getPanel(String panelId) {
+				unexpectedEventPanel = new BPMNSimUnexpectedEventPanel(panelId, simulationPanel);
+				return unexpectedEventPanel;
+			}
+		});
+		
 	}
 };

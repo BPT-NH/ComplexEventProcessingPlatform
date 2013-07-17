@@ -9,8 +9,8 @@ import sushi.event.SushiEvent;
 import sushi.event.collection.SushiMapTree;
 
 /**
+ * This class produces events for a preview. The events know their import time and their timestamp, if any.
  * @author micha
- *
  */
 public class SushiImportEvent extends SushiEvent {
 	
@@ -18,16 +18,31 @@ public class SushiImportEvent extends SushiEvent {
 	private Date importTime;
 	private String extractedTimestampName;
 
+	/**
+	 * Constructor to create a new {@link SushiImportEvent}.
+	 * @param extractedTimestamp
+	 * @param values
+	 * @param extractedTimestampName
+	 * @param currentTimestamp
+	 */
 	public SushiImportEvent(Date extractedTimestamp, SushiMapTree<String, Serializable> values, String extractedTimestampName, Date currentTimestamp) {
 		super(extractedTimestamp, values);
 		this.extractedTimestampName = extractedTimestampName;
 		this.importTime = currentTimestamp;
 	}
 
+	/**
+	 * Returns the time of importing this event into the platform.
+	 * @return
+	 */
 	public Date getImportTime() {
 		return importTime;
 	}
 
+	/**
+	 * Returns the time of creation of this event.
+	 * @return
+	 */
 	public String getExtractedTimestampName() {
 		return extractedTimestampName;
 	}

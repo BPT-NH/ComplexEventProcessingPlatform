@@ -16,6 +16,9 @@ import sushi.query.SushiQueryTypeEnum;
 
 import com.espertech.esper.client.EPStatementException;
 
+/**
+ * This page enables the creation and modification of On-Demand @see SushiQuery 
+ */
 public class OnDemandQueryEditor extends QueryEditor {
 
 	private static final long serialVersionUID = 1L;
@@ -29,13 +32,11 @@ public class OnDemandQueryEditor extends QueryEditor {
 			+ "FROM EventTypeWindow"
 			+ lineBreak
 			+ "WHERE ValueName = 'ValueX'";
-	private Button executeQueryButton;
+	private BlockingAjaxButton executeQueryButton;
 	private AjaxButton editQueryButton, deleteQueryButton, saveQueryButton;
 
 	public OnDemandQueryEditor() {
-
 		super();
-
 		helpText = ON_DEMAND_QUERY_HELP_TEXT;
 
 		updateQueryListChoice();
@@ -44,17 +45,16 @@ public class OnDemandQueryEditor extends QueryEditor {
 	}
 
 	private void updateQueryListChoice() {
-		// queryTitles = sushiEsper.getAllOnDemandQueryTitles();
 		queryTitles = SushiQuery.getAllTitlesOfOnDemandQueries();
 		if (!queryTitles.isEmpty()) {
 			selectedQueryTitle = queryTitles.get(0);
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private void buildFinalLayout() {
 
 		saveQueryButton = new AjaxButton("saveQueryButton", layoutForm) {
-
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -63,14 +63,12 @@ public class OnDemandQueryEditor extends QueryEditor {
 				try {
 					String queryTitle = (String) queryNameTextField.getValue();
 					if (queryTitle.isEmpty()) {
-						getFeedbackPanel().error(
-								"Please specify a name for the query!");
+						getFeedbackPanel().error("Please specify a name for the query!");
 						target.add(getFeedbackPanel());
 						return;
 					}
 					
-					SushiQuery newQuery = SushiQuery
-							.findQueryByTitle(queryTitle);
+					SushiQuery newQuery = SushiQuery.findQueryByTitle(queryTitle);
 					if (newQuery == null) {
 						newQuery = new SushiQuery(queryTitle, query,
 								SushiQueryTypeEnum.ONDEMAND);
@@ -78,9 +76,8 @@ public class OnDemandQueryEditor extends QueryEditor {
 					}
 
 					newQuery.setQueryString(query);
-					newQuery.validate(sushiEsper.getEsperRuntime());
+					newQuery.validate();
 					newQuery.save();
-					// queryTitles.add(queryTitle);
 					textFieldDefaultValues.setQueryNameTextField("");
 					query = "";
 					target.add(queryListChoice);
@@ -96,9 +93,6 @@ public class OnDemandQueryEditor extends QueryEditor {
 		layoutForm.add(saveQueryButton);
 
 		editQueryButton = new AjaxButton("editQueryButton", layoutForm) {
-
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				super.onSubmit(target, form);
@@ -106,19 +100,13 @@ public class OnDemandQueryEditor extends QueryEditor {
 				textFieldDefaultValues.setQueryNameTextField(queryTitle);
 				query = SushiQuery.findQueryByTitle(queryTitle)
 						.getQueryString();
-				// SushiQuery.removeQueryWithTitle(queryTitle);
-				// updateQueryListChoice();
 				target.add(queryNameTextField);
 				target.add(queryTextArea);
-				// target.add(queryListChoice);
 			}
 		};
 		layoutForm.add(editQueryButton);
 
 		deleteQueryButton = new AjaxButton("deleteQueryButton", layoutForm) {
-
-			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				super.onSubmit(target, form);
@@ -133,24 +121,28 @@ public class OnDemandQueryEditor extends QueryEditor {
 		};
 		layoutForm.add(deleteQueryButton);
 
+		//executes the on-demand query on the events in the windows
 		executeQueryButton = new BlockingAjaxButton("executeQueryButton",
 				layoutForm) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				super.onSubmit(target, form);
 				System.out.println("Number of Events in Runtime before Query: "
 						+ sushiEsper.getEsperRuntime().getNumEventsEvaluated());
 				String queryTitle = selectedQueryTitle;
 				SushiQuery query = SushiQuery.findQueryByTitle(queryTitle);
-				queryResult = query.execute(sushiEsper);
+				queryResult = query.execute();
 				target.add(queryResultTextArea);
 			}
 		};
 		layoutForm.add(executeQueryButton);
-
 	}
 
+	/**
+	 * generates a preview of windows registered at esper for an easier query creation
+	 */
 	@Override
 	protected ArrayList<SushiAttribute> generateNodesOfEventTypeTree() {
 		ArrayList<SushiAttribute> treeElements = new ArrayList<SushiAttribute>();

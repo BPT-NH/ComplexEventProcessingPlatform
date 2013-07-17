@@ -1,6 +1,6 @@
 package sushi.xml.importer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -18,12 +18,10 @@ import sushi.DateUtils;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.persistence.Persistor;
-import sushi.xml.importer.XMLParser;
-import sushi.xml.importer.XMLParsingException;
 
 /**
+ * This class tests the parsing of events and event types from an XML file.
  * @author micha
- *
  */
 
 public class XMLParserTest {
@@ -75,6 +73,7 @@ public class XMLParserTest {
 		assertTrue("Should be " + cal.getTime() + " but was " + event.getTimestamp(), event.getTimestamp().equals(cal.getTime()));
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testDateParsing() {
 		String timeStampString = "24.12.2013 20:25";

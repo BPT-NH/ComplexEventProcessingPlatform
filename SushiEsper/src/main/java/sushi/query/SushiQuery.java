@@ -21,15 +21,19 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
+import sushi.monitoring.QueryMonitoringPoint;
+import sushi.notification.SushiNotificationRuleForQuery;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 
 import com.espertech.esper.client.EPOnDemandQueryResult;
-import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPStatementSyntaxException;
 import com.espertech.esper.client.EventBean;
 
+/**
+ * encapsulate Queries for saving and logging
+ */
 @Entity
 @Table(name = "SushiQuery")
 public class SushiQuery extends Persistable {
@@ -82,6 +86,8 @@ public class SushiQuery extends Persistable {
 		this.timestamp = timestamp;
 	}
 
+	//Getter and Setter
+	
 	public int getID() {
 		return ID;
 	}
@@ -124,10 +130,21 @@ public class SushiQuery extends Persistable {
 
 	public void addEntryToLog(String logentry){
 		log.add(logentry);
-		this.save();
+		this.merge();
 	}
 
-	public String execute(SushiEsper sushiEsper){
+	public String toString() {
+		return this.title + "(" + this.ID + ")";
+	}
+	
+	/**
+	 * Executes the query and returns the result.
+	 * This only works for on-demand queries.
+	 * Live queries will return null 
+	 * @return
+	 */
+	public String execute(){
+		SushiStreamProcessingAdapter sushiEsper = SushiStreamProcessingAdapter.getInstance();
 		if (isLiveQuery()) return null;
 		EPOnDemandQueryResult result = null;
 		result = sushiEsper.getEsperRuntime().executeQuery(queryString);
@@ -138,21 +155,35 @@ public class SushiQuery extends Persistable {
 		i = result.iterator();
 		while(i.hasNext()){
 			EventBean next = i.next();
-			Object resultObject = next.getUnderlying();
 			buffer.append(next.getUnderlying() + System.getProperty("line.separator"));
 		}
 		buffer.append("Number of events found: " + result.getArray().length);
 		return buffer.toString();
 	}
 
-	public SushiLiveQueryListener addToEsper(SushiEsper sushiEsper){
-		return sushiEsper.addLiveQuery(this);
+	/**
+	 * register query to SushiEsper if the query is a live query
+	 * @return
+	 */
+	public SushiLiveQueryListener addToEsper(){
+		return SushiStreamProcessingAdapter.getInstance().addLiveQuery(this);
 	}
 
-	public void validate(EPRuntime epRuntime) throws EPStatementSyntaxException {
-		epRuntime.prepareQuery(queryString);
+	/**
+	 * checks the syntax of on-demand queries.
+	 * @throws EPStatementSyntaxException
+	 */
+	public void validate() throws EPStatementSyntaxException {
+		SushiStreamProcessingAdapter.getInstance().getEsperRuntime().prepareQuery(queryString);
 	}
 
+	//JPA-Methods
+	
+	/**
+	 * search query with the title in the database and returns it
+	 * @param title
+	 * @return
+	 */
 	public static SushiQuery findQueryByTitle(String title){
 		EntityManager em = Persistor.getEntityManager();
 		Query query = em.createNativeQuery("SELECT * FROM SushiQuery WHERE Title = '" + title + "'", SushiQuery.class);
@@ -163,16 +194,10 @@ public class SushiQuery extends Persistable {
 		}
 	}
 	
-//	public static SushiQuery findLiveQueryByTitle(String title, QueryTypeEnum type){
-//		EntityManager em = Persistor.getEntityManager();
-//		Query query = em.createNativeQuery("SELECT * FROM SushiQuery WHERE Title = '" + title + "' AND TYPE = 'LIVE'", SushiQuery.class);
-//		try {
-//			return (SushiQuery) query.getResultList().get(0);
-//		} catch (Exception e) {
-//			return null;
-//		}
-//	}
-	
+	/**
+	 * returns all livequeries on the database
+	 * @return
+	 */
 	public static List<SushiQuery> getAllLiveQueries(){
 		EntityManager em = Persistor.getEntityManager();
 		Query query = em.createNativeQuery("SELECT * FROM SushiQuery", SushiQuery.class);
@@ -187,10 +212,16 @@ public class SushiQuery extends Persistable {
 		}
 	}
 
+	/**
+	 * delete query which has the title
+	 * @param title
+	 * @return
+	 */
 	public static SushiQuery removeQueryWithTitle(String title){
 		return findQueryByTitle(title).remove();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<String> getAllTitlesOfOnDemandQueries(){
 		EntityManager em = Persistor.getEntityManager();
 		System.out.println("select TITLE from SushiQuery where type = '"+ SushiQueryTypeEnum.ONDEMAND +"'");
@@ -198,21 +229,27 @@ public class SushiQuery extends Persistable {
 		return query.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<String> getAllTitlesOfQueries(){
 		EntityManager em = Persistor.getEntityManager();
 		Query query = em.createNativeQuery("select TITLE from SushiQuery");
 		return query.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<SushiNotificationRuleForQuery> findNotificationForQuery(){
+		EntityManager em = Persistor.getEntityManager();
+		Query query = em.createNativeQuery("select * from SushiNotificationRule WHERE Disc = 'Q' AND QUERY_ID = '" + this.getID() + "'", SushiNotificationRuleForQuery.class);
+		return query.getResultList();
+	}
 	
+	@SuppressWarnings("unchecked")
 	public static List<String> getAllTitlesOfLiveQueries(){
 		EntityManager em = Persistor.getEntityManager();
 		Query query = em.createNativeQuery("select TITLE from SushiQuery where type = 'LIVE'");
 		return query.getResultList();
 	}
 
-	// save
-	
 	@Override
 	public SushiQuery save() {
 		return (SushiQuery) super.save();
@@ -240,10 +277,12 @@ public class SushiQuery extends Persistable {
 		return removed;
 	}
 	
-	// remove
-	
 	@Override
 	public SushiQuery remove() {
+		//remove NotificationRules
+		for (SushiNotificationRuleForQuery notification : this.findNotificationForQuery()) notification.remove();
+		//remove MonitoringPoints
+		for (QueryMonitoringPoint point: QueryMonitoringPoint.findByQuery(this)) point.remove();
 		return (SushiQuery) super.remove();
 	}
 	
@@ -259,5 +298,4 @@ public class SushiQuery extends Persistable {
 			System.out.println(ex.getMessage());
 		}
 	}
-
 }

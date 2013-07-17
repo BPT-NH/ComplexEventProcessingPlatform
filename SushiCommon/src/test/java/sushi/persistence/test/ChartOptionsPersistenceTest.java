@@ -9,12 +9,15 @@ import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.persistence.Persistor;
 import sushi.visualisation.SushiChartTypeEnum;
-import sushi.visualisation.SushiSimpleChartOptions;
+import sushi.visualisation.SushiChartConfiguration;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiChartConfiguration}.
+ */
 public class ChartOptionsPersistenceTest implements PersistenceTest {
 
 	private SushiEventType eventType;
-	private SushiSimpleChartOptions options;
+	private SushiChartConfiguration options;
 
 	@Before
 	public void setup(){
@@ -24,7 +27,7 @@ public class ChartOptionsPersistenceTest implements PersistenceTest {
 	private void storeExampleOptions() {
 		eventType = new SushiEventType("Tsun");
 		eventType.save();
-		options = new SushiSimpleChartOptions(eventType, "attribute", SushiAttributeTypeEnum.STRING, "chartTitle", SushiChartTypeEnum.BAR, 1);
+		options = new SushiChartConfiguration(eventType, "attribute", SushiAttributeTypeEnum.STRING, "chartTitle", SushiChartTypeEnum.COLUMN, 1);
 		options.save();
 	}
 	
@@ -32,16 +35,16 @@ public class ChartOptionsPersistenceTest implements PersistenceTest {
 	@Test
 	public void testStoreAndRetrieve() {
 		storeExampleOptions();
-		assertTrue("Value should be 1, but was " + SushiSimpleChartOptions.findAll().size(),SushiSimpleChartOptions.findAll().size()==1);
-		SushiSimpleChartOptions.removeAll();
-		assertTrue("Value should be 0, but was " + SushiSimpleChartOptions.findAll().size(),SushiSimpleChartOptions.findAll().size()==0);
+		assertTrue("Value should be 1, but was " + SushiChartConfiguration.findAll().size(),SushiChartConfiguration.findAll().size()==1);
+		SushiChartConfiguration.removeAll();
+		assertTrue("Value should be 0, but was " + SushiChartConfiguration.findAll().size(),SushiChartConfiguration.findAll().size()==0);
 	}
 
 	@Override
 	@Test
 	public void testFind() {
 		storeExampleOptions();
-		assertTrue(SushiSimpleChartOptions.findByID(options.getID()) == options);
+		assertTrue(SushiChartConfiguration.findByID(options.getID()) == options);
 		
 	}
 
@@ -50,7 +53,7 @@ public class ChartOptionsPersistenceTest implements PersistenceTest {
 	public void testRemove() {
 		storeExampleOptions();
 		options.remove();
-		assertTrue(SushiSimpleChartOptions.findByID(options.getID()) != options);
+		assertTrue(SushiChartConfiguration.findByID(options.getID()) != options);
 		
 	}
 	

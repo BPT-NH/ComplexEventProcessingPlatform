@@ -19,6 +19,10 @@ import sushi.bpmn.DirectedBPMNEdge;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.event.collection.SushiTree;
 
+/**
+ * This class tests the decomposition of graphs with the RPST implementation and serves as a first example.
+ * @author micha
+ */
 public class RPSTTest extends AbstractDecompositionTest {
 	
 	private MultiDirectedGraph getGraph() {
@@ -61,38 +65,18 @@ public class RPSTTest extends AbstractDecompositionTest {
 		System.out.println("-----------------------------------------------------------------------");
 	}
 	
-	//TODO test failed, micha soll überarbeiten
-//	@Test
-//	public void testSequenceSPQR(){
-//		TCTree<DirectedEdge, Vertex> tcTree = new TCTree<>(getGraph());
-//		
-//		for (TCTreeNode<DirectedEdge, Vertex> node : tcTree.getTCTreeNodes()) {
-//			System.out.print(node.getName() + ": " + node.getType());
-//			System.out.println();
-//		}
-//		
-//		System.out.println("ROOT:" + tcTree.getRoot());
-//		
-//		assertNotNull(tcTree.getRoot());
-//		assertEquals(1,tcTree.getTCTreeNodes(TCType.POLYGON).size());
-//		assertEquals(3,tcTree.getTCTreeNodes(TCType.TRIVIAL).size());
-//		assertEquals(1,tcTree.getTCTreeNodes(TCType.RIGID).size());
-//		assertEquals(0,tcTree.getTCTreeNodes(TCType.BOND).size());
-//		assertEquals(TCType.RIGID, tcTree.getRoot().getType());
-//		
-//		System.out.println("-----------------------------------------------------------------------");
-//	}
-	
 	@Test
 	public void testComplexRPST(){
-		RPST<DirectedBPMNEdge,AbstractBPMNElement> rpst = new RPST<DirectedBPMNEdge,AbstractBPMNElement>(new SushiRPSTTree(process).getGraph());
+		RPST<DirectedBPMNEdge,AbstractBPMNElement> rpst = new RPST<DirectedBPMNEdge,AbstractBPMNElement>(new RPSTBuilder(process).getGraph());
 		
-		//XXX
 		IRPSTNode<DirectedBPMNEdge, AbstractBPMNElement> rootNode = rpst.getRoot();
+		assertNotNull(rootNode);
 		
 		Set<IRPSTNode<DirectedBPMNEdge, AbstractBPMNElement>> rpstNodes = rpst.getRPSTNodes();
+		assertNotNull(rpstNodes);
 		
 		SushiTree<IRPSTNode<DirectedBPMNEdge, AbstractBPMNElement>> rpstNodesTree = new SushiTree<IRPSTNode<DirectedBPMNEdge, AbstractBPMNElement>>();
+		assertNotNull(rpstNodesTree);
 		
 		for (IRPSTNode<DirectedBPMNEdge, AbstractBPMNElement> node : rpst.getRPSTNodes()) {
 			if(node.getType() != TCType.TRIVIAL){
@@ -108,7 +92,7 @@ public class RPSTTest extends AbstractDecompositionTest {
 	
 	@Test
 	public void testComplexSPQR(){
-		TCTree<DirectedBPMNEdge,AbstractBPMNElement> tcTree = new TCTree<DirectedBPMNEdge,AbstractBPMNElement>(new SushiRPSTTree(process).getGraph());
+		TCTree<DirectedBPMNEdge,AbstractBPMNElement> tcTree = new TCTree<DirectedBPMNEdge,AbstractBPMNElement>(new RPSTBuilder(process).getGraph());
 		
 		for (TCTreeNode<DirectedBPMNEdge,AbstractBPMNElement> node : tcTree.getTCTreeNodes()) {
 			if(node.getType() != TCType.TRIVIAL){
@@ -124,8 +108,8 @@ public class RPSTTest extends AbstractDecompositionTest {
 	
 	@Test
 	public void testTreeCreation(){
-		//TODO: Strategy-Pattern für Zerlegung
-		SushiRPSTTree rpst = new SushiRPSTTree(process);
+		RPSTBuilder rpst = new RPSTBuilder(process);
+		assertNotNull(rpst);
 		
 		System.out.println(rpst.getProcessDecompositionTree());
 	}

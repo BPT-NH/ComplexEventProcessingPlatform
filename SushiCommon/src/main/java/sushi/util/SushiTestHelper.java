@@ -13,6 +13,10 @@ import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.event.collection.SushiMapTree;
 import sushi.process.SushiProcess;
 
+/**
+ * This class collects some often used methods for testing purposes.
+ * @author micha
+ */
 public class SushiTestHelper {
 	
 	/**
@@ -61,7 +65,13 @@ public class SushiTestHelper {
 			SushiEvent event = new SushiEvent(eventType, new Date(), mapTree);
 			for (SushiAttribute valueType : eventType.getValueTypes()) {
 				String attributeName = valueType.getAttributeExpression();
-				mapTree.put(attributeName, attributeName + i);
+				if (valueType.getType() == SushiAttributeTypeEnum.STRING) {
+					mapTree.put(attributeName, attributeName + i);
+				} else if (valueType.getType() == SushiAttributeTypeEnum.INTEGER) {
+					mapTree.put(attributeName, valueType.getName().hashCode() + i);
+				} else if (valueType.getType() == SushiAttributeTypeEnum.DATE) {
+					mapTree.put(attributeName, new Date());
+				}
 			}
 			events.add(event);
 		}

@@ -3,6 +3,9 @@ package sushi.application.pages.eventrepository.eventview;
 import sushi.application.components.form.BootstrapModal;
 import sushi.event.SushiEvent;
 
+/**
+ * This modal contains a panel that displays a single event with its attributes.
+ */
 public class EventViewModal extends BootstrapModal {
 
 	private SushiEvent event;
@@ -30,5 +33,4 @@ public class EventViewModal extends BootstrapModal {
 		this.panel = panel;
 	}
 
-    
 }

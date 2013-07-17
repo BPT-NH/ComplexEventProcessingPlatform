@@ -11,8 +11,8 @@ import sushi.persistence.Persistor;
 import sushi.user.SushiUser;
 
 /**
+ * This class tests the saving, finding and removing of {@link SushiUser}.
  * @author micha
- *
  */
 public class UserPersistenceTest implements PersistenceTest {
 

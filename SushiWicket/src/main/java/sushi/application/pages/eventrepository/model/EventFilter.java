@@ -1,68 +1,41 @@
 package sushi.application.pages.eventrepository.model;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
+import sushi.application.pages.eventrepository.EventPanel;
 import sushi.event.SushiEvent;
 import sushi.process.SushiProcessInstance;
 
-public class EventFilter implements Serializable {
+/**
+ * This class filters {@link SushiEvent}s in the {@link EventPanel}.
+ * @author micha
+ */
+public class EventFilter extends AbstractFilter {
 	
 	private static final long serialVersionUID = 1L;
 	
-	String filterValue;
-	String eventFilterCriteria;
-	String eventFilterCondition;
-	
 	public EventFilter(){
-
+		super();
 	}
 	
-	public EventFilter(String eventFilterCriteria, String eventFilterCondition, String filterValue){
-		this.eventFilterCondition = eventFilterCondition;
-		this.eventFilterCriteria = eventFilterCriteria;
-		this.filterValue = filterValue;
-	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getEventFilterCriteria() {
-		return eventFilterCriteria;
-	}
-
-
-	public void setEventFilterCriteria(String eventFilterCriteria) {
-		this.eventFilterCriteria = eventFilterCriteria;
-	}
-
-
-	public String getEventFilterCondition() {
-		return eventFilterCondition;
-	}
-
-
-	public void setEventFilterCondition(String eventFilterCondition) {
-		this.eventFilterCondition = eventFilterCondition;
+	/**
+	 * Constructor for the class, which filters {@link SushiEvent} in the {@link EventPanel}.
+	 * @param filterCriteria
+	 * @param filterCondition
+	 * @param filterValue
+	 */
+	public EventFilter(String filterCriteria, String filterCondition, String filterValue){
+		super(filterCriteria, filterCondition, filterValue);
 	}
 
 
 	public boolean match(SushiEvent event) {
-		if(eventFilterCriteria == null || eventFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(eventFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(eventFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(event.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(eventFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(event.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(event.getID() == Integer.parseInt(filterValue)) return true;
@@ -71,23 +44,22 @@ public class EventFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(eventFilterCriteria.equals("Event Type (ID)")){
-			if(eventFilterCondition.equals("<")){
+		} else if(filterCriteria.equals("Event Type (ID)")){
+			if(filterCondition.equals("<")){
 				if(event.getEventType().getID() < Integer.parseInt(filterValue)) return true;
-			} else if(eventFilterCondition.equals(">")){
+			} else if(filterCondition.equals(">")){
 				if(event.getEventType().getID() > Integer.parseInt(filterValue)) return true;
 			} else {
 				if(event.getEventType().getID() == Integer.parseInt(filterValue)) return true;
 			}
 			return false;
-		} else if(eventFilterCriteria.equals("Process Instance")){
-			List<SushiProcessInstance> processInstances = new ArrayList<SushiProcessInstance>();
-			if(eventFilterCondition.equals("<")){
+		} else if(filterCriteria.equals("Process Instance")){
+			if(filterCondition.equals("<")){
 				for(SushiProcessInstance processInstance : event.getProcessInstances()){
 					if(!(processInstance.getID() < event.getID())) return false;
 				}
 				return true;
-			} else if(eventFilterCondition.equals(">")){
+			} else if(filterCondition.equals(">")){
 				for(SushiProcessInstance processInstance : event.getProcessInstances()){
 					if(!(processInstance.getID() > event.getID())) return false;
 				}
@@ -98,8 +70,8 @@ public class EventFilter implements Serializable {
 				}
 				return true;
 			}
-		} else if(SushiEvent.findAllEventAttributes().contains(eventFilterCriteria)){
-			return SushiEvent.findByValue(eventFilterCriteria, filterValue).contains(event);
+		} else if(SushiEvent.findAllEventAttributes().contains(filterCriteria)){
+			return SushiEvent.findByValue(filterCriteria, filterValue).contains(event);
 		} else {
 			return false;
 		}

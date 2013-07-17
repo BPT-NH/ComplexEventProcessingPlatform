@@ -16,6 +16,10 @@ import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.BPMNProcess;
 
+/**
+ * This class is the provider for {@link BPMNProcess}es.
+ * @author micha
+ */
 public class ProcessModelProvider extends AbstractDataProvider implements IDataProvider<AbstractBPMNElement>, ISortableDataProvider<AbstractBPMNElement, String> {
 	
 	private static final long serialVersionUID = 1L;
@@ -23,6 +27,9 @@ public class ProcessModelProvider extends AbstractDataProvider implements IDataP
 	private List<AbstractBPMNElement> elements;
 	private List<AbstractBPMNElement> selectedElements;
 	
+	/**
+	 * Constructor for providing {@link BPMNProcess}es.
+	 */
 	public ProcessModelProvider() {
 		elements = new ArrayList<AbstractBPMNElement>();
 		selectedElements = new ArrayList<AbstractBPMNElement>();

@@ -51,11 +51,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>de.hpi-web.sushicommon</groupId>
-			<artifactId>SushiCommon</artifactId>
-			<version>SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.milyn</groupId>
 			<artifactId>milyn-smooks-edi</artifactId>
 			<version>1.5.1</version>

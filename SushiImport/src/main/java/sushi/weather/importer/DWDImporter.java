@@ -20,12 +20,15 @@ import sushi.xml.importer.XMLParser;
 import sushi.xml.importer.XMLParsingException;
 import sushi.xml.importer.XSDParser;
 
+/**
+ * Importer for Weather warnings from Deutscher Wetterdienst
+ */
 public class DWDImporter {
 
 	static String server = "ftp-outgoing2.dwd.de";
 	static int port = 21;
-	static String user = "DWD USERNAME";
-	static String pass = "DWD USER PW";
+	static String user = "IMSERT YOUR USERNAME";
+	static String pass = "INSERT YOUR PW";
 	private FTPClient ftpClient;
 	private File downloadFolder;
 	private File[] localFiles;
@@ -46,6 +49,7 @@ public class DWDImporter {
 	/**
 	 * generates events from dwd ftp server
 	 * generate just events for the newest, unseen events 
+	 * downloads just warnings from areas mentioned in syncAllWeatherWarningsExampleUseCase()
 	 */
 	public ArrayList<SushiEvent> getNewWeatherEvents() throws XMLParsingException, IOException{
 		this.init(); //to setup connection and reset lists and stuff
@@ -87,7 +91,12 @@ public class DWDImporter {
 	 * returns the Eventtype generated from the XSD (located in getXSDFilePath()) 
 	 */
 	public SushiEventType getWeatherEventtype() throws XMLParsingException{
-		return XSDParser.generateEventTypeFromXSD(getXSDFilePath(), FileUtils.getFileNameWithoutExtension(getXSDFilePath())); 
+		SushiEventType weatherEventtype = SushiEventType.findBySchemaName("legend_warnings_CAP");
+		if (weatherEventtype != null){
+			return weatherEventtype;
+		} else {
+			return XSDParser.generateEventTypeFromXSD(getXSDFilePath(), FileUtils.getFileNameWithoutExtension(getXSDFilePath()));			
+		}
 	}
 
 	/**
@@ -159,9 +168,7 @@ public class DWDImporter {
 	 * @return XSD File for Validation
 	 */
 	public String getXSDFilePath(){
-		String path = getClass().getResource("").toString();
-		path = path.substring(0, path.indexOf("target")) + "xsd-definitions/legend_warnings_CAP.xsd";
-		return path;
+		return	System.getProperty("user.dir")+"/src/main/resources/legend_warnings_CAP.xsd";
 	}
 
 	/**

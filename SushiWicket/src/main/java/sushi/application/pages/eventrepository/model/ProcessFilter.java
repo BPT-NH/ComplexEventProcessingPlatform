@@ -1,64 +1,43 @@
 package sushi.application.pages.eventrepository.model;
 
-import java.io.Serializable;
-
+import sushi.application.pages.eventrepository.ProcessPanel;
 import sushi.process.SushiProcess;
 import sushi.process.SushiProcessInstance;
 
-public class ProcessFilter implements Serializable {
+/**
+ * This class filters {@link SushiProcess}es in the {@link ProcessPanel}.
+ * @author micha
+ */
+public class ProcessFilter extends AbstractFilter {
 	
-	String filterValue;
-	String processFilterCriteria;
-	String processFilterCondition;
+	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Constructor for the class, which filters {@link SushiProcess}es in the {@link ProcessPanel}.
+	 */
 	public ProcessFilter(){
-
+		super();
 	}
 	
+	/**
+	 * Constructor for the class, which filters {@link SushiProcess}es in the {@link ProcessPanel}.
+	 * @param processFilterCriteria
+	 * @param processFilterCondition
+	 * @param filterValue
+	 */
 	public ProcessFilter(String processFilterCriteria, String processFilterCondition, String filterValue){
-		this.processFilterCondition = processFilterCondition;
-		this.processFilterCriteria = processFilterCriteria;
-		this.filterValue = filterValue;
+		super(processFilterCriteria, processFilterCondition, filterValue);
 	}
-
-	public String getFilterValue() {
-		return filterValue;
-	}
-
-
-	public void setFilterValue(String filterValue) {
-		this.filterValue = filterValue;
-	}
-
-	public String getProcessFilterCriteria() {
-		return processFilterCriteria;
-	}
-
-
-	public void setProcessFilterCriteria(String processFilterCriteria) {
-		this.processFilterCriteria = processFilterCriteria;
-	}
-
-
-	public String getProcessFilterCondition() {
-		return processFilterCondition;
-	}
-
-
-	public void setProcessFilterCondition(String processFilterCondition) {
-		this.processFilterCondition = processFilterCondition;
-	}
-
 
 	public boolean match(SushiProcess process) {
-		if(processFilterCriteria == null || processFilterCondition == null || filterValue == null){
+		if(filterCriteria == null || filterCondition == null || filterValue == null){
 			return true;
 		}
-		if(processFilterCriteria.equals("ID")){
+		if(filterCriteria.equals("ID")){
 			try{
-				if(processFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					if(process.getID() < Integer.parseInt(filterValue)) return true;
-				} else if(processFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					if(process.getID() < Integer.parseInt(filterValue)) return true;
 				} else {
 					if(process.getID() == Integer.parseInt(filterValue)) return true;
@@ -67,18 +46,18 @@ public class ProcessFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(processFilterCriteria.equals("Name")){
+		} else if(filterCriteria.equals("Name")){
 			return (process.getName().equals(filterValue));
-		} else if(processFilterCriteria.equals("Process Instance")){
+		} else if(filterCriteria.equals("Process Instance")){
 			try{
 				int processInstanceID = Integer.parseInt(filterValue);
 				boolean match = true;
-				if(processFilterCondition.equals("<")){
+				if(filterCondition.equals("<")){
 					for(SushiProcessInstance instance : process.getProcessInstances()){
 						match = instance.getID() < processInstanceID ? true : false;
 					}
 					return match;
-				} else if(processFilterCondition.equals(">")){
+				} else if(filterCondition.equals(">")){
 					for(SushiProcessInstance instance : process.getProcessInstances()){
 						match = instance.getID() > processInstanceID ? true : false;
 					}
@@ -93,7 +72,7 @@ public class ProcessFilter implements Serializable {
 			catch(NumberFormatException e){
 				return false;
 			}
-		} else if(processFilterCriteria.equals("Correlation Attribute")){
+		} else if(filterCriteria.equals("Correlation Attribute")){
 //			return SushiProcess.getCorrelationAttributesForProcess(process).contains(filterValue);
 			return process.getCorrelationAttributes().contains(filterValue);
 		}

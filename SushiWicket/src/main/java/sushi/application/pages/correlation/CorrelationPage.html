@@ -8,28 +8,39 @@
 		<wicket:extend>
 			<div wicket:id="warning"></div>
 			<div wicket:id="processEditorModal"></div>
-			<fieldset>	
-				<legend>Correlation</legend>		
-			</fieldset>
+			<div class="well-small">
+				<fieldset>	
+					<legend>Event Correlation</legend>		
+				</fieldset>
+			</div>
+			<form wicket:id="layoutForm">
 				<table style="width:100%">
 					<tr>
-						<td>
-							<form wicket:id="layoutForm">
-								Process selection: <br/>
-								<select wicket:id="processSelect" />
-								<a wicket:id="showProcessEditModal" class="btn btn-primary">Edit process</a> <br/> 
-								Select relevant event types: <br/>
-								<p class="checkbox">
-									<span wicket:id="eventTypesCheckBoxMultipleChoice" />
-								</p>
-								<input wicket:id="applyButton" type="submit" value="Apply" class="btn btn-primary" /> 
-							</form>
+						<td valign="top">
+							<div class="form-inline well-small">
+								Select process: <br/><br/>
+								<select wicket:id="processSelect" /> &nbsp;
+								<a wicket:id="showProcessEditModal" class="btn btn-inverse">Edit process</a>
+							</div>
+							<br/>
+							<div class="form-inline well-small">
+								Select simple correlation type: <br/>
+								<div wicket:id="simpleCorrelationWithRulesRadioChoice" style="float:left; line-height: 0px;" class="form-inline well-small" />
+							</div>
+							<br/>
+							<div class="form-inline well-small" align="right">
+								<input wicket:id="applyButton" type="submit" value="Apply" class="btn btn-primary" /> &nbsp;
+							</div>
 						</td>
-						<td>
-							<div wicket:id="collapsible" style="vertical-align:top;"></div>
+						<td valign="top">
+							<div class="form-inline well-small">
+								Configure correlation: <br/><br/>
+								<div wicket:id="collapsible" style="vertical-align:top;"></div>
+							</div>
 						</td>
 					</tr>
 				</table>
+			</form>
 		</wicket:extend>
 	</body>
 </html>

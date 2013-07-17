@@ -25,9 +25,13 @@ import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTypeEnum;
 import sushi.visualisation.SushiChartTypeEnum;
-import sushi.visualisation.SushiSimpleChartOptions;
+import sushi.visualisation.SushiChartConfiguration;
 import de.agilecoders.wicket.markup.html.bootstrap.common.NotificationPanel;
 
+/**
+ * This panel is used to configure and save a new @see SushiChartConfiguration Object
+ * This will create a new attribute chart.
+ */
 public class ChartConfigurationPanel extends Panel{
 	
 	private static final long serialVersionUID = 1L;
@@ -36,12 +40,12 @@ public class ChartConfigurationPanel extends Panel{
 	private DropDownChoice<SushiAttribute> attributeSelect;
 	private EventTypeNamesProvider eventTypeNameProvider = new EventTypeNamesProvider();
 	List<SushiAttribute> attributes = new ArrayList<SushiAttribute>();
-	private VisualisationPage parentPage;
+	private AttributeChartPage parentPage;
 	private String selectedEventTypeName = "";
 	private SushiAttribute selectedAttribute = null;
 	private String chartTitle = "";
 	private List<SushiChartTypeEnum> chartTypes = Arrays.asList(SushiChartTypeEnum.values());
-	private IModel<SushiChartTypeEnum> chartType = Model.of(SushiChartTypeEnum.BAR);
+	private IModel<SushiChartTypeEnum> chartType = Model.of(SushiChartTypeEnum.COLUMN);
 	private TextField<String> chartTitleInput;
 	private DropDownChoice<SushiChartTypeEnum> chartTypeSelect;
 
@@ -55,7 +59,7 @@ public class ChartConfigurationPanel extends Panel{
 	private Label sliderLabel;
 	private WebMarkupContainer sliderContainer;
 
-	public ChartConfigurationPanel(String id, VisualisationPage visualisationPage){
+	public ChartConfigurationPanel(String id, AttributeChartPage visualisationPage){
 		super(id);
 		this.panel = this;
 		
@@ -77,13 +81,18 @@ public class ChartConfigurationPanel extends Panel{
 			};
 		};
 		sliderContainer.setOutputMarkupPlaceholderTag(true);
-		layoutForm.add(sliderContainer);
 		sliderContainer.add(addSlider());
 		sliderContainer.add(addSliderLabel());
+		layoutForm.add(sliderContainer);
 		
 		addButtonsToForm(layoutForm);
 	}
 	
+	/**
+	 * creates a slider that defines the size of the integer ranges,
+	 * that define the attribute-value ranges for the distribution chart 
+	 * @return slider
+	 */
 	private Component addSlider() {		
 	
 		slider = new AjaxSlider("slider", 1, 100) {
@@ -95,7 +104,7 @@ public class ChartConfigurationPanel extends Panel{
 		slider.setAjaxStopEvent(new AjaxSlider.ISliderAjaxEvent() {
     		
     		private static final long serialVersionUID = 1L;
-
+    		
     		public void onEvent(AjaxRequestTarget target, AjaxSlider slider1, int value, int[] values) {
 				sliderValue = value;
 				sliderLabel.detach();
@@ -106,6 +115,10 @@ public class ChartConfigurationPanel extends Panel{
 		return slider;
 	}
 	
+	/**
+	 * creates the label that displays the value of the slider
+	 * @return slider label
+	 */
 	private Component addSliderLabel() {
 		sliderLabel = new Label("sliderLabel", new PropertyModel<Integer>(this, "sliderValue")) {
 			public boolean isVisible() {
@@ -113,45 +126,44 @@ public class ChartConfigurationPanel extends Panel{
 			}
 		};
 		sliderLabel.setOutputMarkupPlaceholderTag(true);
-//		sliderLabel.add( new AjaxFormComponentUpdatingBehavior( "onchange") {
-//
-//	        @Override
-//	        protected void onUpdate(AjaxRequestTarget target) {
-//				slider.setValue(sliderValue);
-//				slider.detach();
-//				add(slider);
-//				System.out.println(slider.getValue());
-//				//TODO: This does change the value but not the position of the handle and resutls in an error.
-//	        }
-//	    });
 		return sliderLabel;
 	}
 
+	/**
+	 * updates the slider range
+	 * in dependence of the selected attribute and the actual in the database existing values
+	 */
 	public void updateSlider() {
 		if (isSliderInvisible()) {
 			return;
 		}
+		//find smallest ang biggest value from selected attribute
 		long min = SushiEvent.getMinOfAttributeValue(selectedAttribute.getName(), selectedEventType);
 		long max = SushiEvent.getMaxOfAttributeValue(selectedAttribute.getName(), selectedEventType);
+		//the maximum should be the difference from the min-value to the max-value
 		slider.setMax(Math.abs(max) + Math.abs(min));
-		System.out.println("updateTrue: " + sliderContainer.isVisible());
 		sliderContainer.detach();
 	}
 	
 	public boolean isSliderVisible() {
-		return (selectedAttribute != null && chartType != null && selectedAttribute.getType()==SushiAttributeTypeEnum.INTEGER && chartType.getObject() == SushiChartTypeEnum.BAR);
+		return (selectedAttribute != null && chartType != null && selectedAttribute.getType()==SushiAttributeTypeEnum.INTEGER 
+				&& chartType.getObject() == SushiChartTypeEnum.COLUMN);
 	}
 
 	public boolean isSliderInvisible() {
 		return !isSliderVisible();
 	}
 
-	
 	private void addFeedbackPanel(Form<Void> layoutForm) {
 		feedbackPanel = new NotificationPanel("feedback");
 		feedbackPanel.setOutputMarkupId(true);
 		feedbackPanel.setOutputMarkupPlaceholderTag(true);
         layoutForm.add(feedbackPanel);
+	}
+
+	private Component addChartTitleInput() {
+		chartTitleInput = new TextField<String>("chartTitleInput", new PropertyModel<String>(this, "chartTitle"));
+		return chartTitleInput;
 	}
 	
 	private Component addEventTypeSelect() {
@@ -187,7 +199,6 @@ public class ChartConfigurationPanel extends Panel{
 		return chartTypeSelect;
 	}
 
-	
 	private Component addAttributeSelect() {
 		updateAttributes();
 		attributeSelect = new DropDownChoice<SushiAttribute>("attributeSelect", new PropertyModel<SushiAttribute>(this, "selectedAttribute"), attributes);
@@ -203,13 +214,16 @@ public class ChartConfigurationPanel extends Panel{
 		return attributeSelect;
 	}
 	
+	/**
+	 * update attributes in dependence of selected event type
+	 */
 	private void updateAttributes() {
 		attributes.clear();
-		//attribute für eventtyp sammeln
+		//collect attributes of event type
 		if(selectedEventType != null){
 			if (chartType.getObject() == null) {
 				attributes.addAll(selectedEventType.getValueTypes());
-			} else if (chartType.getObject() ==  SushiChartTypeEnum.BAR) {
+			} else if (chartType.getObject() ==  SushiChartTypeEnum.COLUMN) {
 				//BarChart only for string or Integer
 				for (SushiAttribute attribute : selectedEventType.getValueTypes()) {
 					if (attribute.getType() == SushiAttributeTypeEnum.STRING || attribute.getType() == SushiAttributeTypeEnum.INTEGER)
@@ -225,10 +239,6 @@ public class ChartConfigurationPanel extends Panel{
 		}
 	}
 	
-	private Component addChartTitleInput() {
-		chartTitleInput = new TextField<String>("chartTitleInput", new PropertyModel<String>(this, "chartTitle"));
-		return chartTitleInput;
-	}
 	
 	private void addButtonsToForm(Form<Void> layoutForm) {
 		
@@ -266,12 +276,12 @@ public class ChartConfigurationPanel extends Panel{
 				};
 				
 				if (error == false) {
-					//create new Chart configuration
+					//create new ChartConfiguration
 					String attributeName = selectedAttribute.getAttributeExpression();
 					SushiAttributeTypeEnum attributeType = selectedAttribute.getType();
-					SushiSimpleChartOptions newOptions = new SushiSimpleChartOptions(selectedEventType, attributeName, attributeType, chartTitle, chartType.getObject(), sliderValue);
+					SushiChartConfiguration newOptions = new SushiChartConfiguration(selectedEventType, attributeName, attributeType, chartTitle, chartType.getObject(), sliderValue);
 					newOptions.save();
-					VisualisationPage visualisation = parentPage;
+					AttributeChartPage visualisation = parentPage;
 					visualisation.getOptions().detach();
 					target.add(visualisation.listview.getParent());
 					//close this Panel
@@ -283,8 +293,8 @@ public class ChartConfigurationPanel extends Panel{
 			layoutForm.add(createButton);
 	}
 	
-		public NotificationPanel getFeedbackPanel() {
-			return feedbackPanel;
-		} 
+	public NotificationPanel getFeedbackPanel() {
+		return feedbackPanel;
+	} 
 
 }

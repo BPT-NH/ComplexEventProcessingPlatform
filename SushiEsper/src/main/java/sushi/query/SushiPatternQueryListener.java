@@ -10,7 +10,7 @@ import java.util.Set;
 
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.AttachableElement;
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.esper.SushiUtils;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
@@ -35,9 +35,9 @@ public class SushiPatternQueryListener extends SushiLiveQueryListener implements
 	private boolean isLoopQueryListener = false;
 	private List<Integer> alreadyTriggeredProcessInstances = new ArrayList<Integer>();
 	private AbstractBPMNElement catchingElement = null;
-	private AbstractBPMNElement timerElement = null;
+	private String timerTriggerEventTypeName = new String();
 	private float timeDuration = 0;
-	private SushiEventType boundaryTimerEventType;
+	private SushiEventType timerEventType;
 	
 	public SushiPatternQueryListener(SushiQuery patternQuery) {
 		super(patternQuery);
@@ -75,7 +75,7 @@ public class SushiPatternQueryListener extends SushiLiveQueryListener implements
 					event.addProcessInstance(SushiProcessInstance.findByID(processInstanceID));
 				}
 				if(event.getEventType() != null){
-					SushiEsper.getInstance().addEvent(event);			
+					SushiStreamProcessingAdapter.getInstance().addEvent(event);			
 				}
 				//Gefangene Events nochmal abschicken, die in anderer Query wieder gebraucht werden
 				if(!SushiUtils.isIntersectionNotEmpty(alreadyTriggeredProcessInstances, new ArrayList<Integer>(processInstances))){ /*Wurde Event schon zum zweiten Mal abgeschickt? */
@@ -90,8 +90,8 @@ public class SushiPatternQueryListener extends SushiLiveQueryListener implements
 							resendLastEvent(lastEvent);
 						}
 						//Timer-Event wurde getriggert
-						if(timerElement != null && lastEvent.getEventType().getTypeName().equals(timerElement.getName())){
-							TimerListener timerListener = new TimerListener(lastEvent, boundaryTimerEventType, timeDuration);
+						if(!timerTriggerEventTypeName.isEmpty() && lastEvent.getEventType().getTypeName().equals(timerTriggerEventTypeName)){
+							TimerListener timerListener = new TimerListener(lastEvent, timerEventType, timeDuration);
 							timerListener.start();
 						}
 					}
@@ -129,7 +129,7 @@ public class SushiPatternQueryListener extends SushiLiveQueryListener implements
 
 	private void resendLastEvent(SushiEvent event) {
 		//TODO: Nicht speichern, Event nur zu Esper senden
-		SushiEsper.getInstance().addEvent(event);
+		SushiStreamProcessingAdapter.getInstance().addEvent(event);
 	}
 
 	public List<SushiEventType> getLoopBreakEventTypes() {
@@ -157,13 +157,17 @@ public class SushiPatternQueryListener extends SushiLiveQueryListener implements
 		this.catchingElement = catchingElement;
 	}
 	
-	public AbstractBPMNElement getTimerElement() {
-		return timerElement;
-	}
-
-	public void setTimer(AttachableElement attachableElement, SushiEventType boundaryTimerEventType, float timeDuration) {
-		this.timerElement = (AbstractBPMNElement) attachableElement;
-		this.boundaryTimerEventType = boundaryTimerEventType;
+	/**
+	 * Adds a timerTrigger, that should be the name of the eventtype, that triggers the timer, to this query. 
+	 * If the listener gets such a timerTrigger, it starts a timer thread, that fires the timerEventType after 
+	 * the specified timeDuration to Esper.
+	 * @param timerTrigger
+	 * @param timerEventType
+	 * @param timeDuration
+	 */
+	public void setTimer(String timerTriggerEventTypeName, SushiEventType timerEventType, float timeDuration) {
+		this.timerTriggerEventTypeName = timerTriggerEventTypeName;
+		this.timerEventType = timerEventType;
 		this.timeDuration  = timeDuration;
 	}
 

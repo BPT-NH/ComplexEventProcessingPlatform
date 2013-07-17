@@ -9,17 +9,26 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityTransaction;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Query;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import sushi.event.SushiEventType;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
+import sushi.process.SushiProcessInstance;
 
+/**
+ * TreeStructure for Attribut/Datatype pairs of the Eventtyp
+ */
 @Entity
 @Table(name = "SushiAttributeTree")
 public class SushiAttributeTree extends Persistable {
@@ -34,30 +43,21 @@ public class SushiAttributeTree extends Persistable {
 	@Column(name="Auxiliary")
 	private String auxiliary = "Auxiliary";
 	
-//	@OneToMany(cascade = CascadeType.PERSIST)
-//	@JoinTable(name="SushiAttributeTree_SushiAttributes")
-//	private List<SushiAttribute> attributes = new ArrayList<SushiAttribute>();
+	@OneToOne(mappedBy="attributes")
+	private SushiEventType eventType;
 	
-	@OneToMany(cascade = CascadeType.PERSIST)
-	@JoinTable(name="SushiAttributeTree_SushiRootAttributes")
-	private List<SushiAttribute> rootAttributes = new ArrayList<SushiAttribute>();
+	@OneToMany(mappedBy = "attributeTree", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private List<SushiAttribute> rootAttributes;
 	
 	public SushiAttributeTree() {
 		this.ID = 0;
+		this.rootAttributes = new ArrayList<SushiAttribute>(); 
 	}
-	
-//	public SushiAttributeTree(String nameOfRootAttribute) {
-//		assert(!nameOfRootAttribute.isEmpty());
-//		SushiAttribute root = new SushiAttribute(nameOfRootAttribute);
-//		rootAttributes.add(root);
-//		// attributes.add(root);
-//	}
 	
 	public SushiAttributeTree(SushiAttribute rootAttribute) {
 		this();
 		assert(rootAttribute != null);
 		this.rootAttributes.add(rootAttribute);
-//		attributes.add(root);
 	}
 	
 	public SushiAttributeTree(List<SushiAttribute> rootAttributes) {
@@ -65,16 +65,24 @@ public class SushiAttributeTree extends Persistable {
 		assert(rootAttributes != null);
 		assert(!rootAttributes.isEmpty());
 		this.rootAttributes.addAll(rootAttributes);
-//		attributes.add(root);
 	}
 	
-//	public SushiAttributeTree(String nameOfRootAttribute, SushiAttributeTypeEnum typeOfRootAttribute) {
-//		assert(!nameOfRootAttribute.isEmpty());
-//		SushiAttribute root = new SushiAttribute(nameOfRootAttribute, typeOfRootAttribute);
-//		rootAttributes.add(root);
-//		// attributes.add(root);
-//	}
-	
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int iD) {
+		ID = iD;
+	}
+
+	public SushiEventType getEventType() {
+		return eventType;
+	}
+
+	public void setEventType(SushiEventType eventType) {
+		this.eventType = eventType;
+	}
+
 	public boolean isHierarchical() {
 		for (SushiAttribute root : rootAttributes) {
 			if (root.hasChildren()) {
@@ -90,15 +98,14 @@ public class SushiAttributeTree extends Persistable {
 	}
 
 	public boolean addRoot(SushiAttribute rootAttribute) {
-//		attributes.add(root);
 		return rootAttributes.add(rootAttribute);
 	}
 	
 	public boolean addRoots(List<SushiAttribute> rootAttributes) {
-//		attributes.add(root);
 		return rootAttributes.addAll(rootAttributes);
 	}
 
+	@JsonIgnore
 	public ArrayList<SushiAttribute> getRoots() {
 		return new ArrayList<SushiAttribute>(rootAttributes);
 	}
@@ -112,7 +119,6 @@ public class SushiAttributeTree extends Persistable {
 	}
 	
 	public boolean removeRoot(SushiAttribute rootAttribute) {
-//		attributes.add(root);
 		return rootAttributes.remove(rootAttribute);
 	}
 	
@@ -142,6 +148,9 @@ public class SushiAttributeTree extends Persistable {
 		return attributes;
 	}
 	
+	/**
+	 * returns attributes elements which have the given name 
+	 */
 	public List<SushiAttribute> getAttributesByName(String attributeName) {
 		List<SushiAttribute> attributes = new ArrayList<SushiAttribute>();
 		for (SushiAttribute root : rootAttributes) {
@@ -229,18 +238,6 @@ public class SushiAttributeTree extends Persistable {
 		retainAllAttributes(new HashSet<SushiAttribute>(attributes));
 	}
 	
-//	public boolean add(SushiAttribute root) {
-//		return attributes.add(root);
-//	}
-//
-//	public List<SushiAttribute> getAll() {
-//		return attributes;
-//	}
-//	
-//	public boolean remove(SushiAttribute root) {
-//		return attributes.remove(root);
-//	}
-
 	public List<SushiAttribute> getLeafAttributes() {
 		List<SushiAttribute> leafs = new ArrayList<SushiAttribute>();
 		for (SushiAttribute root : rootAttributes) {
@@ -268,7 +265,42 @@ public class SushiAttributeTree extends Persistable {
 		return q.getResultList();
 	}
 	
+	@Override
+	public SushiAttributeTree save() {
+		for (SushiAttribute attribute : rootAttributes) {
+			attribute.setAttributeTree(this);
+		}
+		return (SushiAttributeTree) super.save();
+	}
+	
+	@Override
+	public SushiAttributeTree remove() {
+		for (SushiAttribute attribute : rootAttributes) {
+			attribute.setAttributeTree(null);
+			attribute.remove();
+		}
+		return (SushiAttributeTree) super.remove();
+	}
+	
+	/**
+	*  the choochoo train comes and run over all SushiAttributTrees and kills them
+	* _________ 
+	*    |  _    |      __
+	*    | |  |  |____\/_
+	*    | |_|  |            \_
+	*  	 |  _   |    _    _    |
+	*	 |/  \_|_/  \ /  \ /
+	*    \_ /    \_/ \_ /
+	 */
 	public static void removeAll() {
+		List<SushiAttributeTree> attributeTrees = SushiAttributeTree.findAll();
+		for (SushiAttributeTree attributeTree : attributeTrees) {
+			List<SushiAttribute> rootAttributes = attributeTree.getRoots();
+			for (SushiAttribute attribute : rootAttributes) {
+				attribute.setAttributeTree(null);
+				attribute.remove();
+			}
+		}
 		try {
 			EntityTransaction entr = Persistor.getEntityManager().getTransaction();
 			entr.begin();
@@ -299,5 +331,4 @@ public class SushiAttributeTree extends Persistable {
 		}
 		return tree;
 	}
-	
 }

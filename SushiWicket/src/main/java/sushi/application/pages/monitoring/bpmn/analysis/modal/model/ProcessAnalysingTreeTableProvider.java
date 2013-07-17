@@ -12,7 +12,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SingleSortState;
 
 import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.bpmn.element.AbstractBPMNElement;
-import sushi.bpmn.element.BPMNProcess;
 import sushi.event.collection.SushiTree;
 import sushi.monitoring.bpmn.ProcessMonitor;
 import sushi.query.SushiPatternQuery;

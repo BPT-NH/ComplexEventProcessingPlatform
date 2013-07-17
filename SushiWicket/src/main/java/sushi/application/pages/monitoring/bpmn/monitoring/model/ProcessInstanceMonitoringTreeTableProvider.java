@@ -11,9 +11,7 @@ import org.apache.wicket.extensions.markup.html.repeater.tree.ISortableTreeProvi
 import org.apache.wicket.extensions.markup.html.repeater.util.SingleSortState;
 
 import sushi.application.components.table.model.AbstractDataProvider;
-import sushi.bpmn.decomposition.SushiRPSTTree;
 import sushi.bpmn.element.AbstractBPMNElement;
-import sushi.bpmn.element.BPMNProcess;
 import sushi.event.collection.SushiTree;
 import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 import sushi.query.SushiPatternQuery;
@@ -47,9 +45,7 @@ public class ProcessInstanceMonitoringTreeTableProvider extends AbstractDataProv
 	}
 
 	private void createQueryTree() {
-		BPMNProcess BPMNProcess = processInstanceMonitor.getProcessInstance().getProcess().getBpmnProcess();
-		SushiRPSTTree rpst = new SushiRPSTTree(BPMNProcess);
-		bpmnProcessDecompositionTree = rpst.getProcessDecompositionTree();
+		bpmnProcessDecompositionTree = processInstanceMonitor.getProcessInstance().getProcess().getProcessDecompositionTree();
 		queryTree = new SushiTree<SushiPatternQuery>();
 		//Query enthält ihre BPMN-Elemente --> And-Component, enthält Childs
 		for(AbstractBPMNElement rootElement : bpmnProcessDecompositionTree.getRootElements()){

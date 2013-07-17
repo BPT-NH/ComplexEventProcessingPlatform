@@ -14,8 +14,6 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,15 +25,19 @@ import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.eclipse.persistence.annotations.Index;
 
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.collection.SushiMapTree;
-import sushi.notification.SushiNotification;
+import sushi.notification.SushiNotificationForEvent;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
-import sushi.process.SushiProcess;
 import sushi.process.SushiProcessInstance;
+import sushi.visualisation.SushiTimePeriodEnum;
 
+/**
+ * Representation of an event 
+ */
 @Entity
 @Table(name = "Event")
 public class SushiEvent extends Persistable {
@@ -49,14 +51,15 @@ public class SushiEvent extends Persistable {
 	@Temporal(TemporalType.TIMESTAMP)
 	protected Date timestamp = null;
 	
+	// holds attributes and values in a tree structure
 	@OneToOne(cascade={CascadeType.PERSIST, CascadeType.REMOVE})
 	@JoinColumn(name="MapTreeID")
 	protected SushiMapTree<String, Serializable> values;
 	
-	@ManyToMany(fetch=FetchType.EAGER)
+	@ManyToMany(mappedBy="events")
 	List<SushiProcessInstance> processInstances;
 	
-	@ManyToOne
+	@Index @ManyToOne
 	private SushiEventType eventType;
 	
 	/**
@@ -70,64 +73,44 @@ public class SushiEvent extends Persistable {
 		this.processInstances = new ArrayList<SushiProcessInstance>();
 	}
 	
+	/**
+	 * Creates an event with a timestamp
+	 * @param timestamp
+	 */
 	private SushiEvent(Date timestamp) {
 		this();
 		this.timestamp = timestamp;
 	}
 
+	/**
+	 * Creates an event with event type and timestamp.
+	 * @param eventType
+	 * @param timestamp
+	 */
 	public SushiEvent(SushiEventType eventType, Date timestamp) {
 		this(timestamp);
 		this.eventType = eventType;
 	}
 	
+	/**
+	 * Creates an event with timestamp and attributes.
+	 * @param timestamp
+	 * @param values
+	 */
 	public SushiEvent(Date timestamp, SushiMapTree<String, Serializable> values) {
 		this(timestamp);
 		this.values = values;
 	}
 	
+	/**
+	 * Creates an event with event type, timestamp and attributes.
+	 * @param eventType
+	 * @param timestamp
+	 * @param values
+	 */
 	public SushiEvent(SushiEventType eventType, Date timestamp, SushiMapTree<String, Serializable> values) {
 		this(eventType, timestamp);
 		this.values = values;
-	}
-	
-	public SushiMapTree<String, Serializable> getValues() {
-		return values;
-	}
-
-	public void setValues(SushiMapTree<String, Serializable> values) {
-		this.values = values;
-	}
-
-	public Date getTimestamp() {
-		return timestamp;
-	}
-	
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public int getID() {
-		return ID;
-	}
-	
-	public void setID(int iD) {
-		ID = iD;
-	}
-	
-	public SushiEventType getEventType() {
-		return eventType;
-	}
-	
-	public void setEventType(SushiEventType eventType) {
-		this.eventType = eventType;
-	}
-	
-	public List<SushiProcessInstance> getProcessInstances() {
-		return processInstances;
-	}
-
-	public void setProcessInstances(List<SushiProcessInstance> processInstance) {
-		this.processInstances = processInstance;
 	}
 	
 	public boolean addProcessInstance(SushiProcessInstance processInstance) {
@@ -196,6 +179,64 @@ public class SushiEvent extends Persistable {
 	}
 	
 	/**
+	 * set the Eventtyp of all given Events to the specified Eventtyp
+	 * @param events
+	 * @param eventType
+	 * @return
+	 */
+	public static List<SushiEvent> setEventType(List<SushiEvent> events, SushiEventType eventType) {
+		for (SushiEvent event: events) {
+			event.setEventType(eventType);
+		}
+		return events;
+	}
+	
+	//Getter and Setter
+	
+	public SushiMapTree<String, Serializable> getValues() {
+		return values;
+	}
+
+	public void setValues(SushiMapTree<String, Serializable> values) {
+		this.values = values;
+	}
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+	
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+	
+	public int getID() {
+		return ID;
+	}
+	
+	public void setID(int iD) {
+		ID = iD;
+	}
+	
+	public SushiEventType getEventType() {
+		return eventType;
+	}
+	
+	public void setEventType(SushiEventType eventType) {
+		this.eventType = eventType;
+	}
+	
+	public List<SushiProcessInstance> getProcessInstances() {
+		// because processInstances is of type IndirectList (JPA)
+		return new ArrayList<SushiProcessInstance>(processInstances);
+	}
+
+	public void setProcessInstances(List<SushiProcessInstance> processInstance) {
+		this.processInstances = processInstance;
+	}
+	
+	//JPA-Methods
+	
+	/**
 	 * Method returns events, where the specified column name has the specified value.
 	 */
 	private static List<SushiEvent> findByAttribute(String columnName, Object value){
@@ -223,9 +264,9 @@ public class SushiEvent extends Persistable {
 			String attributeExpression = iterator.next();
 			Serializable value = attributeExpressionsAndValues.get(attributeExpression);
 			if (value instanceof Date) {
-				sb.append("(me.MapKey = " + attributeExpression + " AND me.MapValue = {ts '"  + (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")).format((Date) value) + "'})");
+				sb.append("(me.MapKey = '" + attributeExpression + "' AND me.MapValue = {ts '"  + (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")).format((Date) value) + "'})");
 			} else {
-				sb.append("(me.MapKey = " + attributeExpression + " AND me.MapValue = '" + value + "')");
+				sb.append("(me.MapKey = '" + attributeExpression + "' AND me.MapValue = '" + value + "')");
 			}
 			if (iterator.hasNext()) {
 				sb.append(" OR ");
@@ -300,14 +341,24 @@ public class SushiEvent extends Persistable {
 		return query.getResultList();
 	}
 	
+	/**
+	 * returns SushiEvents which have the specified attribut/value pair
+	 * @param key
+	 * @param value
+	 * @return
+	 */
 	public static List<SushiEvent> findByValue(String key, Serializable value){
 		HashMap<String, Serializable> attributes = new HashMap<String, Serializable>();
 		attributes.put(key, value);
 		return findByValues(attributes);
 	}
 	
+	/**
+	 * returns SushiEvents which have all spezified attribute/value pairs 
+	 * @param eventAttributes
+	 * @return
+	 */
 	public static List<SushiEvent> findByValues(Map<String, Serializable> eventAttributes){
-		//TODO ineffizient!
 		List<SushiEvent> allEvents = SushiEvent.findAll();
 		List<SushiEvent> matchingEvents = new ArrayList<SushiEvent>();
 		for(SushiEvent event : allEvents){
@@ -316,32 +367,13 @@ public class SushiEvent extends Persistable {
 			}
 		}
 		return matchingEvents;
-//		int entryCount = 1;
-//		String subFromClause = "";
-//		String subWhereClause = "";
-//		for(Entry<String, String> attributesEntry : attributes.entrySet()){
-//			if(entryCount != attributes.entrySet().size()){
-//				subFromClause += "Eventvalues AS EV" + entryCount + ", ";
-//				subWhereClause += "EV" + entryCount + ".EVENTATTRIBUTES = '" + attributesEntry.getKey() + "' AND EV" + entryCount + ".EVENTVALUES = '" + attributesEntry.getValue() + "' AND ";
-//			}
-//			else{
-//				subFromClause += "Eventvalues AS EV" + entryCount + " ";
-//				subWhereClause += "EV" + entryCount + ".EVENTATTRIBUTES = '" + attributesEntry.getKey() + "' AND EV" + entryCount + ".EVENTVALUES = '" + attributesEntry.getValue() + "'";
-//			}
-//			entryCount++;
-//		}
-//		String queryString = 
-//				"SELECT * " +
-//				"FROM Event As E " +
-//				"WHERE E.ID IN ( " +
-//					"SELECT EV1.Id " +
-//					"FROM " + subFromClause +
-//					"WHERE " + subWhereClause + ")";
-//		System.err.println(queryString);
-//		Query query = Persistor.getEntityManager().createNativeQuery(queryString, SushiEvent.class);
-//		return query.getResultList();
 	}
 	
+	/**
+	 * checks if the Event have the given attributes/values
+	 * @param eventAttributes
+	 * @return
+	 */
 	private boolean containsAllValues(Map<String, Serializable> eventAttributes) {
 		for(Entry<String, Serializable> comparedValue : eventAttributes.entrySet()){
 			Object value = values.get(comparedValue.getKey());
@@ -352,11 +384,35 @@ public class SushiEvent extends Persistable {
 		return true;
 	}
 
+	/**
+	 * returns SushiEvents from the given SushiEventtyp
+	 * @param eventType
+	 * @return
+	 */
 	public static List<SushiEvent> findByEventType(SushiEventType eventType){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM Event WHERE EVENTTYPE_ID = '" + eventType.getID() + "'", SushiEvent.class);
 		return query.getResultList();
 	}
+	
+	/**
+	 * returns SushiEvents from the given SushiEventtyp and have a timestamp which lies maximal "period" in the past
+	 * @param eventType
+	 * @param period 
+	 * @return
+	 */
+	public static List<SushiEvent> findByEventTypeAndTime(SushiEventType eventType, SushiTimePeriodEnum period){
+		if (period == SushiTimePeriodEnum.INF) {
+			return findByEventType(eventType);
+		}
+		Date start = period.getStartTime();
+		return findBetween(start, new Date(), eventType);
+	}
 
+	/**
+	 * returns number SushiEvents from the given Eventtyp
+	 * @param eventType
+	 * @return
+	 */
 	public static long getNumberOfEventsByEventType(SushiEventType eventType){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT count(*) FROM Event WHERE EVENTTYPE_ID = '" + eventType.getID() + "'");
 	    long value = (Long) query.getSingleResult();
@@ -364,6 +420,10 @@ public class SushiEvent extends Persistable {
 		return value;
 	}
 
+	/**
+	 * Returns the number of events in the database.
+	 * @return overall number of SushiEvents
+	 */
 	public static long getNumberOfEvents(){
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT count(*) FROM Event");
 	    long value = (Long) query.getSingleResult();
@@ -371,18 +431,27 @@ public class SushiEvent extends Persistable {
 		return value;
 	}
 
-	
+	/**
+	 * returns SushiEvents which belongs to the specified processInstance
+	 * @param processInstance
+	 * @return
+	 */
 	public static List<SushiEvent> findByProcessInstance (SushiProcessInstance processInstance){
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"Select * " +
 				"FROM Event " +
 				"WHERE ID IN (" +
-					"Select SushiEvent_ID " +
-					"FROM Event_ProcessInstance " +
+					"Select events_ID " +
+					"FROM ProcessInstance_Event " +
 					"WHERE processInstances_ID = '" + processInstance.getID()+ "')", SushiEvent.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * returns SushiEvent with the specified ID
+	 * @param ID
+	 * @return
+	 */
 	public static SushiEvent findByID(int ID){
 		List<SushiEvent> events = findByAttribute("ID", Integer.toString(ID));
 		if(!events.isEmpty()) {
@@ -391,26 +460,41 @@ public class SushiEvent extends Persistable {
 			return null;
 		}
 	}
-	
-	public static List<SushiEvent> setEventType(List<SushiEvent> events, SushiEventType eventType) {
-		for (SushiEvent event: events) {
-			event.setEventType(eventType);
-		}
-		return events;
-	}
-	
+		
+	/**
+	 * returns Events which have an ID greater than the given ID
+	 * @param ID
+	 * @return
+	 */
 	public static List<SushiEvent> findByIDGreaterThan(int ID){
 		return findByAttributeGreaterThan("ID", Integer.toString(ID));
 	}
 	
+	/**
+	 * returns Events which have an ID less than the given ID
+	 * @param ID
+	 * @return
+	 */
 	public static List<SushiEvent> findByIDLessThan(int ID){
 		return findByAttributeLessThan("ID", Integer.toString(ID));
 	}
 	
+	/**
+	 * returns Events which have a timestamp between the given Dates
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
 	public static List<SushiEvent>  findBetween(Date startDate, Date endDate){
 		return findBetween(startDate, endDate, null);
 	}
 	
+	/**
+	 * returns Events from the given Eventty and having a timestamp between the given Dates
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static List<SushiEvent> findBetween(Date startDate, Date endDate, SushiEventType eventType){
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
@@ -424,6 +508,9 @@ public class SushiEvent extends Persistable {
 		return query.getResultList();
 	}
 	
+	/**
+	 * @return all SushiEvents
+	 */
 	public static List<SushiEvent> findAll() {
 		Query q = Persistor.getEntityManager().createQuery("select t from SushiEvent t");
 		return q.getResultList();
@@ -439,13 +526,12 @@ public class SushiEvent extends Persistable {
 		return (SushiEvent) super.merge();
 	}
 	
+	/**
+	 * saves the given SushiEvents
+	 * @param events
+	 * @return
+	 */
 	public static List<SushiEvent> save(List<SushiEvent> events) {
-		//TODO: what happens if eventType for event that shall be saved is unknown to database?
-		//catch error and register eventType?
-		//check each eventtype beforehand
-//		if (SushiEventType.findByID(events.get(0).eventType.getID()) == null){
-//			events.get(0).eventType.save();
-//		}
 		try {
 			Persistor.getEntityManager().getTransaction().begin();
 			for (SushiEvent event : events) {
@@ -461,7 +547,6 @@ public class SushiEvent extends Persistable {
 
 	@Override
 	public SushiEvent remove() {
-		//TODO: von Hand loeschen Mist
 		//dieses Event aus Prozessinstanzen loeschen
 		for(SushiProcessInstance processInstance : this.getProcessInstances()){
 			processInstance.removeEvent(this);
@@ -475,7 +560,7 @@ public class SushiEvent extends Persistable {
 			processInstance.merge();
 		}
 		//Notifications fuer dieses Event loeschen
-		for (SushiNotification notification : SushiNotification.findForEvent(this)) {
+		for (SushiNotificationForEvent notification : SushiNotificationForEvent.findForEvent(this)) {
 			notification.remove();
 		}
 		
@@ -494,21 +579,13 @@ public class SushiEvent extends Persistable {
 		return removed;
 	}
 	
+	/**
+	 * deletes all SushiEvents
+	 */
 	public static void removeAll() {
-		//TODO: Das per Hand zu löschen, ist irgendwie Mist
 		for(SushiEvent actualEvent : SushiEvent.findAll()){
 			actualEvent.remove();
 		}
-//		try {
-//			EntityTransaction entr = Persistor.getEntityManager().getTransaction();
-//			entr.begin();
-//			Query query = Persistor.getEntityManager().createQuery("DELETE FROM SushiEvent");
-//			int deleteRecords = query.executeUpdate();
-//			entr.commit();
-//			System.out.println(deleteRecords + " records are deleted.");
-//		} catch (Exception ex) {
-//			System.out.println(ex.getMessage());
-//		}
 	}
 	
 	public static ArrayList<String> findAllEventAttributes() {
@@ -522,6 +599,9 @@ public class SushiEvent extends Persistable {
 		return new ArrayList<String>(attributeSet);
 	}
 
+	/**
+	 * returns distinct values of the given attribute of the given eventtyp
+	 */
 	public static List<String> findDistinctValuesOfAttributeOfType(String attributeName, SushiEventType type) {
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT DISTINCT me.MapValue " +
 				"FROM Event JOIN SushiMapTree_SushiMapTreeElements mte " +
@@ -533,9 +613,11 @@ public class SushiEvent extends Persistable {
 				"WHERE EVENTTYPE_ID = '" + type.getID() + "' " +
 						"AND me.MapKey = '" + attributeName + "'");
 		return query.getResultList();
-		
 	}
 
+	/**
+	 * return the number of the repetition of the value in the specified eventtyp and attribute 
+	 */
 	public static long findNumberOfAppearancesByAttributeValue(String attributeName, String value, SushiEventType type) {
 		Query query = Persistor.getEntityManager().createNativeQuery("SELECT count(DISTINCT Event.ID) " +
 				"FROM Event JOIN SushiMapTree_SushiMapTreeElements mte " +
@@ -550,6 +632,9 @@ public class SushiEvent extends Persistable {
 		return (long) query.getSingleResult();
 	}
 	
+	/**
+	 * returns minimal value of the given attribute in the specified eventtyp 
+	 */
 	public static long getMinOfAttributeValue(String attribute, SushiEventType eventType) {
 		List<String> values = SushiEvent.findDistinctValuesOfAttributeOfType(attribute, eventType);
 		if (values.size() > 0) {
@@ -563,6 +648,9 @@ public class SushiEvent extends Persistable {
 		return (Long) null;
 	}
 
+	/**
+	 * returns maximal value of the given attribute in the specified eventtyp 
+	 */
 	public static long getMaxOfAttributeValue(String attribute, SushiEventType eventType) {
 		List<String> values = SushiEvent.findDistinctValuesOfAttributeOfType(attribute, eventType);
 		if (values.size() > 0) {
@@ -574,7 +662,5 @@ public class SushiEvent extends Persistable {
 			return max;
 		}
 		return (Long) null;
-	}
-
-	
+	}	
 }

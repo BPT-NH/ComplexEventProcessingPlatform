@@ -10,8 +10,8 @@ import javax.persistence.Table;
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
 
 /**
+ * This class represents the sequence flows in a BPMN process between BPMN elements.
  * @author micha
- *
  */
 @Entity
 @Table(name="BPMNSequenceFlow")

@@ -2,7 +2,7 @@ package sushi.event;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,21 +13,26 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Query;
 import javax.persistence.Table;
 
-import sushi.aggregation.SushiAggregationRule;
-import sushi.aggregation.element.externalknowledge.ExternalKnowledgeExpression;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import sushi.bpmn.monitoringpoint.MonitoringPoint;
+import sushi.correlation.CorrelationRule;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTree;
 import sushi.persistence.Persistable;
 import sushi.persistence.Persistor;
 import sushi.process.SushiProcess;
-import sushi.visualisation.SushiSimpleChartOptions;
+import sushi.transformation.TransformationRule;
+import sushi.visualisation.SushiEventView;
+import sushi.visualisation.SushiChartConfiguration;
 
+/**
+ * Representation of an event type 
+ */
 @Entity
 @Table(name = "EventType")
 public class SushiEventType extends Persistable {
@@ -42,13 +47,12 @@ public class SushiEventType extends Persistable {
 	@Column(name = "TypeName", unique = true)
 	private String typeName;
 	
+	// hold the structure definition of the attributes + types in a tree
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="Attributes")
 	private SushiAttributeTree attributes;
 	
-	/**
-	 * must be an attribute expression
-	 */
+	 //must be an attribute expression
 	@Column(name = "TimestampName")
 	private String timestampName;
 	
@@ -177,23 +181,35 @@ public class SushiEventType extends Persistable {
 		}
 	}
 	
+	/**
+	 * add attribute/type pair to the root attributes
+	 */
 	public void addValueType(SushiAttribute attribute) {
 		attributes.addRoot(attribute);
 	}
 	
+	/**
+	 * add attribute/type pairs to the root attributes
+	 */
 	public void addValueTypes(List<SushiAttribute> rootAttributes) {
 		for (SushiAttribute root: rootAttributes) {
 			attributes.addRoot(root);
 		}
 	}
 		
+	/**
+	 * checks if SushiEventtyp contains all given attribute names
+	 */
 	public boolean containsValues(List<String> attributeNames) {
 		for (String name: attributeNames) {
 			if (!containsValue(name)) return false;
 		}
 		return true;
 	}
-	
+
+	/**
+	 *  checks if SushiEventtyp contains the given attribute name
+	 */
 	public boolean containsValue(String attributeName) {
 		return attributes.contains(attributeName);
 	}
@@ -206,6 +222,9 @@ public class SushiEventType extends Persistable {
 		return attributes.hasChildren(attributeExpression);
 	}
 	
+	/**
+	 * checks if the Eventtyp is hierarchical 
+	 */
 	public boolean isHierarchical(){
 		return attributes.isHierarchical();
 	}
@@ -213,10 +232,6 @@ public class SushiEventType extends Persistable {
 	public boolean isValidName(String string) {
 		return string != null && string.matches("^[-a-zA-Z0-9._]+"); // a-z A-Z 0-9 _ - sind erlaubt
 	}
-	
-	/*
-	 * getters / setters
-	 */
 	
 	/**
 	 * @return list of root attribute names from the value type tree plus the timestamp name
@@ -297,14 +312,17 @@ public class SushiEventType extends Persistable {
 		}
 	}
 	
+	@JsonIgnore
 	public List<SushiAttribute> getRootLevelValueTypes() {
 		return attributes.getRoots();
 	}
 	
+	@JsonIgnore
 	public List<SushiAttribute> getValueTypes() {
 		return attributes.getAttributes();
 	}
 	
+	@JsonIgnore
 	public SushiAttributeTree getValueTypeTree() {
 		return attributes;
 	}
@@ -344,6 +362,9 @@ public class SushiEventType extends Persistable {
 		 }
 	}
 	
+	/**
+	 * return Eventtype which has the given structuredefinition 
+	 */
 	public static SushiEventType findBySchemaName(String schemaName){
 		 List<SushiEventType> eventTypes = findByAttribute("SchemaName", schemaName);
 		 if(!eventTypes.isEmpty()){
@@ -361,26 +382,30 @@ public class SushiEventType extends Persistable {
 		return findByAttributeLessThan("ID", Integer.toString(ID));
 	}
 	
-	// TODO: Queries anpassen, da typisierte Attribute unterstützt werden
-	public static List<SushiEventType> findByAttribute(String columnName, String value) {
-		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM EventType WHERE " + columnName + " = '" + value + "'", SushiEventType.class);
+	public static List<SushiEventType> findByAttribute(String attributeName, String value) {
+		Query query = Persistor.getEntityManager().createNativeQuery("SELECT * FROM EventType WHERE " + attributeName + " = '" + value + "'", SushiEventType.class);
 		return query.getResultList();
 	}
 	
-	private static List<SushiEventType> findByAttributeGreaterThan(String columnName, String value) {
+	private static List<SushiEventType> findByAttributeGreaterThan(String attributeName, String value) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"SELECT * FROM EventType " +
-				"WHERE " + columnName + " > '" + value + "'", SushiEventType.class);
+				"WHERE " + attributeName + " > '" + value + "'", SushiEventType.class);
 		return query.getResultList();
 	}
 	
-	private static List<SushiEventType> findByAttributeLessThan(String columnName, String value) {
+	private static List<SushiEventType> findByAttributeLessThan(String attributeName, String value) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" +
 				"SELECT * FROM EventType " +
-				"WHERE " + columnName + " < '" + value + "'", SushiEventType.class);
+				"WHERE " + attributeName + " < '" + value + "'", SushiEventType.class);
 		return query.getResultList();
 	}
 	
+	/**
+	 * 
+	 * @param typeName name of the EventType
+	 * @return
+	 */
 	public static SushiEventType findByTypeName(String typeName) {
 		Query query = Persistor.getEntityManager().createNativeQuery("" + 
 				"SELECT * FROM EventType " + 
@@ -405,7 +430,6 @@ public class SushiEventType extends Persistable {
 				"WHERE ID IN (SELECT treeRootElements_ID FROM SushiMapTree_SushiMapTreeRootElements " + // hier nur auf flachen Events
 						"WHERE SushiMapTree_SushiMapID IN (SELECT MapTreeID FROM Event " +
 							"WHERE EVENTTYPE_ID = '" + ID + "'))";
-//		System.out.println(queryString);
 		Query query = Persistor.getEntityManager().createNativeQuery(queryString);
 		if (query.getResultList() == null) return new ArrayList<String>();
 		return query.getResultList();
@@ -427,7 +451,9 @@ public class SushiEventType extends Persistable {
 		return query.getResultList();
 	}
 	
-	
+	/**
+	 *  returns Eventtypes which have a subset of the given attributes
+	 */
 	public static List<SushiEventType> findMatchingEventTypes(List<String> stringValues, String importTimeName) {
 		List<SushiEventType> selectedEventTypes = new ArrayList<SushiEventType>();
 		for (SushiEventType eventType: SushiEventType.findAll()) {
@@ -440,10 +466,10 @@ public class SushiEventType extends Persistable {
 		}
 		return selectedEventTypes;
 	}
-	
 
 	@Override
 	public SushiEventType save() {
+		attributes.save();
 		return (SushiEventType) super.save();
 	}
 	
@@ -467,16 +493,31 @@ public class SushiEventType extends Persistable {
 	 */
 	@Override
 	public SushiEventType remove() {
-		try {
+		try {	
 			// remove eventtype from process
+			// delete correlation rule if correlation rule contains attribute of this event type
+			Set<CorrelationRule> correlationRulesToBeRemoved = new HashSet<CorrelationRule>();
 			for (SushiProcess process : SushiProcess.findByEventType(this)) {
 				process.removeEventType(this);
 				if(process.getTimeCondition() != null && process.getTimeCondition().getSelectedEventType().equals(this)){
 					process.getTimeCondition().remove();
 				}
+				for (SushiAttribute attribute : getValueTypes()) {
+					process.removeCorrelationAttribute(attribute);
+				}
+				Set<CorrelationRule> correlationRulesOfProcess = new HashSet<CorrelationRule>(process.getCorrelationRules());
+				for (CorrelationRule correlationRule : correlationRulesOfProcess) {
+					if (correlationRule.getFirstAttribute().getEventType().equals(this) || correlationRule.getSecondAttribute().getEventType().equals(this)) {
+						process.getCorrelationRules().remove(correlationRule);
+						correlationRulesToBeRemoved.add(correlationRule);
+					}
+				}
 				process.save();
 			}
 			
+			for (CorrelationRule ruleToBeRemoved : correlationRulesToBeRemoved) {
+				ruleToBeRemoved.remove();
+			}
 			//delete events of eventType
 			for (SushiEvent event : SushiEvent.findByEventType(this)) {
 				event.remove();
@@ -490,13 +531,22 @@ public class SushiEventType extends Persistable {
 			List<EventTypeRule> containingRules = EventTypeRule.findEventTypeRuleForContainedEventType(this);
 			for(EventTypeRule containingRule : containingRules){
 				containingRule.getUsedEventTypes().remove(this);
+				containingRule.merge();
 				if (containingRule.getUsedEventTypes().isEmpty()) {
 					containingRule.remove();
 				}
 			}
+			//update eventView, remove if no usedType remains
+			List<SushiEventView> eventViews = SushiEventView.findByEventType(this);
+			for(SushiEventView eventView : eventViews){
+				eventView.getEventTypes().remove(this);
+				if (eventView.getEventTypes().isEmpty()) {
+					eventView.remove();
+				}
+			}
 			//remove ChartOptions
-			List<SushiSimpleChartOptions> charts = SushiSimpleChartOptions.findByEventType(this);
-			for(SushiSimpleChartOptions chart : charts){
+			List<SushiChartConfiguration> charts = SushiChartConfiguration.findByEventType(this);
+			for(SushiChartConfiguration chart : charts){
 				chart.remove();
 			}
 			//remove event types from monitoring points
@@ -505,21 +555,18 @@ public class SushiEventType extends Persistable {
 				monitoringPoint.setEventType(null);
 				monitoringPoint.merge();
 			}
-			
-			//remove aggregation rules referencing this event type
-			List<SushiAggregationRule> aggregationRules = SushiAggregationRule.findByEventType(this);
-			for (SushiAggregationRule aggregationRule : aggregationRules) {
-				aggregationRule.remove();
+			//remove transformation rules referencing this event type
+			List<TransformationRule> transformationRules = TransformationRule.findByEventType(this);
+			for (TransformationRule transformationRule : transformationRules) {
+				transformationRule.remove();
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return (SushiEventType) super.remove();
-}
+	}
 
-/**
+	/**
 	 * Deletes the specified eventtypes from the database.
 	 * @return 
 	 */
@@ -543,7 +590,4 @@ public class SushiEventType extends Persistable {
 		}
 		return eventTypeNames;
 	}
-
 }
-
-

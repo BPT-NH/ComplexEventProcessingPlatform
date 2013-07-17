@@ -16,13 +16,22 @@ import org.apache.wicket.model.Model;
 import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.process.SushiProcessInstance;
 
+/**
+ * This class is the provider for {@link SushiProcessInstance}s.
+ * A filter can be specified to return only some process instances.
+ * @author micha
+ */
 public class ProcessInstanceProvider extends AbstractDataProvider implements ISortableDataProvider<SushiProcessInstance, String>, IFilterStateLocator {
 	
+	private static final long serialVersionUID = 1L;
 	private static List<SushiProcessInstance> processInstances;
 	private ISortState sortState = new SingleSortState();
 	private ProcessInstanceFilter processInstanceFilter = new ProcessInstanceFilter();
 	private List<SushiProcessInstance> selectedProcessInstances;
 	
+	/**
+	 * Constructor for providing {@link SushiProcessInstance}s.
+	 */
 	public ProcessInstanceProvider(){
 		processInstances = filterProcessInstances(SushiProcessInstance.findAll(), processInstanceFilter);
 		selectedProcessInstances = new ArrayList<SushiProcessInstance>();

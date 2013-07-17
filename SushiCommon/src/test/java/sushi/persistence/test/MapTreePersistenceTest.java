@@ -13,6 +13,9 @@ import sushi.event.collection.SushiMapElement;
 import sushi.event.collection.SushiMapTree;
 import sushi.persistence.Persistor;
 
+/**
+ * This class tests the saving, finding and removing of {@link SushiMapTree}.
+ */
 public class MapTreePersistenceTest implements PersistenceTest {
 	
 	private SushiMapTree<String, String> testMapTree;

@@ -8,12 +8,18 @@ import sushi.application.components.table.model.AbstractDataProvider;
 import sushi.monitoring.bpmn.ProcessInstanceMonitor;
 
 /**
- * This panel has a label for displaying text.
+ * This panel contains a label for displaying the status of a {@link ProcessInstanceMonitor}.
  */
 public class ProcessInstanceMonitoringStatusPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructor for a panel, which contains a label for displaying the status of a {@link ProcessInstanceMonitor}.
+	 * @param id
+	 * @param entryId
+	 * @param dataprovider
+	 */
 	public ProcessInstanceMonitoringStatusPanel(String id, final int entryId, final AbstractDataProvider dataprovider) {
 		super(id);
 		ProcessInstanceMonitor processInstanceMonitor = (ProcessInstanceMonitor) dataprovider.getEntry(entryId);

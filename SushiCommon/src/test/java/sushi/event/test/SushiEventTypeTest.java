@@ -1,6 +1,6 @@
 package sushi.event.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -8,8 +8,10 @@ import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
 import sushi.event.attribute.SushiAttributeTree;
 import sushi.event.attribute.SushiAttributeTypeEnum;
-import sushi.event.collection.SushiTree;
 
+/**
+ * This class tests the throwing of exception for forbidden names for the {@link SushiEventType}. 
+ */
 public class SushiEventTypeTest {
 
 
@@ -78,6 +80,7 @@ public class SushiEventTypeTest {
 		new SushiEventType("");
 	}
 	
+	@SuppressWarnings("unused")
 	@Test
 	public void testAllowedCharacterInNameThrowNoException(){
 		String[] names = {"ab c", "abc", "abc0", "abc_", "abc_s", "abc01_2", "abc-d", "abc-0-1", "___"};

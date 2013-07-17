@@ -20,14 +20,17 @@ import sushi.application.components.tree.SushiAttributeTreeExpansionModel;
 import sushi.application.components.tree.SushiAttributeTreeProvider;
 import sushi.application.components.tree.SushiLabelTree;
 import sushi.application.pages.AbstractSushiPage;
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.event.attribute.SushiAttribute;
 
+/**
+ * This class is a super class for the creation and modification of Live and On-Demand @see SushiQuery
+ */
 public abstract class QueryEditor extends AbstractSushiPage {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected SushiEsper sushiEsper = ((SushiApplication) getApplication()).getSushiEsper();
+	protected SushiStreamProcessingAdapter sushiEsper = ((SushiApplication) getApplication()).getSushiEsper();
 	protected List<String> queryTitles;
 	protected Form<Void> layoutForm;
 	protected TextFieldDefaultValues textFieldDefaultValues;
@@ -72,7 +75,6 @@ public abstract class QueryEditor extends AbstractSushiPage {
 	        }
 			
 		};
-//		helpButton.setIcon(new ThemeResource("../sushitheme/icons/help.gif"));
 		layoutForm.add(helpButton);
 		
 		queryListChoice = new ListChoice<String>("queryListChoice", new PropertyModel<String>(this, "selectedQueryTitle"), queryTitles){
@@ -89,9 +91,7 @@ public abstract class QueryEditor extends AbstractSushiPage {
 		queryTextArea = new TextArea<String>("queryTextArea", new PropertyModel<String>(this, "query"));
 		queryTextArea.setOutputMarkupId(true);
 		layoutForm.add(queryTextArea);
-		
-//		buildQueryCreatorTabs(layoutForm, rootNodeOfEventTypeTree);
-		
+				
 		buildEventTypeTree();
 		buildQueryResultTextArea();
 	}
@@ -105,18 +105,13 @@ public abstract class QueryEditor extends AbstractSushiPage {
 	protected abstract ArrayList<SushiAttribute> generateNodesOfEventTypeTree();
 
 	private void buildQueryResultTextArea() {
-		
 		queryResultTextArea = new TextArea<String>("queryResultTextArea", new PropertyModel<String>(this, "queryResult"));
 		queryResultTextArea.setOutputMarkupId(true);
-		// readonly: <textarea readonly="readonly" ...>
-		layoutForm.add(queryResultTextArea);
-		
+		layoutForm.add(queryResultTextArea);		
 	}
 
-	class TextFieldDefaultValues implements IClusterable {
-		
-		private static final long serialVersionUID = 1L;
-		
+	@SuppressWarnings("serial")
+	class TextFieldDefaultValues implements IClusterable {		
         public String queryNameTextField;
         
         public String getQueryNameTextField() {

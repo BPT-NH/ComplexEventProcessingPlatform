@@ -1,9 +1,15 @@
 package sushi.application.pages.monitoring.visualisation;
 
+/**
+ * This class is a helper to create a @see SushiColumnChartOptions object.
+ * It represents one value for a column chart of an integer attribute.
+ * This object counts the number of appearances of integer values in a certain range.
+ */
 public class IntegerBarChartValue {
 
 	private int startPeriod;
 	private int endPeriod;
+	//contains the number of events with attribut values in the defined range
 	private int frequency = 0;
 	
 	public IntegerBarChartValue(int start, int end) {

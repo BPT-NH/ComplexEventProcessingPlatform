@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import sushi.bpmn.decomposition.Component;
-import sushi.bpmn.decomposition.SushiRPSTTree;
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.event.SushiEventType;
 import sushi.query.PatternQueryType;
@@ -16,12 +15,17 @@ import sushi.query.SushiQueryTypeEnum;
 
 
 /**
+ * This factory generates queries for loop components. <br>
  * @author micha
  */
 public class LoopQueryFactory extends AbstractPatternQueryFactory {
 
-	public LoopQueryFactory(SushiRPSTTree sushiRPSTTree) {
-		super(sushiRPSTTree);
+	/**
+	 * Constructor to create loop queries with a query factory.
+	 * @param patternQueryGenerator
+	 */
+	public LoopQueryFactory(PatternQueryGenerator patternQueryGenerator) {
+		super(patternQueryGenerator);
 	}
 	
 	@Override
@@ -72,7 +76,7 @@ public class LoopQueryFactory extends AbstractPatternQueryFactory {
 			//Falls Element Component rekursiv tiefer aufrufen
 			StringBuilder queryPart = new StringBuilder();
 			if(element instanceof Component){
-				SushiPatternQuery subQuery = new PatternQueryFactory(sushiRPSTTree).generateQuery(element, catchingMonitorableElement, parentQuery);
+				SushiPatternQuery subQuery = new PatternQueryFactory(patternQueryGenerator).generateQuery(element, catchingMonitorableElement, parentQuery);
 				queryPart.append("[1] S" + elementsWithMonitoringPoints + "=");
 				queryPart.append(subQuery.getTitle());
 			} else {

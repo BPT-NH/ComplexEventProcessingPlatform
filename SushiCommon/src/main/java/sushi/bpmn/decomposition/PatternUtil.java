@@ -6,7 +6,8 @@ import java.util.Set;
 
 import sushi.bpmn.element.AbstractBPMNElement;
 import sushi.bpmn.element.BPMNAndGateway;
-import sushi.bpmn.element.BPMNSubProcess;
+import sushi.bpmn.element.BPMNEventBasedGateway;
+import sushi.bpmn.element.BPMNEventBasedGatewayType;
 import sushi.bpmn.element.BPMNXORGateway;
 import sushi.event.collection.SushiTree;
 
@@ -40,9 +41,15 @@ public class PatternUtil {
 		AbstractBPMNElement sinkElement = bond.getSinkElement();
 		
 		//Detection of different patterns
-		if(sourceElement instanceof BPMNAndGateway && sourceElement.getPredecessors().size() == 1){
+		if(
+				(sourceElement instanceof BPMNAndGateway || (sourceElement instanceof BPMNEventBasedGateway && ((BPMNEventBasedGateway)sourceElement).getType().equals(BPMNEventBasedGatewayType.Parallel))) && 
+				sourceElement.getPredecessors().size() == 1){
 			bond.setType(IPattern.AND);
-		} else if(sourceElement instanceof BPMNXORGateway && sourceElement.getPredecessors().size() == 1 || sinkElement instanceof BPMNXORGateway && sinkElement.getSuccessors().size() == 1){
+		} else if(
+				(sourceElement instanceof BPMNXORGateway || (sourceElement instanceof BPMNEventBasedGateway && ((BPMNEventBasedGateway)sourceElement).getType().equals(BPMNEventBasedGatewayType.Exclusive))) && 
+				sourceElement.getPredecessors().size() == 1 || 
+				sinkElement instanceof BPMNXORGateway && 
+				sinkElement.getSuccessors().size() == 1){
 			bond.setType(IPattern.XOR);
 		} else if(sourceElement instanceof BPMNXORGateway && isCyclic(bond, processDecompositionTree)){
 			bond.setType(IPattern.LOOP);

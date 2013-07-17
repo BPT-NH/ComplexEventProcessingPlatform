@@ -54,7 +54,7 @@ public class DurationEntryPanel extends Panel {
 			}
 		});
 		DerivationType derivationType = simulationTreeTableProvider.getDerivationTypeForEntry(entryId);
-		if(!(DerivationType.NORMAL.equals(derivationType) || DerivationType.UNIFORM.equals(derivationType))){
+		if(!(DerivationType.NORMAL.equals(derivationType))){
 			derivationTextField.setVisible(false);
 		}
 		form.add(derivationTextField);
@@ -76,7 +76,7 @@ public class DurationEntryPanel extends Panel {
 	}
 
 	public void setDerivationType(DerivationType derivationType) {
-		if(derivationType.equals(DerivationType.NORMAL) || derivationType.equals(DerivationType.UNIFORM)){
+		if(derivationType.equals(DerivationType.NORMAL)){
 			derivationTextField.setVisible(true);
 		}
 		else{

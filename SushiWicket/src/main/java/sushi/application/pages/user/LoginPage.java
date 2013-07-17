@@ -15,6 +15,10 @@ import sushi.application.components.form.WarnOnExitForm;
 import sushi.application.pages.AbstractSushiPage;
 import sushi.application.pages.main.MainPage;
 
+/**
+ * A page to render a login form for authenticate users.
+ * @author micha
+ */
 public class LoginPage extends AbstractSushiPage {
 
 	private static final long serialVersionUID = -7896431319431474548L;
@@ -23,6 +27,9 @@ public class LoginPage extends AbstractSushiPage {
 	private PasswordTextField passwordInput;
 	private Form<?> logoutForm;
 
+	/**
+	 * Constructor for a page to render a login form for authenticate users.
+	 */
 	public LoginPage() {
 		super();
 		buildMainLayout();

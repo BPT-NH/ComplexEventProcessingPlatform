@@ -8,7 +8,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 
 
 /**
- * model that wraps the expansion state handler of a tree component
+ * Model that wraps the expansion state handler of a tree.
  */
 public class ProcessAnalysingTreeTableExpansionModel extends AbstractReadOnlyModel<Set<ProcessAnalysingTreeTableElement>> {
 

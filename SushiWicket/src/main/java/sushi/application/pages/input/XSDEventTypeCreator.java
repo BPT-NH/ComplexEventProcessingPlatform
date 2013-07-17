@@ -67,6 +67,8 @@ public class XSDEventTypeCreator extends AbstractSushiPage{
 			importedEventType = XSDParser.generateEventTypeFromXSD(filePath, schemaName);
 		} catch (XMLParsingException e1) {
 			getFeedbackPanel().error(e1.getMessage());
+		} catch (RuntimeException e2) {
+			getFeedbackPanel().error(e2.getMessage());
 		}
 		eventTypeAttributesTree = importedEventType.getValueTypeTree();
 		

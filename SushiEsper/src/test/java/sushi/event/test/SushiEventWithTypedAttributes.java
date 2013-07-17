@@ -11,7 +11,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
-import sushi.esper.SushiEsper;
+import sushi.esper.SushiStreamProcessingAdapter;
 import sushi.event.SushiEvent;
 import sushi.event.SushiEventType;
 import sushi.event.attribute.SushiAttribute;
@@ -68,21 +68,21 @@ public class SushiEventWithTypedAttributes {
 		Broker.send(type);
 		
 		SushiQuery liveTyped = new SushiQuery("testTypes", "SELECT * FROM testEventTypeTyped ", SushiQueryTypeEnum.LIVE);
-		liveTyped.addToEsper(SushiEsper.getInstance());
+		liveTyped.addToEsper();
 		
 		event = new SushiEvent(type, new Date(), createTreeMap());
 		Broker.send(event);
 
-		System.out.println(Arrays.asList((SushiEsper.getInstance().getAttributesOfEventType(type))));
-		assertTrue(Arrays.asList(SushiEsper.getInstance().getAttributesOfEventType(type)).contains(rootElement1Key + "." + rootElement1Child2Key));
+		System.out.println(Arrays.asList((SushiStreamProcessingAdapter.getInstance().getAttributesOfEventType(type))));
+		assertTrue(Arrays.asList(SushiStreamProcessingAdapter.getInstance().getAttributesOfEventType(type)).contains(rootElement1Key + "." + rootElement1Child2Key));
 		
-		assertTrue(SushiEsper.getInstance().eventTypeHasAttribute(type, rootElement1Key + "." + rootElement1Child2Key));
+		assertTrue(SushiStreamProcessingAdapter.getInstance().eventTypeHasAttribute(type, rootElement1Key + "." + rootElement1Child2Key));
 		
-		assertTrue("type of eventtype " + rootElement2Key + " was " + SushiEsper.getInstance().getEventTypeInfo(type, rootElement2Key),
-				SushiEsper.getInstance().getEventTypeInfo(type, rootElement2Key) == Date.class);
-		assertTrue(SushiEsper.getInstance().getEventTypeInfo(type, "Timestamp") == Date.class);
-		assertTrue("type of eventtype " + rootElement1Key + "." + rootElement1Child2Key + " was " + SushiEsper.getInstance().getEventTypeInfo(type, rootElement1Key + "." + rootElement1Child2Key),
-				SushiEsper.getInstance().getEventTypeInfo(type, rootElement1Key + "." + rootElement1Child2Key) == Integer.class);
+		assertTrue("type of eventtype " + rootElement2Key + " was " + SushiStreamProcessingAdapter.getInstance().getEventTypeInfo(type, rootElement2Key),
+				SushiStreamProcessingAdapter.getInstance().getEventTypeInfo(type, rootElement2Key) == Date.class);
+		assertTrue(SushiStreamProcessingAdapter.getInstance().getEventTypeInfo(type, "Timestamp") == Date.class);
+		assertTrue("type of eventtype " + rootElement1Key + "." + rootElement1Child2Key + " was " + SushiStreamProcessingAdapter.getInstance().getEventTypeInfo(type, rootElement1Key + "." + rootElement1Child2Key),
+				SushiStreamProcessingAdapter.getInstance().getEventTypeInfo(type, rootElement1Key + "." + rootElement1Child2Key) == Integer.class);
 		
 		SushiQuery testTyped = new SushiQuery("testTypes", "SELECT RootDateElement.getTime(), " 
 		+ rootElement1Key + "." + rootElement1Child1Key + " , " + rootElement1Key + "." + rootElement1Child2Key
@@ -90,7 +90,7 @@ public class SushiEventWithTypedAttributes {
 				+ "WHERE "+ rootElement1Key + "." + rootElement1Child1Key +" = '"+ rootElement1Child1Value + "' " 
 				+ " AND " + rootElement1Key + "." + rootElement1Child2Key + " > 0"
 				, SushiQueryTypeEnum.ONDEMAND);
-		String result = testTyped.execute(SushiEsper.getInstance());
+		String result = testTyped.execute();
 		System.out.println(result);
 		assertTrue(result.contains("Number of events found: 1"));
 		

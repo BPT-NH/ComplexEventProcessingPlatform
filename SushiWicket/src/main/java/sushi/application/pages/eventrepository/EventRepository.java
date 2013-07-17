@@ -12,12 +12,20 @@ import sushi.application.pages.AbstractSushiPage;
 import sushi.application.pages.eventrepository.eventview.EventViewModal;
 import de.agilecoders.wicket.markup.html.bootstrap.tabs.BootstrapTabbedPanel;
 
+/**
+ * The event repository gives information about events, event types, processes and process instances, stored in the application.
+ * @author micha
+ */
 @SuppressWarnings("serial")
 public class EventRepository extends AbstractSushiPage {
 
 	private EventRepository eventRepository;
 	private EventViewModal eventViewModal;
 
+	/**
+	 * Constructor for the {@link EventRepository}.
+	 * Initializes and adds the {@link EventPanel}, {@link EventTypePanel}, {@link ProcessPanel}, {@link ProcessInstancePanel} and {@link BPMNProcessPanel}}.
+	 */
 	public EventRepository() {
 		super();
 		this.eventRepository = this;
