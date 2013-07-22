@@ -7,7 +7,9 @@ This platform enables you to process complex events on the fly with the integrat
 ### Requirements
 You should have installed Maven 3.0.3 or newer, Java 1.7, MySQL server version 14 or newer and a Tomcat server 7. Other setups had not be tested but may work. The project works for Windows 7, Debian and MacOSX 10.8. To run the platform website you need the free port 8081 or you could change it in the source code.
 
-To run the project, you also need a modificated Version of Esper (http://esper.codehaus.org/) found [here](https://github.com/ThommyH/EventProcessingPlatformEsper).
+To run the project, you also need a modificated Version of Esper (http://esper.codehaus.org/) found [here](https://github.com/BPT-NH/EventProcessingPlatformEsper) and
+jpbt found [here](https://github.com/BPT-NH/jpbt).
+
 
 ### Setup
 * install signavio core components as described [here](https://code.google.com/p/signavio-core-components/)
