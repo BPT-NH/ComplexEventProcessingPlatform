@@ -51,6 +51,9 @@ You can upload on the WebUI different kinds of data. The platform supports XLS, 
 For XLS and CSV you can do this on the fly after uploading a XLS oder CSV or beforehand in the event repository tab. XML files need an Eventtype described by an XSD file. The XML Events have to refer to this XSD file in the header _xsi:noNamespaceSchemaLocation="URI_TO_XSD.xsd"_.
 For further explanation feel free do read the user manual.
 
+### Examples
+In the Examples folder you can find the demo files from our screen cast which you can find [here](http://www.youtube.com/watch?v=doAFKwIEp6w).
+
 ### Extras
 If you are interested in Weather or Traffic Events in Germany, you can signup for the [TomTom API](http://developer.tomtom.com/) or [Deutscher Wetterdienst FTP](http://www.dwd.de/bvbw/appmanager/bvbw/dwdwwwDesktop?_nfpb=true&_pageLabel=dwdwww_spezielle_nutzer&_state=maximized&_windowLabel=T174800248261285831499722&T174800248261285831499722gsbDocumentPath=Navigation%252FOeffentlichkeit%252FHomepage%252FWetter__Ihre__Website%252Fftp-Zugriff__node.html%253F__nnn%253Dtrue) server.
 Then your can insert your credentials in the code (DWDImporter.java and TomTomTrafficImporter.java). For the moment both are coded to use the same areas for their queries. The SushiTrafficAdaper (user of TomTomAdapter) and SushiWeatherAdapter (user of DWDImporter) import trafficevents from the areas in Coordinates_DWD_Regions.xml. Edit this file and DWDImporter.java if you need other regions.
